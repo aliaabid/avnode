@@ -766,8 +766,12 @@ footer {
           <span class="pm-val">47 min</span>
         </div>
         <div class="problem-math-row">
-          <span class="pm-label">Annual drag · 500-vehicle fleet</span>
-          <span class="pm-val red">$15.3M</span>
+          <span class="pm-label">Charging staff at central depot</span>
+          <span class="pm-val">3–4 FTEs</span>
+        </div>
+        <div class="problem-math-row">
+          <span class="pm-label">Total annual drag · 500-vehicle fleet</span>
+          <span class="pm-val red">$16.1M</span>
         </div>
       </div>
     </div>
@@ -809,7 +813,11 @@ footer {
         <div class="op-metric-l">service time recovered · per vehicle · daily</div>
       </div>
       <div class="op-metric">
-        <div class="op-metric-n" id="counterCost">$0<span class="op-unit">K</span></div>
+        <div class="op-metric-n" style="color:#34D399;">$0</div>
+        <div class="op-metric-l">charging staff cost — property owners handle plug-in</div>
+      </div>
+      <div class="op-metric">
+        <div class="op-metric-n" id="counterCost">$0<span class="op-unit">M</span></div>
         <div class="op-metric-l">annual savings · 100-vehicle fleet</div>
       </div>
     </div>
@@ -869,15 +877,17 @@ footer {
       <div class="owner-benefit reveal reveal-delay-3">
         <span class="benefit-num">04</span>
         <div class="benefit-text">
-          <h4>No build required</h4>
-          <p>Most sites begin as staging and parking only. Upgrades happen as demand validates the location.</p>
+          <h4>No charging hardware required to start</h4>
+          <p>Sites begin with staging and parking. Your staff plugs vehicles into existing 120V/240V outlets. Purpose-built charging comes later as usage validates the location.</p>
         </div>
       </div>
       <div class="owner-benefit reveal">
         <span class="benefit-num">05</span>
         <div class="benefit-text">
-          <h4>Minimum 5 spaces + on-site staff</h4>
-          <p>Power availability, camera coverage, and staff who can plug in vehicles during fleet hours are the primary qualifiers. Properties with existing personnel — hotels, garages, offices — are a natural fit.</p>
+          <h4>Three stages of growth</h4>
+          <p><strong style="color:var(--text);">Stage 1 —</strong> Staging &amp; parking, standard outlets.<br>
+          <strong style="color:var(--text);">Stage 2 —</strong> DC fast charging installed, staff-managed plug-in.<br>
+          <strong style="color:var(--text);">Stage 3 —</strong> Full fleet node: charging, software, operations.</p>
         </div>
       </div>
     </div>
@@ -983,8 +993,8 @@ footer {
         <div class="criteria-item">
           <span class="criteria-tag">Power</span>
           <div>
-            <h4>Electrical capacity or upgrade path</h4>
-            <p>Existing 208V/240V service or a clear utility upgrade pathway. DC fast charging capability is ideal but not required at entry.</p>
+            <h4>Standard outlets or upgrade path</h4>
+            <p>Existing 120V/240V outlets are enough to start — staff plug vehicles in manually. DC fast charging can be added later once the site is active and performing.</p>
           </div>
         </div>
         <div class="criteria-item">
@@ -1851,7 +1861,19 @@ function animateCounter(el, target, prefix='', suffix='', duration=1400) {
       done = true;
       setTimeout(() => animateCounter(document.getElementById('counterMiles'), 14, '', ' mi'), 200);
       setTimeout(() => animateCounter(document.getElementById('counterUptime'), 47, '', ' min'), 400);
-      setTimeout(() => animateCounter(document.getElementById('counterCost'), 420, '$', 'K'), 600);
+      setTimeout(() => {
+        // Animate to 1.2 — show one decimal place
+        let start = null;
+        const el = document.getElementById('counterCost');
+        const step = ts => {
+          if (!start) start = ts;
+          const p = Math.min((ts - start) / 1400, 1);
+          const ease = 1 - Math.pow(1 - p, 3);
+          el.innerHTML = '$' + (1.2 * ease).toFixed(1) + '<span class="op-unit">M</span>';
+          if (p < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      }, 600);
     }
   }, { threshold: 0.3 });
   const el = document.getElementById('operators');
