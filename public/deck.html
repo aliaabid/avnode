@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AVNode × Live Moove — Fleet Infrastructure Partnership</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #09090C;
+  --surface: #101013;
+  --border: #1A1A22;
+  --text: #EEEEF2;
+  --muted: #6A6A7E;
+  --dim: #32323F;
+  --blue: #2F6BF5;
+  --blue-bright: #5585FF;
+  --blue-faint: rgba(47,107,245,0.1);
+  --green: #34D399;
+  --amber: #F59E0B;
+}
+html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); }
+body { font-family: 'Inter', sans-serif; color: var(--text); cursor: none; }
+
+/* CURSOR */
+#cur { width: 5px; height: 5px; background: #fff; border-radius: 50%;
+  position: fixed; pointer-events: none; z-index: 9999;
+  transform: translate(-50%,-50%); mix-blend-mode: difference; transition: width .15s, height .15s; }
+#cur.h { width: 28px; height: 28px; background: rgba(255,255,255,.1); }
+@media (pointer: coarse) { #cur { display: none; } body { cursor: auto; } }
+
+/* DECK SHELL */
+.deck { width: 100vw; height: 100vh; position: relative; overflow: hidden; }
+
+/* SLIDES */
+.slides { display: flex; width: 100%; height: 100%;
+  transition: transform 0.65s cubic-bezier(0.16,1,0.3,1); }
+.slide {
+  min-width: 100vw; height: 100vh;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 80px 100px; position: relative; overflow: hidden;
+  flex-shrink: 0;
+}
+@media (max-width: 768px) { .slide { padding: 60px 32px; } }
+
+/* NAV */
+.deck-nav {
+  position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
+  z-index: 100; display: flex; align-items: center; gap: 12px;
+  background: rgba(9,9,12,0.85); backdrop-filter: blur(16px);
+  border: 1px solid var(--border); border-radius: 100px;
+  padding: 10px 20px;
+}
+.nav-dots { display: flex; gap: 6px; }
+.nav-dot { width: 5px; height: 5px; border-radius: 50%;
+  background: var(--dim); cursor: pointer; transition: all .25s; }
+.nav-dot.active { background: var(--blue); width: 18px; border-radius: 3px; }
+.nav-btn { background: none; border: none; color: var(--muted); cursor: pointer;
+  font-size: 16px; padding: 2px 8px; transition: color .2s; font-family: inherit; }
+.nav-btn:hover { color: var(--text); }
+.slide-counter { font-size: 11px; color: var(--dim);
+  font-family: 'Space Grotesk', sans-serif; padding: 0 8px; letter-spacing: .05em; }
+
+/* LOGO MARK */
+.deck-logo {
+  position: fixed; top: 32px; left: 48px; z-index: 100;
+  font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 600;
+  color: var(--muted); letter-spacing: -0.02em;
+}
+.deck-logo span { color: var(--text); }
+
+/* PROGRESS BAR */
+.progress-bar {
+  position: fixed; top: 0; left: 0; height: 2px;
+  background: var(--blue); transition: width 0.65s cubic-bezier(0.16,1,0.3,1);
+  z-index: 100;
+}
+
+/* ── SHARED TYPE STYLES ─────────────────── */
+.eyebrow {
+  font-size: 11px; font-weight: 500; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--blue);
+  font-family: 'Space Grotesk', sans-serif; margin-bottom: 20px;
+}
+.display {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(48px, 6vw, 88px);
+  font-weight: 700; line-height: 1.0; letter-spacing: -.04em;
+}
+.h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(36px, 4.5vw, 64px);
+  font-weight: 600; line-height: 1.05; letter-spacing: -.03em;
+}
+.h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(26px, 3vw, 44px);
+  font-weight: 600; line-height: 1.1; letter-spacing: -.025em;
+}
+.body-l { font-size: 18px; color: var(--muted); line-height: 1.7; }
+.body { font-size: 15px; color: var(--muted); line-height: 1.65; }
+.mono { font-family: 'Space Grotesk', sans-serif; }
+
+/* ── SLIDE 1: COVER ─────────────────────── */
+#s1 { background: var(--bg); }
+#s1-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.s1-content { position: relative; z-index: 2; max-width: 760px; }
+.s1-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid var(--border); border-radius: 100px;
+  padding: 6px 14px; margin-bottom: 36px;
+  font-size: 12px; color: var(--muted); letter-spacing: .04em;
+}
+.s1-tag .dot { width: 6px; height: 6px; border-radius: 50%;
+  background: var(--blue); animation: blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+.s1-title { margin-bottom: 24px; }
+.s1-title em { color: var(--blue-bright); font-style: normal; }
+.s1-sub { margin-bottom: 48px; max-width: 520px; }
+.s1-footer {
+  position: absolute; bottom: 80px; right: 100px;
+  text-align: right; z-index: 2;
+}
+.s1-footer-company {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 28px; font-weight: 600; letter-spacing: -.02em;
+  color: var(--text); margin-bottom: 4px;
+}
+.s1-footer-sub { font-size: 13px; color: var(--muted); }
+.s1-date { font-size: 11px; color: var(--dim); margin-top: 8px; letter-spacing: .06em; text-transform: uppercase; }
+
+/* ── SLIDE 2: THE PROBLEM ───────────────── */
+#s2 { background: var(--surface); }
+.s2-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 64px; align-items: center; width: 100%;
+}
+.s2-number {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(96px, 14vw, 180px);
+  font-weight: 700; letter-spacing: -.06em;
+  line-height: .9; color: var(--text);
+}
+.s2-number sup { font-size: .35em; vertical-align: super; }
+.s2-unit { font-size: 14px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted); margin-top: 16px; }
+.s2-divider { width: 1px; height: 100%; background: var(--border);
+  position: absolute; left: 50%; top: 0; }
+.s2-right { padding-left: 0; }
+.s2-stat-row {
+  display: flex; flex-direction: column; gap: 0;
+}
+.s2-stat {
+  padding: 22px 0; border-bottom: 1px solid var(--border);
+}
+.s2-stat:first-child { padding-top: 0; }
+.s2-stat-n {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 32px; font-weight: 600; letter-spacing: -.03em;
+  color: var(--text); margin-bottom: 4px;
+}
+.s2-stat-l { font-size: 13px; color: var(--muted); }
+
+/* ── SLIDE 3: SCALE PROBLEM ─────────────── */
+#s3 { background: var(--bg); }
+.s3-inner { max-width: 900px; }
+.s3-pull {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(28px, 3.5vw, 52px);
+  font-weight: 500; line-height: 1.15; letter-spacing: -.025em;
+  color: var(--text); margin-bottom: 48px;
+}
+.s3-pull .hl { color: var(--blue-bright); }
+.s3-bar-group { display: flex; flex-direction: column; gap: 16px; }
+.s3-bar-row { display: flex; align-items: center; gap: 16px; }
+.s3-bar-label { font-size: 13px; color: var(--muted); width: 160px; flex-shrink: 0; }
+.s3-bar-track { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.s3-bar-fill { height: 100%; border-radius: 3px; background: var(--blue);
+  width: 0; transition: width 1.2s cubic-bezier(0.16,1,0.3,1); }
+.s3-bar-fill.red { background: #F87171; }
+.s3-bar-val { font-size: 13px; color: var(--text); font-family: 'Space Grotesk', sans-serif;
+  font-weight: 500; width: 80px; text-align: right; }
+
+/* ── SLIDE 4: SOLUTION ──────────────────── */
+#s4 { background: var(--surface); }
+#s4-canvas { position: absolute; right: 0; top: 0; width: 50%; height: 100%; }
+.s4-content { max-width: 460px; position: relative; z-index: 2; }
+.s4-nodes { display: flex; flex-direction: column; gap: 0; margin-top: 40px; }
+.s4-node {
+  display: flex; align-items: center; gap: 16px;
+  padding: 18px 0; border-top: 1px solid var(--border);
+}
+.s4-node:last-child { border-bottom: 1px solid var(--border); }
+.s4-node-icon { width: 36px; height: 36px; border-radius: 8px;
+  background: var(--blue-faint); border: 1px solid rgba(47,107,245,.2);
+  display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.s4-node-label { font-size: 15px; font-weight: 500; }
+.s4-node-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+/* ── SLIDE 5: YOUR CITY ─────────────────── */
+#s5 { background: var(--bg); }
+.s5-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; width: 100%; }
+.s5-city-list { display: flex; flex-direction: column; gap: 0; }
+.s5-city {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 0; border-bottom: 1px solid var(--border);
+}
+.s5-city:first-child { border-top: 1px solid var(--border); }
+.s5-city-name { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 500; }
+.s5-city-status { display: flex; align-items: center; gap: 8px; }
+.s5-city-dot { width: 6px; height: 6px; border-radius: 50%; }
+.s5-city-dot.green { background: var(--green); }
+.s5-city-dot.amber { background: var(--amber); }
+.s5-city-spots { font-size: 13px; color: var(--muted); }
+.s5-cta-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 40px; position: relative; overflow: hidden;
+}
+.s5-cta-box::before { content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 1px; background: linear-gradient(90deg, transparent, var(--blue), transparent); }
+.s5-cta-big {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 56px; font-weight: 700; letter-spacing: -.04em;
+  color: var(--text); line-height: 1; margin-bottom: 8px;
+}
+.s5-cta-big .u { color: var(--blue-bright); }
+.s5-cta-label { font-size: 14px; color: var(--muted); margin-bottom: 28px; }
+.s5-cta-note { font-size: 12px; color: var(--dim); line-height: 1.55; }
+
+/* ── SLIDE 6: WHAT YOU GET ──────────────── */
+#s6 { background: var(--surface); }
+.s6-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 48px; }
+.s6-item {
+  padding: 28px; border: 1px solid var(--border);
+  border-radius: 12px; background: var(--bg);
+  transition: border-color .2s;
+}
+.s6-item:hover { border-color: rgba(47,107,245,.3); }
+.s6-num {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 36px; font-weight: 700; letter-spacing: -.03em;
+  margin-bottom: 8px; line-height: 1;
+}
+.s6-num.green { color: var(--green); }
+.s6-num.blue { color: var(--blue-bright); }
+.s6-num.white { color: var(--text); }
+.s6-item-l { font-size: 13px; color: var(--muted); }
+
+/* ── SLIDE 7: HOW PARTNERSHIP WORKS ────── */
+#s7 { background: var(--bg); }
+.s7-steps { display: flex; flex-direction: column; gap: 0; margin-top: 40px; max-width: 700px; }
+.s7-step {
+  display: grid; grid-template-columns: 64px 1fr;
+  gap: 24px; padding: 28px 0; border-top: 1px solid var(--border);
+  align-items: start;
+}
+.s7-step:last-child { border-bottom: 1px solid var(--border); }
+.s7-step-num {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 28px; font-weight: 700; letter-spacing: -.03em;
+  color: var(--blue); line-height: 1;
+}
+.s7-step h4 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+.s7-step p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+.s7-aside {
+  position: absolute; right: 100px; top: 50%; transform: translateY(-50%);
+  text-align: right; max-width: 240px;
+}
+.s7-aside-n {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 52px; font-weight: 700; letter-spacing: -.04em;
+  color: var(--text); line-height: 1; margin-bottom: 8px;
+}
+.s7-aside-l { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+/* ── SLIDE 8: CRITERIA ──────────────────── */
+#s8 { background: var(--surface); }
+.s8-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; width: 100%; }
+.s8-list { display: flex; flex-direction: column; gap: 0; }
+.s8-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 0; border-bottom: 1px solid var(--border);
+  font-size: 15px; font-weight: 400;
+}
+.s8-item:first-child { border-top: 1px solid var(--border); }
+.s8-check { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+  background: var(--blue); display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: #fff; font-weight: 700; }
+.s8-score-card {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 16px; padding: 36px; text-align: center;
+}
+.s8-score {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 80px; font-weight: 700; letter-spacing: -.05em;
+  color: var(--text); line-height: 1; margin-bottom: 8px;
+}
+.s8-score-label { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+.s8-qual-rate { font-size: 36px; font-weight: 700;
+  color: var(--blue-bright); font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: -.02em; margin-bottom: 4px; }
+.s8-qual-label { font-size: 12px; color: var(--dim); }
+
+/* ── SLIDE 9: THE ASK ───────────────────── */
+#s9 { background: var(--bg); }
+#s9-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.s9-content { position: relative; z-index: 2; max-width: 680px; }
+.s9-asks { display: flex; flex-direction: column; gap: 0; margin-top: 40px; }
+.s9-ask {
+  display: flex; align-items: flex-start; gap: 20px;
+  padding: 24px 0; border-top: 1px solid var(--border);
+}
+.s9-ask:last-child { border-bottom: 1px solid var(--border); }
+.s9-ask-n {
+  font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 500;
+  color: var(--blue); letter-spacing: .06em; flex-shrink: 0; padding-top: 2px; min-width: 24px;
+}
+.s9-ask h4 { font-size: 16px; font-weight: 600; margin-bottom: 5px; }
+.s9-ask p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+/* ── SLIDE 10: CLOSE ────────────────────── */
+#s10 { background: var(--surface); }
+.s10-center { text-align: center; width: 100%; }
+.s10-big {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(40px, 6vw, 84px);
+  font-weight: 700; letter-spacing: -.04em; line-height: 1;
+  color: var(--text); margin-bottom: 24px;
+}
+.s10-big span { color: var(--blue-bright); }
+.s10-sub { font-size: 18px; color: var(--muted); margin-bottom: 48px; }
+.s10-contact {
+  display: inline-flex; flex-direction: column; gap: 4px;
+  text-align: left; background: var(--bg);
+  border: 1px solid var(--border); border-radius: 12px;
+  padding: 28px 36px;
+}
+.s10-contact-name { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600; }
+.s10-contact-role { font-size: 13px; color: var(--muted); }
+.s10-contact-email { font-size: 14px; color: var(--blue-bright); margin-top: 8px; }
+.s10-avnode {
+  position: absolute; bottom: 80px; width: 100%; text-align: center;
+  font-family: 'Space Grotesk', sans-serif; font-size: 13px; color: var(--dim);
+  letter-spacing: .02em;
+}
+
+/* CANVAS COMMON */
+canvas { display: block; }
+
+/* TRANSITION ANIMATIONS */
+.slide-content { opacity: 0; transform: translateY(16px);
+  transition: opacity .5s .1s, transform .5s .1s; }
+.slide.active .slide-content { opacity: 1; transform: translateY(0); }
+.slide-content-delay { transition-delay: .2s; }
+.slide-content-delay2 { transition-delay: .3s; }
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div class="progress-bar" id="progress"></div>
+<div class="deck-logo">AV<span>Node</span></div>
+
+<div class="deck">
+  <div class="slides" id="slides">
+
+    <!-- SLIDE 1: COVER -->
+    <div class="slide" id="s1">
+      <canvas id="s1-canvas"></canvas>
+      <div class="s1-content">
+        <div class="s1-tag slide-content"><div class="dot"></div> Confidential · Fleet Infrastructure Partnership</div>
+        <h1 class="display s1-title slide-content">The infrastructure layer<br><em>your fleet is missing.</em></h1>
+        <p class="body-l s1-sub slide-content">How AVNode eliminates non-revenue miles, increases vehicle uptime, and reduces the operational cost of running a distributed fleet.</p>
+      </div>
+      <div class="s1-footer slide-content">
+        <div class="s1-footer-company">Live Moove</div>
+        <div class="s1-footer-sub">Fleet Infrastructure Proposal</div>
+        <div class="s1-date">June 2026</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: THE NUMBER -->
+    <div class="slide" id="s2">
+      <div class="s2-grid slide-content">
+        <div>
+          <div class="eyebrow">The cost no one talks about</div>
+          <div class="s2-number">$42</div>
+          <div class="s2-unit">Per depot visit · Per vehicle</div>
+        </div>
+        <div class="s2-right">
+          <div class="s2-stat-row">
+            <div class="s2-stat">
+              <div class="s2-stat-n">16–20 mi</div>
+              <div class="s2-stat-l">empty miles per depot visit</div>
+            </div>
+            <div class="s2-stat">
+              <div class="s2-stat-n">~1 hr</div>
+              <div class="s2-stat-l">vehicle out of service per visit</div>
+            </div>
+            <div class="s2-stat">
+              <div class="s2-stat-n">2×/day</div>
+              <div class="s2-stat-l">typical depot visit frequency</div>
+            </div>
+            <div class="s2-stat" style="border-bottom:none;">
+              <div class="s2-stat-n" style="color:#F87171;">$30,660/yr</div>
+              <div class="s2-stat-l">per vehicle · at 2 visits/day</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: SCALE -->
+    <div class="slide" id="s3">
+      <div class="s3-inner slide-content">
+        <div class="eyebrow">At fleet scale</div>
+        <p class="s3-pull">A 100-vehicle fleet running two depot visits per day is burning <span class="hl">$3M+ annually</span> in recoverable waste.</p>
+        <div class="s3-bar-group slide-content slide-content-delay">
+          <div class="s3-bar-row">
+            <span class="s3-bar-label">Empty miles / yr</span>
+            <div class="s3-bar-track"><div class="s3-bar-fill red" data-w="82"></div></div>
+            <span class="s3-bar-val">1.2M mi</span>
+          </div>
+          <div class="s3-bar-row">
+            <span class="s3-bar-label">Hours lost / yr</span>
+            <div class="s3-bar-track"><div class="s3-bar-fill red" data-w="70"></div></div>
+            <span class="s3-bar-val">73,000 hr</span>
+          </div>
+          <div class="s3-bar-row">
+            <span class="s3-bar-label">Depot cost / yr</span>
+            <div class="s3-bar-track"><div class="s3-bar-fill red" data-w="91"></div></div>
+            <span class="s3-bar-val">$3.07M</span>
+          </div>
+          <div class="s3-bar-row" style="margin-top:8px;">
+            <span class="s3-bar-label" style="color:var(--text);">With AVNode</span>
+            <div class="s3-bar-track"><div class="s3-bar-fill" data-w="18"></div></div>
+            <span class="s3-bar-val" style="color:var(--green);">$420K</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: SOLUTION -->
+    <div class="slide" id="s4">
+      <canvas id="s4-canvas"></canvas>
+      <div class="s4-content slide-content">
+        <div class="eyebrow">The AVNode Solution</div>
+        <h2 class="h1" style="margin-bottom:12px;">Infrastructure distributed across the city.</h2>
+        <p class="body" style="max-width:380px;margin-bottom:0;">AVNode qualifies and connects your fleet to real estate nodes positioned where your vehicles already operate.</p>
+        <div class="s4-nodes slide-content slide-content-delay">
+          <div class="s4-node">
+            <div class="s4-node-icon">⚡</div>
+            <div><div class="s4-node-label">Charging</div><div class="s4-node-sub">Staff on-site to plug in vehicles</div></div>
+          </div>
+          <div class="s4-node">
+            <div class="s4-node-icon">🅿</div>
+            <div><div class="s4-node-label">Staging & Parking</div><div class="s4-node-sub">Pre-positioned near demand zones</div></div>
+          </div>
+          <div class="s4-node">
+            <div class="s4-node-icon">🚿</div>
+            <div><div class="s4-node-label">Cleaning</div><div class="s4-node-sub">In-service cleaning without depot return</div></div>
+          </div>
+          <div class="s4-node">
+            <div class="s4-node-icon">🔧</div>
+            <div><div class="s4-node-label">Light Ops</div><div class="s4-node-sub">Inspections, resets, minor service</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: YOUR MARKETS -->
+    <div class="slide" id="s5">
+      <div class="s5-layout slide-content">
+        <div>
+          <div class="eyebrow">Active Markets</div>
+          <h2 class="h2" style="margin-bottom:32px;">Where we operate — and where Live Moove runs.</h2>
+          <div class="s5-city-list">
+            <div class="s5-city">
+              <div><div class="s5-city-name">Houston</div></div>
+              <div class="s5-city-status">
+                <div class="s5-city-dot green"></div>
+                <span class="s5-city-spots">12 of 20 nodes available</span>
+              </div>
+            </div>
+            <div class="s5-city">
+              <div><div class="s5-city-name">Austin</div></div>
+              <div class="s5-city-status">
+                <div class="s5-city-dot green"></div>
+                <span class="s5-city-spots">8 of 15 nodes available</span>
+              </div>
+            </div>
+            <div class="s5-city">
+              <div><div class="s5-city-name">Dallas</div></div>
+              <div class="s5-city-status">
+                <div class="s5-city-dot green"></div>
+                <span class="s5-city-spots">15 of 25 nodes available</span>
+              </div>
+            </div>
+            <div class="s5-city">
+              <div><div class="s5-city-name">Phoenix</div></div>
+              <div class="s5-city-status">
+                <div class="s5-city-dot green"></div>
+                <span class="s5-city-spots">10 of 18 nodes available</span>
+              </div>
+            </div>
+            <div class="s5-city">
+              <div><div class="s5-city-name">Tempe</div></div>
+              <div class="s5-city-status">
+                <div class="s5-city-dot amber"></div>
+                <span class="s5-city-spots">4 of 10 — moving fast</span>
+              </div>
+            </div>
+            <div class="s5-city">
+              <div><div class="s5-city-name">Miami</div></div>
+              <div class="s5-city-status">
+                <div class="s5-city-dot green"></div>
+                <span class="s5-city-spots">9 of 20 nodes available</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="s5-cta-box slide-content slide-content-delay">
+          <div class="s5-cta-big"><span class="u">~2.3</span> mi</div>
+          <div class="s5-cta-label">Average vehicle-to-node distance · distributed model</div>
+          <div style="height:1px;background:var(--border);margin:24px 0;"></div>
+          <div class="s5-cta-big" style="font-size:44px;"><span class="u">9.2</span> mi</div>
+          <div class="s5-cta-label">Average vehicle-to-depot distance · centralized model</div>
+          <div style="height:1px;background:var(--border);margin:24px 0;"></div>
+          <div class="s5-cta-note">Modeled on Live Moove's operational zones. Actual savings depend on fleet size and deployment density.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: WHAT YOU GET -->
+    <div class="slide" id="s6">
+      <div style="width:100%;">
+        <div class="eyebrow slide-content">For Live Moove</div>
+        <h2 class="h1 slide-content" style="margin-bottom:0;">What the partnership delivers.</h2>
+        <div class="s6-grid slide-content slide-content-delay">
+          <div class="s6-item">
+            <div class="s6-num green">–14 mi</div>
+            <div class="s6-item-l">empty miles saved per vehicle per day</div>
+          </div>
+          <div class="s6-item">
+            <div class="s6-num blue">+47 min</div>
+            <div class="s6-item-l">service time recovered per vehicle daily</div>
+          </div>
+          <div class="s6-item">
+            <div class="s6-num white">$420K</div>
+            <div class="s6-item-l">annual infrastructure savings · 100-vehicle fleet</div>
+          </div>
+          <div class="s6-item">
+            <div class="s6-num blue">3×</div>
+            <div class="s6-item-l">faster market expansion without depot builds</div>
+          </div>
+          <div class="s6-item">
+            <div class="s6-num green">–60%</div>
+            <div class="s6-item-l">infrastructure capex vs. centralized depot model</div>
+          </div>
+          <div class="s6-item">
+            <div class="s6-num white">24/7</div>
+            <div class="s6-item-l">access with on-site staff for charging plug-in</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: HOW IT WORKS -->
+    <div class="slide" id="s7">
+      <div style="position:relative;width:100%;">
+        <div class="eyebrow slide-content">Partnership Process</div>
+        <div class="s7-steps slide-content slide-content-delay">
+          <div class="s7-step">
+            <div class="s7-step-num">01</div>
+            <div>
+              <h4>Site identification & qualification</h4>
+              <p>AVNode identifies properties near Live Moove's operational zones and qualifies them against access, power, staffing, and security criteria.</p>
+            </div>
+          </div>
+          <div class="s7-step">
+            <div class="s7-step-num">02</div>
+            <div>
+              <h4>Network integration</h4>
+              <p>Qualified sites are onboarded into the AVNode network with GPS coordinates, access protocols, and staff trained to plug in vehicles.</p>
+            </div>
+          </div>
+          <div class="s7-step">
+            <div class="s7-step-num">03</div>
+            <div>
+              <h4>Fleet dispatch routing</h4>
+              <p>Live Moove vehicles are routed to the nearest available node instead of returning to a central depot — reducing mileage and downtime immediately.</p>
+            </div>
+          </div>
+          <div class="s7-step">
+            <div class="s7-step-num">04</div>
+            <div>
+              <h4>Infrastructure grows with demand</h4>
+              <p>High-utilization nodes receive DC fast charging and fleet infrastructure upgrades as data validates the location.</p>
+            </div>
+          </div>
+        </div>
+        <div class="s7-aside slide-content slide-content-delay2">
+          <div class="s7-aside-n">14 days</div>
+          <div class="s7-aside-l">average time from application to first node active</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 8: SITE CRITERIA -->
+    <div class="slide" id="s8">
+      <div class="s8-layout slide-content">
+        <div>
+          <div class="eyebrow">What we look for</div>
+          <h2 class="h2" style="margin-bottom:32px;">Every node in the network must qualify.</h2>
+          <div class="s8-list">
+            <div class="s8-item"><div class="s8-check">✓</div>5+ dedicated parking spaces</div>
+            <div class="s8-item"><div class="s8-check">✓</div>On-site staff to plug in vehicles</div>
+            <div class="s8-item"><div class="s8-check">✓</div>24/7 fleet access</div>
+            <div class="s8-item"><div class="s8-check">✓</div>Power availability or upgrade path</div>
+            <div class="s8-item"><div class="s8-check">✓</div>Camera coverage or gated security</div>
+            <div class="s8-item"><div class="s8-check">✓</div>Proximity to Live Moove demand zones</div>
+            <div class="s8-item"><div class="s8-check">✓</div>Long-term lease stability</div>
+          </div>
+        </div>
+        <div class="s8-score-card">
+          <div class="s8-score">~30%</div>
+          <div class="s8-score-label">of submitted sites qualify</div>
+          <div style="height:1px;background:var(--border);margin:24px 0;"></div>
+          <div class="s8-qual-rate">6 cities</div>
+          <div class="s8-qual-label" style="margin-bottom:24px;">currently active</div>
+          <div class="s8-qual-rate">108</div>
+          <div class="s8-qual-label">total target nodes</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 9: THE ASK -->
+    <div class="slide" id="s9">
+      <canvas id="s9-canvas"></canvas>
+      <div class="s9-content slide-content">
+        <div class="eyebrow">Next steps with Live Moove</div>
+        <h2 class="h1" style="margin-bottom:0;">Three things we need from you.</h2>
+        <div class="s9-asks slide-content slide-content-delay">
+          <div class="s9-ask">
+            <span class="s9-ask-n">01</span>
+            <div>
+              <h4>Share your operational zone data</h4>
+              <p>We need your primary operational geofences and average vehicle distribution across active markets to model the optimal node placement.</p>
+            </div>
+          </div>
+          <div class="s9-ask">
+            <span class="s9-ask-n">02</span>
+            <div>
+              <h4>Identify two pilot cities</h4>
+              <p>We'd like to start with two markets — ideally where depot utilization is highest — to prove out the model before expanding fleet-wide.</p>
+            </div>
+          </div>
+          <div class="s9-ask">
+            <span class="s9-ask-n">03</span>
+            <div>
+              <h4>Introduce us to your operations lead</h4>
+              <p>The implementation conversation needs to happen with whoever manages fleet dispatch and routing — we want to understand your current stack.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 10: CLOSE -->
+    <div class="slide" id="s10">
+      <div class="s10-center slide-content">
+        <div class="s10-big">Let's build<br><span>the network.</span></div>
+        <p class="s10-sub">AVNode + Live Moove. Infrastructure that moves as fast as your fleet.</p>
+        <div class="s10-contact">
+          <div class="s10-contact-name">AVNode</div>
+          <div class="s10-contact-role">Distributed Infrastructure for Autonomous Fleets</div>
+          <div class="s10-contact-email">hello@avnode.com</div>
+        </div>
+      </div>
+      <div class="s10-avnode">avnode.com &nbsp;·&nbsp; Confidential · June 2026</div>
+    </div>
+
+  </div><!-- /slides -->
+</div><!-- /deck -->
+
+<!-- NAV -->
+<div class="deck-nav">
+  <button class="nav-btn" id="prevBtn" onclick="nav(-1)">←</button>
+  <div class="nav-dots" id="navDots"></div>
+  <button class="nav-btn" id="nextBtn" onclick="nav(1)">→</button>
+  <span class="slide-counter" id="counter">1 / 10</span>
+</div>
+
+<script>
+'use strict';
+
+// CURSOR
+const cur = document.getElementById('cur');
+document.addEventListener('mousemove', e => {
+  cur.style.left = e.clientX + 'px'; cur.style.top = e.clientY + 'px';
+});
+document.querySelectorAll('button, a, .nav-dot').forEach(el => {
+  el.addEventListener('mouseenter', () => cur.classList.add('h'));
+  el.addEventListener('mouseleave', () => cur.classList.remove('h'));
+});
+
+// SLIDE SYSTEM
+const TOTAL = 10;
+let current = 0;
+
+const slidesEl = document.getElementById('slides');
+const progressEl = document.getElementById('progress');
+const counterEl = document.getElementById('counter');
+const dotsEl = document.getElementById('navDots');
+
+// Build dots
+for (let i = 0; i < TOTAL; i++) {
+  const d = document.createElement('div');
+  d.className = 'nav-dot'; d.onclick = () => goTo(i);
+  dotsEl.appendChild(d);
+}
+
+function goTo(idx) {
+  document.querySelectorAll('.slide')[current].classList.remove('active');
+  current = Math.max(0, Math.min(TOTAL - 1, idx));
+  document.querySelectorAll('.slide')[current].classList.add('active');
+  slidesEl.style.transform = `translateX(${-current * 100}vw)`;
+  progressEl.style.width = ((current + 1) / TOTAL * 100) + '%';
+  counterEl.textContent = (current + 1) + ' / ' + TOTAL;
+  document.querySelectorAll('.nav-dot').forEach((d, i) => d.classList.toggle('active', i === current));
+  // Trigger bar animations on slide 3
+  if (current === 2) animateBars();
+}
+
+function nav(dir) { goTo(current + dir); }
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); nav(1); }
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); nav(-1); }
+});
+
+// Touch swipe
+let touchX = 0;
+document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; });
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchX;
+  if (Math.abs(dx) > 50) nav(dx < 0 ? 1 : -1);
+});
+
+// Init
+goTo(0);
+
+// BAR ANIMATIONS (slide 3)
+let barsAnimated = false;
+function animateBars() {
+  if (barsAnimated) return; barsAnimated = true;
+  document.querySelectorAll('.s3-bar-fill').forEach((fill, i) => {
+    const w = fill.dataset.w;
+    setTimeout(() => { fill.style.width = w + '%'; }, i * 150);
+  });
+}
+
+// ── COVER CANVAS (s1) ───────────────────────
+(function() {
+  const canvas = document.getElementById('s1-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, nodes = [];
+  function resize() {
+    W = canvas.width = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+    nodes = Array.from({length: 50}, () => ({
+      x: Math.random()*W, y: Math.random()*H,
+      vx: (Math.random()-.5)*.4, vy: (Math.random()-.5)*.4,
+      r: Math.random()*1.5+.5, p: Math.random()*Math.PI*2
+    }));
+  }
+  resize(); window.addEventListener('resize', resize);
+  function draw() {
+    requestAnimationFrame(draw);
+    ctx.clearRect(0,0,W,H);
+    const t = Date.now()/1000;
+    nodes.forEach(n => {
+      n.x += n.vx; n.y += n.vy; n.p += .015;
+      if (n.x<0) n.x=W; if (n.x>W) n.x=0;
+      if (n.y<0) n.y=H; if (n.y>H) n.y=0;
+    });
+    for (let i=0;i<nodes.length;i++) {
+      for (let j=i+1;j<nodes.length;j++) {
+        const dx=nodes[i].x-nodes[j].x, dy=nodes[i].y-nodes[j].y;
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if (d<140) {
+          ctx.globalAlpha=(1-d/140)*.12;
+          ctx.strokeStyle='#2F6BF5'; ctx.lineWidth=.8;
+          ctx.beginPath(); ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[j].x,nodes[j].y); ctx.stroke();
+        }
+      }
+    }
+    nodes.forEach(n => {
+      const g=Math.sin(n.p)*.3+.7;
+      ctx.globalAlpha=g*.55;
+      ctx.fillStyle='#2F6BF5';
+      ctx.beginPath(); ctx.arc(n.x,n.y,n.r*g,0,Math.PI*2); ctx.fill();
+    });
+    ctx.globalAlpha=1;
+  }
+  draw();
+})();
+
+// ── SOLUTION CANVAS (s4) ────────────────────
+(function() {
+  const canvas = document.getElementById('s4-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  function resize() { W = canvas.width = canvas.offsetWidth; H = canvas.height = canvas.offsetHeight; }
+  resize(); window.addEventListener('resize', resize);
+
+  const cityNodes = [
+    {x:.15,y:.25},{x:.45,y:.15},{x:.75,y:.3},{x:.1,y:.55},{x:.4,y:.5},
+    {x:.7,y:.6},{x:.2,y:.8},{x:.55,y:.75},{x:.85,y:.8},{x:.3,y:.35}
+  ];
+  const t0 = Date.now();
+
+  function draw() {
+    requestAnimationFrame(draw);
+    const elapsed = (Date.now()-t0)/1000;
+    const t = elapsed;
+    ctx.clearRect(0,0,W,H);
+
+    // Grid
+    ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=.5;
+    for(let x=0;x<W;x+=36){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+    for(let y=0;y<H;y+=36){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+    // Connections
+    for(let i=0;i<cityNodes.length;i++){
+      for(let j=i+1;j<cityNodes.length;j++){
+        const a=cityNodes[i], b=cityNodes[j];
+        const d=Math.hypot((a.x-b.x)*W,(a.y-b.y)*H);
+        if(d<W*.3){
+          const alpha=(1-d/(W*.3))*.2;
+          ctx.globalAlpha=alpha; ctx.strokeStyle='#2F6BF5'; ctx.lineWidth=1;
+          ctx.setLineDash([3,5]);
+          ctx.beginPath();ctx.moveTo(a.x*W,a.y*H);ctx.lineTo(b.x*W,b.y*H);ctx.stroke();
+          ctx.setLineDash([]);
+        }
+      }
+    }
+
+    // Nodes
+    cityNodes.forEach((n,i)=>{
+      const x=n.x*W,y=n.y*H;
+      const pulse=Math.sin(t*1.4+i*.8)*.3+.7;
+      const g=ctx.createRadialGradient(x,y,0,x,y,20*pulse);
+      g.addColorStop(0,`rgba(47,107,245,${.35*pulse})`);
+      g.addColorStop(1,'rgba(47,107,245,0)');
+      ctx.globalAlpha=1; ctx.fillStyle=g;
+      ctx.beginPath();ctx.arc(x,y,20*pulse,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#2F6BF5'; ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#fff'; ctx.beginPath();ctx.arc(x,y,2.5,0,Math.PI*2);ctx.fill();
+    });
+    ctx.globalAlpha=1;
+  }
+  draw();
+})();
+
+// ── CLOSE CANVAS (s9) ───────────────────────
+(function() {
+  const canvas = document.getElementById('s9-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  function resize() { W = canvas.width = canvas.offsetWidth; H = canvas.height = canvas.offsetHeight; }
+  resize(); window.addEventListener('resize', resize);
+  function draw() {
+    requestAnimationFrame(draw);
+    ctx.clearRect(0,0,W,H);
+    const t = Date.now()/1000;
+    const cx=W*.75, cy=H*.5, maxR=Math.min(W,H)*.4;
+    [.25,.5,.75,1].forEach((s,i)=>{
+      const pulse=Math.sin(t*1.2+i*.6)*.05+s;
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,maxR*pulse);
+      g.addColorStop(0,`rgba(47,107,245,${.06*s})`);
+      g.addColorStop(1,'rgba(47,107,245,0)');
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,maxR*pulse,0,Math.PI*2); ctx.fill();
+    });
+  }
+  draw();
+})();
+</script>
+</body>
+</html>
