@@ -778,8 +778,8 @@ footer {
 <section id="model">
   <div class="model-header reveal">
     <div class="section-eyebrow">The Model</div>
-    <h2 class="model-headline">One depot creates sixteen miles of waste. Property owners distributed across the city eliminate it.</h2>
-    <p class="model-sub">Each property owner that joins AVNode becomes a node — a qualified site where fleet vehicles can charge, stage, and operate. The more owners in the network, the shorter every vehicle's service radius.</p>
+    <h2 class="model-headline">One depot. Sixteen miles of waste.<br>Property owners across the city fix it.</h2>
+    <p class="model-sub">Each property owner that joins AVNode becomes a node. The more sites in the network, the shorter every vehicle's service radius — and the less time your fleet spends off the road.</p>
   </div>
   <div class="model-canvas-wrap">
     <canvas id="model-canvas"></canvas>
@@ -1716,7 +1716,7 @@ function setModelMode(mode) {
     if (nodeAlpha > 0.02) {
       const t = Date.now() / 1000;
       nodes.forEach((n, i) => {
-        const na2 = Math.min(1, nodeAlpha * NODES.length - i * 0.5);
+        const na2 = Math.min(1, nodeAlpha * nodes.length - i * 0.5);
         if (na2 <= 0) return;
         const x = gx(n.c), y = gy(n.r);
         const pulse = Math.sin(t * 1.3 + i) * 0.25 + 0.75;
