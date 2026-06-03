@@ -9,6 +9,10 @@ app.get('/deck', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'deck.html'));
 });
 
+app.get('/team', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'team.html'));
+});
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });

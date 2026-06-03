@@ -1,0 +1,2098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AVNode</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #09090C;
+  --surface: #101013;
+  --border: #1A1A22;
+  --border-hi: #2A2A36;
+  --text: #EEEEF2;
+  --muted: #6A6A7E;
+  --dim: #32323F;
+  --blue: #2F6BF5;
+  --blue-mid: #1E4FD8;
+  --blue-faint: rgba(47,107,245,0.12);
+  --blue-line: rgba(47,107,245,0.25);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ─── CURSOR ─────────────────────────────── */
+#cursor {
+  width: 6px; height: 6px;
+  background: var(--text);
+  border-radius: 50%;
+  position: fixed; top: 0; left: 0;
+  pointer-events: none; z-index: 9999;
+  transform: translate(-50%,-50%);
+  transition: width 0.2s, height 0.2s, background 0.2s, opacity 0.2s;
+  mix-blend-mode: difference;
+}
+#cursor.hover { width: 32px; height: 32px; background: rgba(255,255,255,0.15); }
+#cursor.click { width: 4px; height: 4px; }
+@media (pointer: coarse) { #cursor { display: none; } body { cursor: auto; } }
+
+/* ─── NAV ────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 28px 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: padding 0.4s, background 0.4s, border-color 0.4s;
+  border-bottom: 1px solid transparent;
+}
+nav.scrolled {
+  padding: 18px 48px;
+  background: rgba(9,9,12,0.92);
+  backdrop-filter: blur(20px);
+  border-color: var(--border);
+}
+.nav-logo {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 17px; font-weight: 600;
+  letter-spacing: -0.02em; color: var(--text);
+  text-decoration: none;
+}
+.nav-right { display: flex; align-items: center; gap: 32px; }
+.nav-link {
+  font-size: 13px; font-weight: 400; color: var(--muted);
+  text-decoration: none; letter-spacing: 0.01em;
+  transition: color 0.2s;
+}
+.nav-link:hover { color: var(--text); }
+.nav-apply {
+  font-size: 13px; font-weight: 500; color: var(--text);
+  text-decoration: none;
+  border: 1px solid var(--border-hi);
+  padding: 8px 18px; border-radius: 100px;
+  transition: border-color 0.2s, color 0.2s;
+}
+.nav-apply:hover { border-color: var(--blue); color: var(--text); }
+@media (max-width: 768px) { nav { padding: 22px 24px; } .nav-link { display: none; } nav.scrolled { padding: 16px 24px; } }
+
+/* ─── HERO ───────────────────────────────── */
+#hero {
+  position: relative; height: 100dvh; min-height: 600px;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 0 48px 64px;
+  overflow: hidden;
+}
+#hero-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+}
+.hero-content {
+  position: relative; z-index: 2;
+  max-width: 900px;
+}
+.hero-phase-label {
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--blue); margin-bottom: 20px;
+  font-family: 'Space Grotesk', sans-serif;
+  opacity: 0; transition: opacity 0.6s;
+}
+.hero-phase-label.show { opacity: 1; }
+.hero-headline {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(40px, 5.5vw, 80px);
+  font-weight: 600; line-height: 1.05;
+  letter-spacing: -0.035em;
+  color: var(--text); margin-bottom: 28px;
+  overflow: hidden;
+}
+.hero-headline .word {
+  display: inline-block;
+  transform: translateY(110%);
+  transition: transform 0.7s cubic-bezier(0.16,1,0.3,1);
+}
+.hero-headline .word.up { transform: translateY(0); }
+.hero-sub {
+  font-size: 17px; font-weight: 400; color: var(--muted);
+  line-height: 1.65; max-width: 460px; margin-bottom: 40px;
+  opacity: 0; transform: translateY(12px);
+  transition: opacity 0.6s 0.3s, transform 0.6s 0.3s;
+}
+.hero-sub.show { opacity: 1; transform: translateY(0); }
+.hero-ctas {
+  display: flex; align-items: center; gap: 20px;
+  opacity: 0; transform: translateY(12px);
+  transition: opacity 0.6s 0.5s, transform 0.6s 0.5s;
+}
+.hero-ctas.show { opacity: 1; transform: translateY(0); }
+.btn-primary {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px; font-weight: 500;
+  background: var(--blue); color: #fff;
+  padding: 12px 26px; border-radius: 100px; border: none;
+  cursor: none; text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+}
+.btn-primary:hover { background: #3d7aff; transform: translateY(-1px); }
+.btn-ghost-text {
+  font-size: 13px; color: var(--muted); text-decoration: none;
+  transition: color 0.2s; cursor: none;
+}
+.btn-ghost-text:hover { color: var(--text); }
+@media (max-width: 768px) { #hero { padding: 0 24px 48px; } }
+
+/* ─── STAT STRIP ─────────────────────────── */
+.stat-strip {
+  position: absolute; right: 48px; bottom: 64px; z-index: 2;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 6px;
+  opacity: 0; transition: opacity 0.6s 0.8s;
+}
+.stat-strip.show { opacity: 1; }
+.stat-item {
+  display: flex; align-items: baseline; gap: 8px;
+}
+.stat-n {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px; font-weight: 600; letter-spacing: -0.03em;
+  color: var(--text);
+}
+.stat-l { font-size: 11px; color: var(--dim); letter-spacing: 0.04em; text-transform: uppercase; }
+@media (max-width: 900px) { .stat-strip { display: none; } }
+
+/* ─── SECTION LAYOUT HELPERS ─────────────── */
+.section { padding: 140px 48px; }
+.section.tight { padding: 100px 48px; }
+@media (max-width: 768px) { .section { padding: 96px 24px; } .section.tight { padding: 72px 24px; } }
+
+/* ─── PROBLEM ────────────────────────────── */
+#problem {
+  padding: 0; overflow: hidden;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+.problem-inner {
+  padding: 120px 48px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  align-items: end;
+}
+.problem-number-col {
+  border-right: 1px solid var(--border);
+  padding-right: 80px;
+  padding-bottom: 8px;
+}
+.problem-dollar {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(100px, 16vw, 220px);
+  font-weight: 700; line-height: 0.9;
+  letter-spacing: -0.05em;
+  color: var(--text);
+  display: block;
+}
+.problem-unit {
+  font-size: 13px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted);
+  margin-top: 20px;
+  font-weight: 400;
+}
+.problem-text-col { padding-left: 80px; }
+.problem-statement {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(22px, 2.8vw, 36px);
+  font-weight: 400; line-height: 1.3;
+  letter-spacing: -0.02em; color: var(--text);
+  margin-bottom: 28px;
+}
+.problem-p {
+  font-size: 16px; color: var(--muted);
+  line-height: 1.75; max-width: 380px;
+}
+.problem-math {
+  margin-top: 40px;
+  padding: 24px; border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.problem-math-row {
+  display: flex; justify-content: space-between;
+  font-size: 13px; padding: 6px 0;
+}
+.problem-math-row:not(:last-child) {
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 6px;
+}
+.pm-label { color: var(--muted); }
+.pm-val { font-family: 'Space Grotesk', sans-serif; font-weight: 500; color: var(--text); }
+.pm-val.red { color: #F87171; }
+@media (max-width: 900px) {
+  .problem-inner { grid-template-columns: 1fr; gap: 60px; padding: 80px 24px; }
+  .problem-number-col { border-right: none; border-bottom: 1px solid var(--border); padding-right: 0; padding-bottom: 48px; }
+  .problem-text-col { padding-left: 0; }
+}
+
+/* ─── CITY MODEL ─────────────────────────── */
+#model {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.model-header {
+  padding: 100px 48px 0;
+  max-width: 700px;
+}
+.section-eyebrow {
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--blue); margin-bottom: 16px;
+  font-family: 'Space Grotesk', sans-serif;
+}
+.model-headline {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(32px, 3.8vw, 56px);
+  font-weight: 600; line-height: 1.1;
+  letter-spacing: -0.03em; color: var(--text);
+  margin-bottom: 20px;
+}
+.model-sub {
+  font-size: 16px; color: var(--muted);
+  line-height: 1.7; max-width: 460px;
+}
+.model-canvas-wrap {
+  position: relative; margin-top: 64px;
+  height: 480px; overflow: hidden;
+}
+#model-canvas {
+  width: 100%; height: 100%;
+  display: block;
+}
+.model-toggle {
+  position: absolute; bottom: 32px; left: 48px;
+  display: flex; gap: 4px;
+  background: rgba(9,9,12,0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-hi);
+  border-radius: 100px; padding: 4px;
+}
+.toggle-btn {
+  font-size: 12px; font-weight: 500;
+  padding: 7px 18px; border-radius: 100px;
+  border: none; cursor: none; color: var(--muted);
+  background: transparent;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.25s, color 0.25s;
+}
+.toggle-btn.active { background: var(--surface); color: var(--text); }
+.model-note {
+  position: absolute; bottom: 32px; right: 48px;
+  font-size: 12px; color: var(--dim);
+  letter-spacing: 0.04em;
+}
+@media (max-width: 768px) { .model-header { padding: 72px 24px 0; } .model-canvas-wrap { height: 360px; } .model-toggle { left: 24px; } .model-note { right: 24px; } }
+
+/* ─── OPERATORS ──────────────────────────── */
+#operators {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 80vh;
+}
+.operators-left {
+  padding: 120px 48px;
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.operators-right {
+  padding: 120px 64px;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.op-eyebrow {
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--blue); font-family: 'Space Grotesk', sans-serif;
+  margin-bottom: 40px;
+}
+.op-pull {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(26px, 3vw, 44px);
+  font-weight: 500; line-height: 1.15;
+  letter-spacing: -0.025em; color: var(--text);
+  margin-bottom: 40px;
+}
+.op-sub { font-size: 15px; color: var(--muted); line-height: 1.7; max-width: 360px; }
+.op-metrics {
+  display: flex; flex-direction: column; gap: 0;
+}
+.op-metric {
+  padding: 28px 0;
+  border-top: 1px solid var(--border);
+}
+.op-metric-n {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 42px; font-weight: 600;
+  letter-spacing: -0.04em; color: var(--text);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.op-metric-n .op-unit { font-size: 22px; color: var(--muted); }
+.op-metric-l { font-size: 13px; color: var(--muted); }
+.utilization-ring-wrap {
+  margin-bottom: 48px;
+}
+.util-label {
+  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 24px;
+}
+#util-canvas { display: block; }
+.util-comparison {
+  display: flex; gap: 32px; margin-top: 24px;
+}
+.util-comp-item { flex: 1; }
+.util-comp-n {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 28px; font-weight: 600; letter-spacing: -0.03em;
+  line-height: 1; margin-bottom: 6px;
+}
+.util-comp-n.before { color: var(--dim); }
+.util-comp-n.after { color: var(--text); }
+.util-comp-l { font-size: 12px; color: var(--muted); }
+@media (max-width: 900px) {
+  #operators { grid-template-columns: 1fr; }
+  .operators-left, .operators-right { padding: 72px 24px; }
+  .operators-left { border-right: none; border-bottom: 1px solid var(--border); }
+}
+
+/* ─── OWNERS ─────────────────────────────── */
+#owners {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.owners-top {
+  padding: 100px 48px 64px;
+  display: flex; justify-content: space-between; align-items: flex-end;
+  border-bottom: 1px solid var(--border);
+}
+.owners-headline {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(30px, 3.8vw, 54px);
+  font-weight: 600; line-height: 1.1;
+  letter-spacing: -0.03em; color: var(--text);
+  max-width: 600px;
+}
+.owners-aside {
+  max-width: 280px; text-align: right;
+}
+.owners-aside p { font-size: 14px; color: var(--muted); line-height: 1.65; }
+.owners-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  min-height: 480px;
+}
+.owners-visual {
+  border-right: 1px solid var(--border);
+  position: relative; overflow: hidden;
+  min-height: 400px;
+}
+#owners-canvas { width: 100%; height: 100%; display: block; }
+.owners-sidebar {
+  padding: 56px 48px;
+  display: flex; flex-direction: column; gap: 0;
+}
+.owner-benefit {
+  padding: 22px 0;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: flex-start;
+  gap: 16px; cursor: none;
+  transition: opacity 0.2s;
+}
+.owner-benefit:first-child { padding-top: 0; }
+.owner-benefit:last-child { border-bottom: none; }
+.benefit-num {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 11px; color: var(--dim);
+  font-weight: 500; flex-shrink: 0;
+  padding-top: 2px;
+}
+.benefit-text h4 { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+.benefit-text p { font-size: 13px; color: var(--muted); line-height: 1.55; }
+@media (max-width: 900px) {
+  .owners-top { flex-direction: column; gap: 24px; align-items: flex-start; padding: 72px 24px 48px; }
+  .owners-aside { text-align: left; max-width: 100%; }
+  .owners-grid { grid-template-columns: 1fr; }
+  .owners-visual { min-height: 280px; border-right: none; border-bottom: 1px solid var(--border); }
+  .owners-sidebar { padding: 48px 24px; }
+}
+
+/* ─── MARKETS ────────────────────────────── */
+#markets {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+.markets-inner { padding: 100px 48px; }
+.markets-header {
+  display: flex; justify-content: space-between;
+  align-items: flex-start; margin-bottom: 72px;
+}
+.markets-headline {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(30px, 3.5vw, 50px);
+  font-weight: 600; letter-spacing: -0.03em;
+  color: var(--text); max-width: 480px; line-height: 1.1;
+}
+.markets-note {
+  max-width: 240px; text-align: right;
+}
+.markets-note p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.city-list { display: flex; flex-direction: column; gap: 0; }
+.city-row {
+  display: grid;
+  grid-template-columns: 200px 1fr 120px 180px 160px;
+  align-items: center;
+  padding: 22px 0;
+  border-top: 1px solid var(--border);
+  transition: background 0.2s;
+  cursor: none;
+  gap: 24px;
+}
+.city-row:last-child { border-bottom: 1px solid var(--border); }
+.city-row:hover .city-name { color: var(--text); }
+.city-row:hover .city-bar-fill { background: var(--blue); }
+.city-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 18px; font-weight: 500;
+  letter-spacing: -0.02em; color: var(--text);
+  transition: color 0.2s;
+}
+.city-state { font-size: 12px; color: var(--dim); margin-top: 2px; }
+.city-bar-bg {
+  height: 2px; background: var(--border);
+  border-radius: 1px; overflow: hidden;
+}
+.city-bar-fill {
+  height: 100%; border-radius: 1px;
+  background: var(--blue-line);
+  transition: background 0.3s, width 1.2s cubic-bezier(0.16,1,0.3,1);
+  width: 0;
+}
+.city-available {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px; font-weight: 500;
+  text-align: right; color: var(--text);
+}
+.city-available span { color: var(--muted); font-weight: 400; font-size: 13px; }
+.city-status {
+  font-size: 11px; letter-spacing: 0.08em;
+  text-transform: uppercase; font-weight: 500;
+  text-align: right;
+}
+.city-status.open { color: #34D399; }
+.city-status.limited { color: #F59E0B; }
+.city-coords {
+  font-size: 11px; color: var(--dim);
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: 0.02em;
+}
+@media (max-width: 900px) {
+  .markets-inner { padding: 72px 24px; }
+  .markets-header { flex-direction: column; gap: 20px; }
+  .markets-note { text-align: left; max-width: 100%; }
+  .city-row { grid-template-columns: 1fr auto; gap: 16px; }
+  .city-bar-bg, .city-coords { display: none; }
+}
+
+/* ─── CRITERIA ───────────────────────────── */
+#criteria {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 100px 48px;
+  overflow: hidden;
+}
+.criteria-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px; align-items: start;
+}
+.criteria-left {}
+.criteria-headline {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(28px, 3vw, 44px);
+  font-weight: 600; line-height: 1.1;
+  letter-spacing: -0.03em; color: var(--text);
+  margin-bottom: 20px;
+}
+.criteria-sub { font-size: 16px; color: var(--muted); line-height: 1.7; margin-bottom: 48px; }
+.criteria-items { display: flex; flex-direction: column; gap: 0; }
+.criteria-item {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 24px; padding: 20px 0;
+  border-top: 1px solid var(--border);
+  align-items: start;
+  opacity: 0; transform: translateX(-12px);
+  transition: opacity 0.5s, transform 0.5s;
+}
+.criteria-item:last-child { border-bottom: 1px solid var(--border); }
+.criteria-item.visible { opacity: 1; transform: translateX(0); }
+.criteria-tag {
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--dim); padding-top: 3px;
+}
+.criteria-item h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+.criteria-item p { font-size: 13px; color: var(--muted); line-height: 1.55; }
+.criteria-right {
+  position: sticky; top: 120px;
+}
+.criteria-diagram {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+}
+#criteria-canvas { display: block; width: 100%; height: 380px; }
+.criteria-caption {
+  padding: 20px 24px; border-top: 1px solid var(--border);
+  font-size: 12px; color: var(--muted); line-height: 1.55;
+}
+@media (max-width: 900px) {
+  .criteria-layout { grid-template-columns: 1fr; gap: 48px; }
+  #criteria { padding: 72px 24px; }
+  .criteria-right { position: static; }
+  #criteria-canvas { height: 280px; }
+}
+
+/* ─── APPLY ──────────────────────────────── */
+#apply {
+  background: var(--bg);
+  padding: 0;
+  border-bottom: 1px solid var(--border);
+}
+.apply-inner {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  min-height: 80vh;
+}
+.apply-left {
+  padding: 100px 64px;
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.apply-headline {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(28px, 3.2vw, 48px);
+  font-weight: 600; line-height: 1.1;
+  letter-spacing: -0.03em; color: var(--text);
+  margin-bottom: 20px;
+}
+.apply-sub { font-size: 16px; color: var(--muted); line-height: 1.7; max-width: 380px; }
+.apply-disclaimer {
+  font-size: 12px; color: var(--dim); line-height: 1.6;
+  max-width: 340px;
+  border-top: 1px solid var(--border); padding-top: 24px;
+}
+.apply-right { padding: 100px 64px; }
+.apply-form { display: flex; flex-direction: column; gap: 0; }
+.form-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+}
+.form-row.single { grid-template-columns: 1fr; }
+.field-group {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.field-group:first-of-type { border-top: 1px solid var(--border); }
+.field-label {
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--dim); margin-bottom: 10px;
+  display: block; font-family: 'Space Grotesk', sans-serif;
+  transition: color 0.2s;
+}
+.field-group:focus-within .field-label { color: var(--blue); }
+.field-input {
+  width: 100%; background: transparent;
+  border: none; outline: none; color: var(--text);
+  font-size: 15px; font-family: 'Inter', sans-serif;
+  font-weight: 400; caret-color: var(--blue);
+}
+.field-input::placeholder { color: var(--dim); }
+select.field-input { cursor: none; }
+select.field-input option { background: var(--surface); }
+textarea.field-input { resize: none; min-height: 80px; line-height: 1.6; }
+.form-bottom {
+  padding-top: 32px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.submit-btn {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px; font-weight: 500;
+  background: var(--text); color: var(--bg);
+  border: none; padding: 14px 32px;
+  border-radius: 100px; cursor: none;
+  transition: background 0.2s, transform 0.15s;
+  letter-spacing: -0.01em;
+}
+.submit-btn:hover { background: #fff; transform: translateY(-1px); }
+.submit-btn.success { background: #34D399; color: #fff; }
+.form-note { font-size: 12px; color: var(--dim); max-width: 200px; line-height: 1.5; }
+@media (max-width: 900px) {
+  .apply-inner { grid-template-columns: 1fr; }
+  .apply-left { padding: 72px 24px; border-right: none; border-bottom: 1px solid var(--border); min-height: auto; }
+  .apply-right { padding: 64px 24px; }
+  .form-row { grid-template-columns: 1fr; }
+}
+
+/* ─── FOOTER ─────────────────────────────── */
+footer {
+  padding: 48px 48px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.footer-logo {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px; font-weight: 600;
+  letter-spacing: -0.02em; color: var(--muted);
+  text-decoration: none;
+}
+.footer-copy { font-size: 13px; color: var(--dim); }
+.footer-links { display: flex; gap: 24px; }
+.footer-links a { font-size: 13px; color: var(--dim); text-decoration: none; transition: color 0.2s; }
+.footer-links a:hover { color: var(--muted); }
+@media (max-width: 768px) {
+  footer { flex-direction: column; gap: 16px; padding: 36px 24px; text-align: center; }
+  .footer-links { justify-content: center; }
+}
+
+/* ─── SCROLL FADE ────────────────────────── */
+.reveal {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1),
+              transform 0.8s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div id="cursor"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="nav-logo">AVNode</a>
+  <div class="nav-right">
+    <a href="#operators" class="nav-link">Fleet Operators</a>
+    <a href="#owners" class="nav-link">Property Owners</a>
+    <a href="#apply" class="nav-apply">Apply</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-content">
+    <div class="hero-phase-label" id="phaseLabel">Distributed Infrastructure for Autonomous Fleets</div>
+    <h1 class="hero-headline" id="heroHeadline">
+      <span class="word">The</span>
+      <span class="word">&nbsp;</span>
+      <span class="word">physical</span>
+      <span class="word">&nbsp;</span>
+      <span class="word">network</span>
+      <br>
+      <span class="word">autonomous</span>
+      <span class="word">&nbsp;</span>
+      <span class="word">fleets</span>
+      <span class="word">&nbsp;</span>
+      <span class="word">need.</span>
+    </h1>
+    <p class="hero-sub" id="heroSub">
+      Property owners sign up their sites. Fleet operators access them. AVNode is the network that qualifies, connects, and manages the relationship — so fleets can charge, stage, and operate without building infrastructure of their own.
+    </p>
+    <div class="hero-ctas" id="heroCtas">
+      <a href="#apply" class="btn-primary">Build Your Network</a>
+      <a href="#owners" class="btn-ghost-text">For property owners →</a>
+    </div>
+  </div>
+  <div class="stat-strip" id="heroStats">
+    <div class="stat-item">
+      <span class="stat-n">6</span>
+      <span class="stat-l">Launch markets</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-n">108</span>
+      <span class="stat-l">Target nodes</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-n">~30%</span>
+      <span class="stat-l">Sites qualify</span>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <div class="problem-inner">
+    <div class="problem-number-col reveal">
+      <span class="problem-dollar">$42</span>
+      <div class="problem-unit">Per depot visit · Per vehicle</div>
+    </div>
+    <div class="problem-text-col reveal reveal-delay-1">
+      <p class="problem-statement">
+        Every vehicle your fleet sends back to a central depot costs you 16–20 empty miles and an hour of service time.
+      </p>
+      <p class="problem-p">
+        At scale, centralized infrastructure isn't just inefficient — it's a structural liability. The cost compounds with every vehicle added, every new market entered, every mile the depot sits further from demand.
+      </p>
+      <div class="problem-math">
+        <div class="problem-math-row">
+          <span class="pm-label">Empty miles saved / vehicle / day</span>
+          <span class="pm-val">14 mi</span>
+        </div>
+        <div class="problem-math-row">
+          <span class="pm-label">Daily uptime recovered / vehicle</span>
+          <span class="pm-val">47 min</span>
+        </div>
+        <div class="problem-math-row">
+          <span class="pm-label">Annual drag · 500-vehicle fleet</span>
+          <span class="pm-val red">$15.3M</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CITY MODEL -->
+<section id="model">
+  <div class="model-header reveal">
+    <div class="section-eyebrow">The Model</div>
+    <h2 class="model-headline">One depot creates sixteen miles of waste. Property owners distributed across the city eliminate it.</h2>
+    <p class="model-sub">Each property owner that joins AVNode becomes a node — a qualified site where fleet vehicles can charge, stage, and operate. The more owners in the network, the shorter every vehicle's service radius.</p>
+  </div>
+  <div class="model-canvas-wrap">
+    <canvas id="model-canvas"></canvas>
+    <div class="model-toggle">
+      <button class="toggle-btn active" data-mode="central" onclick="setModelMode('central')">Central depot</button>
+      <button class="toggle-btn" data-mode="distributed" onclick="setModelMode('distributed')">Distributed</button>
+    </div>
+    <div class="model-note" id="modelNote">Avg. service radius: 9.2 mi</div>
+  </div>
+</section>
+
+<!-- OPERATORS -->
+<section id="operators">
+  <div class="operators-left">
+    <div>
+      <div class="op-eyebrow">For Fleet Operators</div>
+      <h2 class="op-pull reveal">Your vehicles are ready.<br>Your infrastructure isn't.</h2>
+      <p class="op-sub reveal reveal-delay-1">AVNode's network of qualified property owners gives your fleet access to charging, staging, and operations across the city — without you building a single site.</p>
+    </div>
+    <div class="op-metrics reveal">
+      <div class="op-metric">
+        <div class="op-metric-n" id="counterMiles">0<span class="op-unit"> mi</span></div>
+        <div class="op-metric-l">empty miles saved · per vehicle · daily</div>
+      </div>
+      <div class="op-metric">
+        <div class="op-metric-n" id="counterUptime">0<span class="op-unit"> min</span></div>
+        <div class="op-metric-l">service time recovered · per vehicle · daily</div>
+      </div>
+      <div class="op-metric">
+        <div class="op-metric-n" id="counterCost">$0<span class="op-unit">K</span></div>
+        <div class="op-metric-l">annual savings · 100-vehicle fleet</div>
+      </div>
+    </div>
+  </div>
+  <div class="operators-right">
+    <div class="utilization-ring-wrap">
+      <div class="util-label">Vehicle utilization rate</div>
+      <canvas id="util-canvas" width="280" height="280"></canvas>
+      <div class="util-comparison">
+        <div class="util-comp-item">
+          <div class="util-comp-n before">63%</div>
+          <div class="util-comp-l">Central depot</div>
+        </div>
+        <div class="util-comp-item">
+          <div class="util-comp-n after" id="utilAfter">63%</div>
+          <div class="util-comp-l">With AVNode</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OWNERS -->
+<section id="owners">
+  <div class="owners-top reveal">
+    <h2 class="owners-headline">Your parking lot is already infrastructure.<br>We'll connect it to the fleet.</h2>
+    <div class="owners-aside">
+      <p>Hotels, apartments, office buildings, parking garages — if you have space and access, you have a potential node. AVNode qualifies properties and connects them to fleet operators actively seeking sites.</p>
+    </div>
+  </div>
+  <div class="owners-grid">
+    <div class="owners-visual">
+      <canvas id="owners-canvas"></canvas>
+    </div>
+    <div class="owners-sidebar">
+      <div class="owner-benefit reveal">
+        <span class="benefit-num">01</span>
+        <div class="benefit-text">
+          <h4>Recurring revenue on idle space</h4>
+          <p>Parking that sits empty overnight becomes a billable operational node for fleets that run 24/7.</p>
+        </div>
+      </div>
+      <div class="owner-benefit reveal reveal-delay-1">
+        <span class="benefit-num">02</span>
+        <div class="benefit-text">
+          <h4>Infrastructure investment at no cost</h4>
+          <p>High-performing sites may receive charging and fleet infrastructure paid by AVNode or fleet operator partners.</p>
+        </div>
+      </div>
+      <div class="owner-benefit reveal reveal-delay-2">
+        <span class="benefit-num">03</span>
+        <div class="benefit-text">
+          <h4>Long-term operational partnerships</h4>
+          <p>Early qualified sites gain preferential access to future fleet deployments and infrastructure capital.</p>
+        </div>
+      </div>
+      <div class="owner-benefit reveal reveal-delay-3">
+        <span class="benefit-num">04</span>
+        <div class="benefit-text">
+          <h4>No build required</h4>
+          <p>Most sites begin as staging and parking only. Upgrades happen as demand validates the location.</p>
+        </div>
+      </div>
+      <div class="owner-benefit reveal">
+        <span class="benefit-num">05</span>
+        <div class="benefit-text">
+          <h4>Minimum 5 spaces + on-site staff</h4>
+          <p>Power availability, camera coverage, and staff who can plug in vehicles during fleet hours are the primary qualifiers. Properties with existing personnel — hotels, garages, offices — are a natural fit.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARKETS -->
+<section id="markets">
+  <div class="markets-inner">
+    <div class="markets-header reveal">
+      <h2 class="markets-headline">Six markets.<br>Limited nodes each.</h2>
+      <div class="markets-note">
+        <p>AVNode is not an open marketplace. Each city has a fixed node capacity. Once filled, the network is closed to new applications.</p>
+      </div>
+    </div>
+    <div class="city-list" id="cityList">
+      <div class="city-row reveal" data-pct="40">
+        <div>
+          <div class="city-name">Houston</div>
+          <div class="city-state">Texas · Gulf Coast</div>
+        </div>
+        <div class="city-bar-bg"><div class="city-bar-fill" style="width:0%"></div></div>
+        <div class="city-coords">29.7604° N</div>
+        <div class="city-available">12 <span>of 20 nodes</span></div>
+        <div class="city-status open">Open</div>
+      </div>
+      <div class="city-row reveal" data-pct="47">
+        <div>
+          <div class="city-name">Austin</div>
+          <div class="city-state">Texas · Hill Country</div>
+        </div>
+        <div class="city-bar-bg"><div class="city-bar-fill" style="width:0%"></div></div>
+        <div class="city-coords">30.2672° N</div>
+        <div class="city-available">8 <span>of 15 nodes</span></div>
+        <div class="city-status open">Open</div>
+      </div>
+      <div class="city-row reveal" data-pct="40">
+        <div>
+          <div class="city-name">Dallas</div>
+          <div class="city-state">Texas · Metroplex</div>
+        </div>
+        <div class="city-bar-bg"><div class="city-bar-fill" style="width:0%"></div></div>
+        <div class="city-coords">32.7767° N</div>
+        <div class="city-available">15 <span>of 25 nodes</span></div>
+        <div class="city-status open">Open</div>
+      </div>
+      <div class="city-row reveal" data-pct="44">
+        <div>
+          <div class="city-name">Phoenix</div>
+          <div class="city-state">Arizona · Valley</div>
+        </div>
+        <div class="city-bar-bg"><div class="city-bar-fill" style="width:0%"></div></div>
+        <div class="city-coords">33.4484° N</div>
+        <div class="city-available">10 <span>of 18 nodes</span></div>
+        <div class="city-status open">Open</div>
+      </div>
+      <div class="city-row reveal" data-pct="60">
+        <div>
+          <div class="city-name">Tempe</div>
+          <div class="city-state">Arizona · East Valley</div>
+        </div>
+        <div class="city-bar-bg"><div class="city-bar-fill" style="width:0%"></div></div>
+        <div class="city-coords">33.4255° N</div>
+        <div class="city-available">4 <span>of 10 nodes</span></div>
+        <div class="city-status limited">Limited</div>
+      </div>
+      <div class="city-row reveal" data-pct="55">
+        <div>
+          <div class="city-name">Miami</div>
+          <div class="city-state">Florida · South</div>
+        </div>
+        <div class="city-bar-bg"><div class="city-bar-fill" style="width:0%"></div></div>
+        <div class="city-coords">25.7617° N</div>
+        <div class="city-available">9 <span>of 20 nodes</span></div>
+        <div class="city-status open">Open</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CRITERIA -->
+<section id="criteria">
+  <div class="criteria-layout">
+    <div class="criteria-left">
+      <div class="section-eyebrow reveal">Site Qualification</div>
+      <h2 class="criteria-headline reveal">What we look for in a node.</h2>
+      <p class="criteria-sub reveal">Property owners apply to join the network. Each site is reviewed individually — not algorithmically. Roughly 30% of submissions qualify. Here's what we look for.</p>
+      <div class="criteria-items">
+        <div class="criteria-item">
+          <span class="criteria-tag">Access</span>
+          <div>
+            <h4>24/7 access with on-site staff</h4>
+            <p>Partner staff are required to physically plug in vehicles for charging. Sites must have personnel available during active fleet hours to connect and disconnect vehicles.</p>
+          </div>
+        </div>
+        <div class="criteria-item">
+          <span class="criteria-tag">Capacity</span>
+          <div>
+            <h4>Minimum 5 dedicated spaces</h4>
+            <p>Spaces must be exclusively available to fleet vehicles — not shared with guests, tenants, or the general public.</p>
+          </div>
+        </div>
+        <div class="criteria-item">
+          <span class="criteria-tag">Power</span>
+          <div>
+            <h4>Electrical capacity or upgrade path</h4>
+            <p>Existing 208V/240V service or a clear utility upgrade pathway. DC fast charging capability is ideal but not required at entry.</p>
+          </div>
+        </div>
+        <div class="criteria-item">
+          <span class="criteria-tag">Security</span>
+          <div>
+            <h4>Camera coverage</h4>
+            <p>Existing CCTV coverage is preferred. Gated access or perimeter security significantly improves qualification score.</p>
+          </div>
+        </div>
+        <div class="criteria-item">
+          <span class="criteria-tag">Location</span>
+          <div>
+            <h4>Proximity to demand</h4>
+            <p>Within 3 miles of a dense ride, delivery, or logistics zone. The node's value is entirely geographic.</p>
+          </div>
+        </div>
+        <div class="criteria-item">
+          <span class="criteria-tag">Future</span>
+          <div>
+            <h4>Long-term infrastructure viability</h4>
+            <p>Sites with multi-year lease stability and expansion potential receive priority for infrastructure investment.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="criteria-right">
+      <div class="criteria-diagram reveal">
+        <canvas id="criteria-canvas"></canvas>
+        <div class="criteria-caption">A qualified site is evaluated across six dimensions. All six must score above threshold — a single disqualifying factor removes the site from consideration.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- APPLY -->
+<section id="apply">
+  <div class="apply-inner">
+    <div class="apply-left">
+      <div>
+        <div class="section-eyebrow" style="margin-bottom:24px;">Get Started</div>
+        <h2 class="apply-headline">Own a property? Sign up as a node. Run a fleet? Access the network.</h2>
+        <p class="apply-sub">AVNode connects both sides. Property owners join the network by qualifying their site. Fleet operators access those sites to charge, stage, and operate — without building infrastructure themselves.</p>
+      </div>
+      <p class="apply-disclaimer">Applications are confidential. Submitting does not guarantee qualification or create a binding agreement. Property submissions are reviewed on a market-by-market basis and not all properties will qualify.</p>
+    </div>
+    <div class="apply-right">
+      <form class="apply-form" id="applyForm" onsubmit="handleApply(event)">
+        <div class="form-row">
+          <div class="field-group">
+            <label class="field-label">First Name</label>
+            <input class="field-input" type="text" placeholder="—" required>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Last Name</label>
+            <input class="field-input" type="text" placeholder="—" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field-group">
+            <label class="field-label">Company</label>
+            <input class="field-input" type="text" placeholder="—" required>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Email</label>
+            <input class="field-input" type="email" placeholder="—" required>
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="field-group">
+            <label class="field-label">I am a</label>
+            <select class="field-input" required>
+              <option value="" disabled selected>Select one</option>
+              <option>Fleet operator — seeking infrastructure access</option>
+              <option>Property owner — interested in becoming a node</option>
+              <option>Property manager — representing an owner</option>
+              <option>Investor</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="field-group">
+            <label class="field-label">Market of Interest</label>
+            <select class="field-input">
+              <option value="" disabled selected>City</option>
+              <option>Houston, TX</option>
+              <option>Austin, TX</option>
+              <option>Dallas, TX</option>
+              <option>Phoenix, AZ</option>
+              <option>Tempe, AZ</option>
+              <option>Miami, FL</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="field-group">
+            <label class="field-label">Property Address (if applicable)</label>
+            <input class="field-input" type="text" placeholder="—">
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="field-group">
+            <label class="field-label">Tell us more</label>
+            <textarea class="field-input" placeholder="Property details, fleet size, operational context…"></textarea>
+          </div>
+        </div>
+        <div class="form-bottom">
+          <button class="submit-btn" type="submit" id="submitBtn">Submit application</button>
+          <p class="form-note">Reviewed within 14 business days</p>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#" class="footer-logo">AVNode</a>
+  <div class="footer-links">
+    <a href="#operators">Operators</a>
+    <a href="#owners">Property Owners</a>
+    <a href="#markets">Markets</a>
+    <a href="#apply">Contact</a>
+  </div>
+  <span class="footer-copy">© 2026 AVNode</span>
+</footer>
+
+<script>
+'use strict';
+
+/* ─── CURSOR ──────────────────────────────── */
+const cursor = document.getElementById('cursor');
+let mx = -100, my = -100;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px';
+  cursor.style.top = my + 'px';
+});
+document.addEventListener('mousedown', () => cursor.classList.add('click'));
+document.addEventListener('mouseup', () => cursor.classList.remove('click'));
+document.querySelectorAll('a,button,[onclick]').forEach(el => {
+  el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+  el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+});
+
+/* ─── NAV SCROLL ──────────────────────────── */
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 60);
+}, { passive: true });
+
+/* ─── HERO ANIMATION ──────────────────────── */
+(function() {
+  const canvas = document.getElementById('hero-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const COLS = 28, ROWS = 18;
+  let BSW, BSH;
+  function blockSize() { BSW = W / COLS; BSH = H / ROWS; }
+  blockSize();
+  window.addEventListener('resize', blockSize);
+
+  const density = Array.from({length: ROWS}, (_, r) =>
+    Array.from({length: COLS}, (_, c) => {
+      const cx = Math.abs(c - COLS/2) / (COLS/2);
+      const cy = Math.abs(r - ROWS/2) / (ROWS/2);
+      return Math.max(0, 1 - Math.sqrt(cx*cx + cy*cy) * 1.4);
+    })
+  );
+
+  const DEPOT = { c: 14, r: 9 };
+  const VEHICLES = [
+    { c: 3, r: 3 }, { c: 22, r: 2 }, { c: 5, r: 14 },
+    { c: 20, r: 13 }, { c: 8, r: 7 }, { c: 18, r: 5 },
+    { c: 11, r: 15 }, { c: 24, r: 10 }, { c: 6, r: 10 }
+  ];
+  // Nodes — a few placed in the denser urban center for the car demo
+  const NODES = [
+    { c: 3, r: 3 }, { c: 10, r: 2 }, { c: 20, r: 3 },
+    { c: 4, r: 8 }, { c: 14, r: 7 }, { c: 22, r: 8 },
+    { c: 6, r: 14 }, { c: 13, r: 14 }, { c: 21, r: 13 },
+    { c: 9, r: 11 }, { c: 17, r: 11 }, { c: 25, r: 5 }
+  ];
+
+  // Pre-defined routes for featured AV cars: [startVehicleIdx, targetNodeIdx]
+  // Chosen to route through the denser urban center region
+  const AV_ROUTES = [
+    { vi: 4, ni: 4 },  // vehicle {c:8,r:7} → node {c:14,r:7}  — horizontal urban drive
+    { vi: 5, ni: 3 },  // vehicle {c:18,r:5} → node {c:4,r:8}  — across city
+    { vi: 8, ni: 9 },  // vehicle {c:6,r:10} → node {c:9,r:11} — short urban hop
+  ];
+
+  const vState = VEHICLES.map(() => ({ t: Math.random(), speed: 0.003 + Math.random() * 0.003 }));
+  let particles = [];
+
+  function gx(c) { return (c + 0.5) * BSW; }
+  function gy(r) { return (r + 0.5) * BSH; }
+
+  // ── EASING ──────────────────────────────────
+  function easeInOut(t) { return t < 0.5 ? 2*t*t : -1 + (4 - 2*t)*t; }
+  function easeOut(t)   { return 1 - Math.pow(1 - t, 3); }
+
+  // ── DRAW FUNCTIONS (unchanged) ───────────────
+  function drawGrid(alpha) {
+    if (alpha <= 0) return;
+    ctx.globalAlpha = alpha * 0.06;
+    ctx.strokeStyle = '#4a4a7a';
+    ctx.lineWidth = 0.5;
+    for (let c = 0; c <= COLS; c++) {
+      ctx.beginPath(); ctx.moveTo(c * BSW, 0); ctx.lineTo(c * BSW, H); ctx.stroke();
+    }
+    for (let r = 0; r <= ROWS; r++) {
+      ctx.beginPath(); ctx.moveTo(0, r * BSH); ctx.lineTo(W, r * BSH); ctx.stroke();
+    }
+    ctx.globalAlpha = alpha * 0.12;
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const d = density[r][c];
+        if (d > 0.1) {
+          const sz = d * 1.8;
+          ctx.fillStyle = '#6a7aff';
+          ctx.fillRect(c * BSW + BSW/2 - sz/2, r * BSH + BSH/2 - sz/2, sz, sz);
+        }
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function drawDepot(alpha, scale = 1, glow = true) {
+    if (alpha <= 0) return;
+    const x = gx(DEPOT.c), y = gy(DEPOT.r);
+    if (glow) {
+      const g = ctx.createRadialGradient(x, y, 0, x, y, 60 * scale);
+      g.addColorStop(0, `rgba(47,107,245,${0.18 * alpha})`);
+      g.addColorStop(1, 'rgba(47,107,245,0)');
+      ctx.globalAlpha = 1; ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(x, y, 60 * scale, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha = alpha;
+    ctx.beginPath(); ctx.arc(x, y, 10 * scale, 0, Math.PI*2); ctx.fillStyle = '#2F6BF5'; ctx.fill();
+    ctx.beginPath(); ctx.arc(x, y, 5 * scale, 0, Math.PI*2); ctx.fillStyle = '#fff'; ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  function drawVehicleRoutes(alpha) {
+    if (alpha <= 0) return;
+    VEHICLES.forEach((v, i) => {
+      const vx = gx(v.c), vy = gy(v.r);
+      const dx = gx(DEPOT.c), dy = gy(DEPOT.r);
+      const t = (Math.sin(vState[i].t * Math.PI * 2) + 1) / 2;
+      const px = vx + (dx - vx) * t, py = vy + (dy - vy) * t;
+      ctx.globalAlpha = alpha * 0.2; ctx.strokeStyle = '#2F6BF5'; ctx.lineWidth = 1;
+      ctx.setLineDash([4, 6]);
+      ctx.beginPath(); ctx.moveTo(vx, vy); ctx.lineTo(dx, dy); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.globalAlpha = alpha * 0.9;
+      const vGrad = ctx.createRadialGradient(px, py, 0, px, py, 8);
+      vGrad.addColorStop(0, 'rgba(47,107,245,0.6)'); vGrad.addColorStop(1, 'rgba(47,107,245,0)');
+      ctx.fillStyle = vGrad; ctx.beginPath(); ctx.arc(px, py, 8, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px, py, 2.5, 0, Math.PI*2); ctx.fill();
+      vState[i].t += vState[i].speed;
+    });
+    ctx.globalAlpha = 1;
+  }
+
+  function drawNodes(alpha, nodeAlpha, chargingNodeIdx = -1) {
+    if (alpha <= 0) return;
+    const t = Date.now() / 1000;
+    NODES.forEach((n, i) => {
+      const x = gx(n.c), y = gy(n.r);
+      const na = Math.min(1, (nodeAlpha - i * 0.06));
+      if (na <= 0) return;
+      const isCharging = i === chargingNodeIdx;
+      const pulse = isCharging
+        ? Math.sin(t * 4 + i * 0.9) * 0.4 + 0.7
+        : Math.sin(t * 1.5 + i * 0.9) * 0.3 + 0.7;
+      const glowColor = isCharging ? '80,220,255' : '47,107,245';
+      const glowR = isCharging ? 40 * pulse : 28 * pulse;
+      const g = ctx.createRadialGradient(x, y, 0, x, y, glowR);
+      g.addColorStop(0, `rgba(${glowColor},${(isCharging ? 0.4 : 0.22) * na * alpha})`);
+      g.addColorStop(1, `rgba(${glowColor},0)`);
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, glowR, 0, Math.PI*2); ctx.fill();
+      ctx.globalAlpha = na * alpha;
+      ctx.fillStyle = isCharging ? '#4ddcff' : '#2F6BF5';
+      ctx.beginPath(); ctx.arc(x, y, isCharging ? 7 : 5.5, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI*2); ctx.fill();
+      ctx.globalAlpha = 1;
+    });
+  }
+
+  function drawDistributedRoutes(alpha, nodeAlpha) {
+    if (alpha <= 0) return;
+    VEHICLES.forEach((v, i) => {
+      const na = Math.min(1, nodeAlpha); if (na <= 0) return;
+      let nearest = NODES[0], nd = Infinity;
+      NODES.forEach(n => { const d = Math.hypot(n.c - v.c, n.r - v.r); if (d < nd) { nd = d; nearest = n; } });
+      const vx = gx(v.c), vy = gy(v.r);
+      const nx = gx(nearest.c), ny = gy(nearest.r);
+      const t = (Math.sin(vState[i].t * Math.PI * 2) + 1) / 2;
+      const px = vx + (nx - vx) * t, py = vy + (ny - vy) * t;
+      ctx.globalAlpha = alpha * na * 0.18; ctx.strokeStyle = '#2F6BF5'; ctx.lineWidth = 0.8;
+      ctx.setLineDash([3, 5]);
+      ctx.beginPath(); ctx.moveTo(vx, vy); ctx.lineTo(nx, ny); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.globalAlpha = alpha * na * 0.9;
+      const vGrad = ctx.createRadialGradient(px, py, 0, px, py, 7);
+      vGrad.addColorStop(0, 'rgba(47,107,245,0.6)'); vGrad.addColorStop(1, 'rgba(47,107,245,0)');
+      ctx.fillStyle = vGrad; ctx.beginPath(); ctx.arc(px, py, 7, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px, py, 2, 0, Math.PI*2); ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+  }
+
+  function drawParticles() {
+    particles = particles.filter(p => p.life > 0);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.vy += 0.08; p.life -= 0.018; p.r *= 0.97;
+      ctx.globalAlpha = p.life * 0.9; ctx.fillStyle = '#2F6BF5';
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+  }
+
+  // ── AV CAR ──────────────────────────────────
+  // Top-down car — sleek EV silhouette, direction-aware
+  function drawCar(x, y, angle, bodyAlpha, charging) {
+    if (bodyAlpha <= 0) return;
+    ctx.save();
+    ctx.globalAlpha = bodyAlpha;
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+
+    const HL = 18, HW = 9; // half-length, half-width
+
+    // Soft under-glow
+    const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, HL * 2.2);
+    glow.addColorStop(0, charging ? 'rgba(60,210,255,0.35)' : 'rgba(160,195,255,0.22)');
+    glow.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = glow;
+    ctx.beginPath(); ctx.arc(0, 0, HL * 2.2, 0, Math.PI * 2); ctx.fill();
+
+    // Motion trail (only when moving)
+    if (!charging) {
+      const trail = ctx.createLinearGradient(HL, 0, -HL * 3, 0);
+      trail.addColorStop(0, 'rgba(100,160,255,0.18)');
+      trail.addColorStop(1, 'rgba(100,160,255,0)');
+      ctx.fillStyle = trail;
+      ctx.beginPath();
+      ctx.moveTo(-HL, -HW * 0.7);
+      ctx.lineTo(-HL * 3, -HW * 0.2);
+      ctx.lineTo(-HL * 3, HW * 0.2);
+      ctx.lineTo(-HL, HW * 0.7);
+      ctx.fill();
+    }
+
+    // Car body
+    ctx.beginPath();
+    ctx.roundRect(-HL, -HW, HL * 2, HW * 2, 3.5);
+    const bodyGrad = ctx.createLinearGradient(-HL, -HW, HL, HW);
+    bodyGrad.addColorStop(0, charging ? '#c0e8ff' : '#deeaff');
+    bodyGrad.addColorStop(1, charging ? '#90ccf0' : '#b8d0f8');
+    ctx.fillStyle = bodyGrad;
+    ctx.fill();
+
+    // Cabin / glass area (middle third of body)
+    ctx.beginPath();
+    ctx.roundRect(-HL * 0.25, -HW + 1.2, HL * 0.9, HW * 2 - 2.4, 2);
+    ctx.fillStyle = charging ? 'rgba(40,180,255,0.55)' : 'rgba(47,107,245,0.45)';
+    ctx.fill();
+
+    // Roof detail line
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.lineWidth = 0.6;
+    ctx.beginPath();
+    ctx.moveTo(-HL * 0.22, -HW * 0.55);
+    ctx.lineTo(HL * 0.62, -HW * 0.55);
+    ctx.stroke();
+
+    // Headlights (front = positive x direction)
+    const hlColor = charging ? 'rgba(60,220,255,0.95)' : 'rgba(255,255,255,0.95)';
+    ctx.fillStyle = hlColor;
+    ctx.beginPath(); ctx.ellipse(HL - 1, -HW + 1.4, 2.5, 1.4, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(HL - 1,  HW - 1.4, 2.5, 1.4, 0, 0, Math.PI * 2); ctx.fill();
+
+    // Headlight beam
+    if (!charging) {
+      const beam = ctx.createLinearGradient(HL, 0, HL + BSW * 1.4, 0);
+      beam.addColorStop(0, 'rgba(200,225,255,0.18)');
+      beam.addColorStop(1, 'rgba(200,225,255,0)');
+      ctx.fillStyle = beam;
+      ctx.beginPath();
+      ctx.moveTo(HL - 0.5, -HW + 1);
+      ctx.lineTo(HL + BSW * 1.4, -HW * 3);
+      ctx.lineTo(HL + BSW * 1.4,  HW * 3);
+      ctx.lineTo(HL - 0.5,  HW - 1);
+      ctx.fill();
+    }
+
+    // Taillights (rear = negative x)
+    ctx.fillStyle = 'rgba(255,70,70,0.7)';
+    ctx.beginPath(); ctx.ellipse(-HL + 1, -HW + 1.4, 2, 1.2, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(-HL + 1,  HW - 1.4, 2, 1.2, 0, 0, Math.PI * 2); ctx.fill();
+
+    ctx.restore();
+  }
+
+  // Charging station dock indicator at a node
+  function drawChargingDock(nx, ny, chargeProgress, pulseT) {
+    // Expanding rings
+    [1, 0.65, 0.35].forEach((scale, ri) => {
+      const r = chargeProgress * 36 * scale;
+      if (r <= 0) return;
+      const ringAlpha = (1 - r / 36) * 0.45 * chargeProgress;
+      ctx.globalAlpha = ringAlpha;
+      ctx.strokeStyle = '#4ddcff';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.arc(nx, ny, r, 0, Math.PI * 2); ctx.stroke();
+    });
+    // Node boost glow
+    const bg = ctx.createRadialGradient(nx, ny, 0, nx, ny, 28);
+    bg.addColorStop(0, `rgba(60,210,255,${0.5 * chargeProgress})`);
+    bg.addColorStop(0.5, `rgba(47,107,245,${0.25 * chargeProgress})`);
+    bg.addColorStop(1, 'rgba(47,107,245,0)');
+    ctx.globalAlpha = 1; ctx.fillStyle = bg;
+    ctx.beginPath(); ctx.arc(nx, ny, 28, 0, Math.PI * 2); ctx.fill();
+    // Lightning bolt
+    if (chargeProgress > 0.3) {
+      const boltA = Math.min(1, (chargeProgress - 0.3) / 0.4) * (0.7 + Math.sin(pulseT * 6) * 0.3);
+      ctx.globalAlpha = boltA;
+      ctx.fillStyle = '#fff';
+      ctx.font = `bold ${Math.round(9 + chargeProgress * 5)}px sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('⚡', nx, ny - 18);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  // AV Car controller — follows Manhattan streets (horiz then vert)
+  class AVCar {
+    constructor(routeIdx) {
+      this.routeIdx = routeIdx % AV_ROUTES.length;
+      this.spawnDelay = 0;
+      this.init();
+    }
+
+    init() {
+      const route = AV_ROUTES[this.routeIdx];
+      const v = VEHICLES[route.vi];
+      const n = NODES[route.ni];
+      this.sc = v.c; this.sr = v.r;
+      this.ec = n.c; this.er = n.r;
+      this.nodeIdx = route.ni;
+
+      const horizDist = Math.abs(this.ec - this.sc);
+      const vertDist  = Math.abs(this.er - this.sr);
+      const totalGrid = horizDist + vertDist;
+      this.seg1Frac = totalGrid > 0 ? horizDist / totalGrid : 0.5;
+
+      this.t = 0;
+      this.speed = 0.0028 + Math.random() * 0.001;
+      this.bodyAlpha = 0;
+      this.state = 'fading-in'; // fading-in | moving | braking | charging | fading-out
+      this.chargeT = 0;
+      this.pulseT = 0;
+      this.docked = false;
+    }
+
+    getPos() {
+      // Ease overall progress for organic deceleration
+      const ease = easeInOut(Math.min(this.t, 1));
+      let cx, cr, angle;
+
+      // Corner blend zone — smooth angle transition
+      const BLEND = 0.08;
+      if (ease < this.seg1Frac - BLEND || this.seg1Frac <= BLEND) {
+        // Horizontal leg
+        const p = this.seg1Frac > 0 ? Math.min(ease / this.seg1Frac, 1) : 1;
+        cx = this.sc + (this.ec - this.sc) * p;
+        cr = this.sr;
+        angle = this.ec >= this.sc ? 0 : Math.PI;
+      } else if (ease < this.seg1Frac + BLEND && this.seg1Frac > BLEND && this.seg1Frac < 1 - BLEND) {
+        // Corner blend
+        const cornerP = easeOut((ease - (this.seg1Frac - BLEND)) / (BLEND * 2));
+        const a0 = this.ec >= this.sc ? 0 : Math.PI;
+        const a1 = this.er >= this.sr ? Math.PI * 0.5 : -Math.PI * 0.5;
+        cx = this.ec;
+        cr = this.sr + (this.er - this.sr) * cornerP * 0.1;
+        // Short-path angle interpolation
+        let da = a1 - a0;
+        if (da > Math.PI) da -= Math.PI * 2;
+        if (da < -Math.PI) da += Math.PI * 2;
+        angle = a0 + da * cornerP;
+      } else {
+        // Vertical leg
+        const remaining = 1 - this.seg1Frac;
+        const p = remaining > 0 ? Math.min((ease - this.seg1Frac) / remaining, 1) : 1;
+        cx = this.ec;
+        cr = this.sr + (this.er - this.sr) * p;
+        angle = this.er >= this.sr ? Math.PI * 0.5 : -Math.PI * 0.5;
+      }
+      return { x: gx(cx), y: gy(cr), angle };
+    }
+
+    update(elapsed) {
+      this.pulseT = elapsed;
+
+      if (this.state === 'fading-in') {
+        this.bodyAlpha = Math.min(1, this.bodyAlpha + 0.05);
+        if (this.bodyAlpha >= 1) this.state = 'moving';
+      }
+
+      if (this.state === 'moving') {
+        // Decelerate smoothly as approaching destination
+        const remaining = 1 - this.t;
+        const slowZone = 0.12;
+        const spd = remaining < slowZone
+          ? this.speed * (0.15 + (remaining / slowZone) * 0.85)
+          : this.speed;
+        this.t = Math.min(1, this.t + spd);
+        if (this.t >= 1) { this.state = 'charging'; this.chargeT = 0; }
+      }
+
+      if (this.state === 'charging') {
+        this.chargeT = Math.min(1, this.chargeT + 0.007);
+        if (this.chargeT >= 1) this.state = 'fading-out';
+      }
+
+      if (this.state === 'fading-out') {
+        this.bodyAlpha = Math.max(0, this.bodyAlpha - 0.025);
+        this.chargeT = Math.max(0, this.chargeT - 0.03);
+      }
+    }
+
+    draw() {
+      if (this.bodyAlpha <= 0) return;
+      const { x, y, angle } = this.getPos();
+      const charging = this.state === 'charging' || this.state === 'fading-out';
+
+      if (charging && this.chargeT > 0) {
+        const nx = gx(this.ec), ny = gy(this.er);
+        drawChargingDock(nx, ny, this.chargeT, this.pulseT);
+      }
+
+      drawCar(x, y, angle, this.bodyAlpha, charging);
+    }
+
+    get done() { return this.state === 'fading-out' && this.bodyAlpha <= 0; }
+    get chargingNodeIdx() { return (this.state === 'charging' || this.state === 'fading-out') ? this.nodeIdx : -1; }
+  }
+
+  // Pool of 3 cycling cars, staggered entry
+  let avCars = AV_ROUTES.map((_, i) => {
+    const car = new AVCar(i);
+    car.state = 'fading-in';
+    car.spawnDelay = i * 3.5; // stagger: 0s, 3.5s, 7s after Phase 3 starts
+    return car;
+  });
+  let phase3Elapsed = 0;
+  let phase3Started = false;
+
+  function updateAVCars(p3t) {
+    avCars.forEach((car, i) => {
+      if (p3t < car.spawnDelay) return;
+      const localT = p3t - car.spawnDelay;
+      car.update(p3t);
+      if (car.done) {
+        // Respawn on same route after a beat
+        const next = new AVCar(i);
+        next.spawnDelay = p3t + 2.5 + Math.random() * 1.5;
+        avCars[i] = next;
+      }
+    });
+  }
+
+  function getChargingNodeIdx() {
+    for (const car of avCars) {
+      const idx = car.chargingNodeIdx;
+      if (idx >= 0) return idx;
+    }
+    return -1;
+  }
+
+  // ── MAIN DRAW LOOP ───────────────────────────
+  let heroRevealed = false;
+  let startT = Date.now();
+
+  function draw() {
+    requestAnimationFrame(draw);
+    ctx.clearRect(0, 0, W, H);
+    const elapsed = (Date.now() - startT) / 1000;
+
+    if (elapsed < 1) {
+      drawGrid(elapsed);
+    } else if (elapsed < 3.5) {
+      drawGrid(1);
+      drawVehicleRoutes(Math.min(1, elapsed - 1));
+      drawDepot(Math.min(1, elapsed - 1));
+    } else if (elapsed < 5) {
+      drawGrid(1);
+      const tp = (elapsed - 3.5) / 1.5;
+      drawVehicleRoutes(Math.max(0, 1 - tp * 2));
+      drawDepot(1 - tp, 1 + tp * 0.5, true);
+      if (tp > 0.3 && particles.length < 30) {
+        const x = gx(DEPOT.c), y = gy(DEPOT.r);
+        for (let i = 0; i < 3; i++) {
+          const a = Math.random() * Math.PI * 2, spd = 2 + Math.random() * 4;
+          particles.push({ x, y, vx: Math.cos(a)*spd, vy: Math.sin(a)*spd - 1, r: 3 + Math.random()*3, life: 1 });
+        }
+      }
+      drawParticles();
+      drawNodes(tp, tp * NODES.length);
+      drawDistributedRoutes(tp, tp);
+    } else {
+      // Phase 3: distributed + AV car story
+      if (!phase3Started) { phase3Started = true; phase3Elapsed = 0; }
+      phase3Elapsed = elapsed - 5;
+
+      updateAVCars(phase3Elapsed);
+      const chargingIdx = getChargingNodeIdx();
+
+      drawGrid(1);
+      drawParticles();
+      drawNodes(1, NODES.length * 1.5, chargingIdx);
+      drawDistributedRoutes(1, 1);
+
+      // Draw AV cars on top of everything
+      avCars.forEach(car => car.draw());
+
+      if (!heroRevealed) { heroRevealed = true; revealHeroContent(); }
+    }
+  }
+
+  function revealHeroContent() {
+    document.getElementById('phaseLabel').classList.add('show');
+    document.querySelectorAll('.hero-headline .word').forEach((w, i) => {
+      setTimeout(() => w.classList.add('up'), i * 60);
+    });
+    setTimeout(() => document.getElementById('heroSub').classList.add('show'), 400);
+    setTimeout(() => document.getElementById('heroCtas').classList.add('show'), 600);
+    setTimeout(() => document.getElementById('heroStats').classList.add('show'), 800);
+  }
+
+  draw();
+})();
+
+/* ─── MODEL CANVAS ────────────────────────── */
+let modelMode = 'central';
+function setModelMode(mode) {
+  modelMode = mode;
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  const note = document.getElementById('modelNote');
+  note.textContent = mode === 'central' ? 'Avg. service radius: 9.2 mi' : 'Avg. service radius: 1.8 mi';
+}
+
+(function() {
+  const canvas = document.getElementById('model-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  let nodeAlpha = 0, targetNodeAlpha = 0;
+
+  function resize() {
+    W = canvas.width = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const COLS = 20, ROWS = 12;
+  const depot = { c: 10, r: 6 };
+  const vehicles = [
+    { c: 1, r: 1 }, { c: 17, r: 2 }, { c: 3, r: 9 },
+    { c: 16, r: 9 }, { c: 6, r: 5 }, { c: 14, r: 4 },
+    { c: 8, r: 10 }, { c: 18, r: 7 }, { c: 4, r: 6 },
+    { c: 12, r: 1 }, { c: 19, r: 10 }, { c: 2, r: 11 }
+  ];
+  const nodes = [
+    { c: 2, r: 2 }, { c: 9, r: 1 }, { c: 17, r: 2 },
+    { c: 3, r: 6 }, { c: 10, r: 5 }, { c: 17, r: 6 },
+    { c: 4, r: 10 }, { c: 11, r: 10 }, { c: 18, r: 9 },
+    { c: 6, r: 8 }, { c: 14, r: 3 }, { c: 7, r: 4 }
+  ];
+  const vT = vehicles.map(() => ({ t: Math.random() }));
+  const BGRed = '#09090C';
+
+  function gx(c) { return (c + 0.5) * W / COLS; }
+  function gy(r) { return (r + 0.5) * H / ROWS; }
+
+  function draw() {
+    requestAnimationFrame(draw);
+    const na = modelMode === 'central' ? 0 : 1;
+    targetNodeAlpha = na;
+    nodeAlpha += (targetNodeAlpha - nodeAlpha) * 0.06;
+
+    ctx.fillStyle = '#101013';
+    ctx.fillRect(0, 0, W, H);
+
+    // Grid
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.lineWidth = 0.5;
+    for (let c = 0; c <= COLS; c++) {
+      ctx.beginPath(); ctx.moveTo(c * W/COLS, 0); ctx.lineTo(c * W/COLS, H); ctx.stroke();
+    }
+    for (let r = 0; r <= ROWS; r++) {
+      ctx.beginPath(); ctx.moveTo(0, r * H/ROWS); ctx.lineTo(W, r * H/ROWS); ctx.stroke();
+    }
+
+    const da = 1 - nodeAlpha * 0.95;
+
+    // Depot
+    if (da > 0.02) {
+      const dx = gx(depot.c), dy = gy(depot.r);
+      const g = ctx.createRadialGradient(dx, dy, 0, dx, dy, 70);
+      g.addColorStop(0, `rgba(47,107,245,${0.2 * da})`);
+      g.addColorStop(1, 'rgba(47,107,245,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(dx, dy, 70, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = `rgba(47,107,245,${da})`; ctx.beginPath(); ctx.arc(dx, dy, 10, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = `rgba(255,255,255,${da})`; ctx.beginPath(); ctx.arc(dx, dy, 5, 0, Math.PI*2); ctx.fill();
+    }
+
+    // Nodes
+    if (nodeAlpha > 0.02) {
+      const t = Date.now() / 1000;
+      nodes.forEach((n, i) => {
+        const na2 = Math.min(1, nodeAlpha * NODES.length - i * 0.5);
+        if (na2 <= 0) return;
+        const x = gx(n.c), y = gy(n.r);
+        const pulse = Math.sin(t * 1.3 + i) * 0.25 + 0.75;
+        const g = ctx.createRadialGradient(x, y, 0, x, y, 22*pulse);
+        g.addColorStop(0, `rgba(47,107,245,${0.3 * na2 * nodeAlpha})`);
+        g.addColorStop(1, 'rgba(47,107,245,0)');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 22*pulse, 0, Math.PI*2); ctx.fill();
+        ctx.globalAlpha = na2 * nodeAlpha;
+        ctx.fillStyle = '#2F6BF5'; ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI*2); ctx.fill();
+        ctx.globalAlpha = 1;
+      });
+    }
+
+    // Vehicles + routes
+    vehicles.forEach((v, i) => {
+      const vx = gx(v.c), vy = gy(v.r);
+      let tx, ty;
+      if (nodeAlpha < 0.5) {
+        tx = gx(depot.c); ty = gy(depot.r);
+      } else {
+        let nearestNode = nodes[0], nd = Infinity;
+        nodes.forEach(n => {
+          const d = Math.hypot(n.c - v.c, n.r - v.r);
+          if (d < nd) { nd = d; nearestNode = n; }
+        });
+        const cx = gx(depot.c), cy = gy(depot.r);
+        const nx2 = gx(nearestNode.c), ny2 = gy(nearestNode.r);
+        tx = cx + (nx2 - cx) * nodeAlpha;
+        ty = cy + (ny2 - cy) * nodeAlpha;
+      }
+      const t2 = (Math.sin(vT[i].t * Math.PI * 2) + 1) / 2;
+      const px = vx + (tx - vx) * t2, py = vy + (ty - vy) * t2;
+      vT[i].t += 0.004 + Math.random() * 0.001;
+
+      const dist = Math.hypot(tx - vx, ty - vy);
+      const lineAlpha = Math.max(0, Math.min(0.25, 0.25 - (dist - 80) / 400));
+      ctx.globalAlpha = lineAlpha;
+      ctx.strokeStyle = '#2F6BF5'; ctx.lineWidth = 0.8;
+      ctx.setLineDash([3, 5]);
+      ctx.beginPath(); ctx.moveTo(vx, vy); ctx.lineTo(tx, ty); ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.globalAlpha = 0.85;
+      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px, py, 2.5, 0, Math.PI*2); ctx.fill();
+      ctx.globalAlpha = 1;
+    });
+  }
+  draw();
+})();
+
+/* ─── UTILIZATION RING ────────────────────── */
+(function() {
+  const canvas = document.getElementById('util-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const SIZE = 280;
+  canvas.width = SIZE; canvas.height = SIZE;
+
+  let currentVal = 63, targetVal = 63, animating = false;
+  let hasAnimated = false;
+
+  function drawRing(pct, label) {
+    ctx.clearRect(0, 0, SIZE, SIZE);
+    const cx = SIZE/2, cy = SIZE/2, r = 100, lw = 14;
+    const startAngle = -Math.PI/2;
+    const endAngle = startAngle + (pct/100) * Math.PI * 2;
+
+    ctx.lineWidth = lw;
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
+
+    const g = ctx.createLinearGradient(cx - r, 0, cx + r, 0);
+    g.addColorStop(0, '#1E4FD8'); g.addColorStop(1, '#2F6BF5');
+    ctx.strokeStyle = g;
+    ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.arc(cx, cy, r, startAngle, endAngle); ctx.stroke();
+
+    ctx.fillStyle = '#EEEEF2';
+    ctx.font = '600 48px "Space Grotesk", sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(Math.round(pct) + '%', cx, cy - 8);
+    ctx.fillStyle = '#6A6A7E';
+    ctx.font = '400 13px Inter, sans-serif';
+    ctx.fillText('utilization', cx, cy + 30);
+  }
+
+  function animate() {
+    if (Math.abs(currentVal - targetVal) < 0.2) {
+      currentVal = targetVal;
+      document.getElementById('utilAfter').textContent = Math.round(currentVal) + '%';
+      drawRing(currentVal);
+      return;
+    }
+    currentVal += (targetVal - currentVal) * 0.04;
+    document.getElementById('utilAfter').textContent = Math.round(currentVal) + '%';
+    drawRing(currentVal);
+    requestAnimationFrame(animate);
+  }
+
+  drawRing(63);
+
+  const observer = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting && !hasAnimated) {
+      hasAnimated = true;
+      setTimeout(() => {
+        targetVal = 88;
+        requestAnimationFrame(animate);
+      }, 600);
+    }
+  }, { threshold: 0.4 });
+  observer.observe(canvas);
+})();
+
+/* ─── COUNTER ANIMATION ───────────────────── */
+function animateCounter(el, target, prefix='', suffix='', duration=1400) {
+  let start = null;
+  const step = ts => {
+    if (!start) start = ts;
+    const p = Math.min((ts - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    el.innerHTML = prefix + Math.round(target * ease) + `<span class="op-unit">${suffix}</span>`;
+    if (p < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+(function() {
+  let done = false;
+  const observer = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting && !done) {
+      done = true;
+      setTimeout(() => animateCounter(document.getElementById('counterMiles'), 14, '', ' mi'), 200);
+      setTimeout(() => animateCounter(document.getElementById('counterUptime'), 47, '', ' min'), 400);
+      setTimeout(() => animateCounter(document.getElementById('counterCost'), 420, '$', 'K'), 600);
+    }
+  }, { threshold: 0.3 });
+  const el = document.getElementById('operators');
+  if (el) observer.observe(el);
+})();
+
+/* ─── OWNERS CANVAS ───────────────────────── */
+(function() {
+  const canvas = document.getElementById('owners-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  function resize() {
+    W = canvas.width = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const SPOT_COLS = 6, SPOT_ROWS = 5;
+  const t0 = Date.now();
+
+  function draw() {
+    requestAnimationFrame(draw);
+    const elapsed = (Date.now() - t0) / 1000;
+    ctx.fillStyle = '#0A0A0D';
+    ctx.fillRect(0, 0, W, H);
+
+    const padX = 40, padY = 40;
+    const availW = W - padX * 2;
+    const availH = H - padY * 2;
+    const spotW = availW / SPOT_COLS;
+    const spotH = availH / SPOT_ROWS;
+    const spotPad = 6;
+
+    for (let r = 0; r < SPOT_ROWS; r++) {
+      for (let c = 0; c < SPOT_COLS; c++) {
+        const x = padX + c * spotW + spotPad;
+        const y = padY + r * spotH + spotPad;
+        const sw = spotW - spotPad * 2;
+        const sh = spotH - spotPad * 2;
+
+        const idx = r * SPOT_COLS + c;
+        const activationDelay = idx * 0.3;
+        const active = elapsed > activationDelay + 0.5;
+        const activePct = Math.min(1, Math.max(0, (elapsed - activationDelay - 0.5) / 1.2));
+        const pulse = active ? Math.sin(elapsed * 1.5 + idx * 0.7) * 0.15 + 0.85 : 0;
+
+        const baseAlpha = 0.12;
+        const activeAlpha = baseAlpha + activePct * 0.5;
+
+        ctx.fillStyle = `rgba(47,107,245,${activeAlpha * pulse})`;
+        ctx.strokeStyle = `rgba(47,107,245,${(0.15 + activePct * 0.6) * pulse})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(x, y, sw, sh, 4);
+        ctx.fill();
+        ctx.stroke();
+
+        // Center dot
+        if (active && activePct > 0.6) {
+          const dotAlpha = (activePct - 0.6) / 0.4;
+          const cx2 = x + sw/2, cy2 = y + sh/2;
+          const g = ctx.createRadialGradient(cx2, cy2, 0, cx2, cy2, 12);
+          g.addColorStop(0, `rgba(47,107,245,${0.5 * dotAlpha})`);
+          g.addColorStop(1, 'rgba(47,107,245,0)');
+          ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx2, cy2, 12, 0, Math.PI*2); ctx.fill();
+          ctx.fillStyle = `rgba(255,255,255,${dotAlpha * 0.9})`;
+          ctx.beginPath(); ctx.arc(cx2, cy2, 2.5, 0, Math.PI*2); ctx.fill();
+        }
+      }
+    }
+
+    // Lane lines
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1.5;
+    for (let r = 0; r <= SPOT_ROWS; r++) {
+      ctx.beginPath();
+      ctx.moveTo(padX, padY + r * spotH);
+      ctx.lineTo(padX + availW, padY + r * spotH);
+      ctx.stroke();
+    }
+
+    // Label overlay
+    ctx.fillStyle = 'rgba(47,107,245,0.9)';
+    ctx.font = '600 11px "Space Grotesk", sans-serif';
+    ctx.textAlign = 'center';
+    const labelAlpha = Math.min(1, Math.max(0, (elapsed - 2) / 1));
+    if (labelAlpha > 0) {
+      ctx.globalAlpha = labelAlpha;
+      ctx.fillText('AVNode Qualified Site', W/2, H - 18);
+      ctx.globalAlpha = 1;
+    }
+  }
+  draw();
+})();
+
+/* ─── MARKETS BARS ────────────────────────── */
+(function() {
+  const rows = document.querySelectorAll('.city-row');
+  let done = false;
+  const observer = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting && !done) {
+      done = true;
+      rows.forEach((row, i) => {
+        const pct = row.dataset.pct || 50;
+        const fill = row.querySelector('.city-bar-fill');
+        setTimeout(() => {
+          if (fill) fill.style.width = pct + '%';
+        }, i * 80 + 200);
+      });
+    }
+  }, { threshold: 0.2 });
+  const section = document.getElementById('markets');
+  if (section) observer.observe(section);
+})();
+
+/* ─── CRITERIA CANVAS ─────────────────────── */
+(function() {
+  const canvas = document.getElementById('criteria-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  function resize() {
+    W = canvas.width = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight || 380;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const axes = [
+    { label: 'Access', val: 1.0, angle: -Math.PI/2 },
+    { label: 'Capacity', val: 0.82, angle: -Math.PI/2 + Math.PI/3 },
+    { label: 'Power', val: 0.74, angle: -Math.PI/2 + 2*Math.PI/3 },
+    { label: 'Security', val: 0.88, angle: -Math.PI/2 + Math.PI },
+    { label: 'Location', val: 0.94, angle: -Math.PI/2 + 4*Math.PI/3 },
+    { label: 'Future', val: 0.79, angle: -Math.PI/2 + 5*Math.PI/3 },
+  ];
+  const threshold = 0.65;
+  let animP = 0;
+
+  function draw() {
+    requestAnimationFrame(draw);
+    animP = Math.min(1, animP + 0.012);
+    ctx.clearRect(0, 0, W, H);
+    const cx = W/2, cy = H/2 - 10;
+    const maxR = Math.min(W, H) * 0.36;
+
+    // Grid rings
+    [0.25, 0.5, threshold, 1].forEach(r => {
+      ctx.strokeStyle = r === threshold ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.06)';
+      ctx.lineWidth = r === threshold ? 1.5 : 0.75;
+      ctx.beginPath();
+      axes.forEach((a, i) => {
+        const x = cx + Math.cos(a.angle) * r * maxR;
+        const y = cy + Math.sin(a.angle) * r * maxR;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      });
+      ctx.closePath(); ctx.stroke();
+    });
+
+    // Threshold label
+    ctx.fillStyle = 'rgba(245,158,11,0.5)';
+    ctx.font = '10px Inter, sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText('Threshold', cx + Math.cos(axes[0].angle) * threshold * maxR + 6, cy + Math.sin(axes[0].angle) * threshold * maxR);
+
+    // Axis lines
+    axes.forEach(a => {
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 0.75;
+      ctx.beginPath(); ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(a.angle) * maxR, cy + Math.sin(a.angle) * maxR);
+      ctx.stroke();
+    });
+
+    // Data polygon
+    const eased = 1 - Math.pow(1 - animP, 3);
+    ctx.beginPath();
+    axes.forEach((a, i) => {
+      const r = a.val * eased;
+      const x = cx + Math.cos(a.angle) * r * maxR;
+      const y = cy + Math.sin(a.angle) * r * maxR;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(47,107,245,0.15)'; ctx.fill();
+    ctx.strokeStyle = '#2F6BF5'; ctx.lineWidth = 1.5; ctx.stroke();
+
+    // Dots on vertices
+    axes.forEach(a => {
+      const r = a.val * eased;
+      const x = cx + Math.cos(a.angle) * r * maxR;
+      const y = cy + Math.sin(a.angle) * r * maxR;
+      ctx.fillStyle = '#2F6BF5'; ctx.beginPath(); ctx.arc(x, y, 3.5, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x, y, 1.8, 0, Math.PI*2); ctx.fill();
+    });
+
+    // Axis labels
+    axes.forEach(a => {
+      const x = cx + Math.cos(a.angle) * (maxR + 20);
+      const y = cy + Math.sin(a.angle) * (maxR + 20);
+      ctx.fillStyle = '#6A6A7E';
+      ctx.font = '11px Inter, sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(a.label, x, y);
+    });
+  }
+
+  const observer = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) animP = 0;
+  }, { threshold: 0.4 });
+  observer.observe(canvas);
+  draw();
+})();
+
+/* ─── INTERSECTION OBSERVER / REVEAL ─────── */
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('visible');
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+const criteriaObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      document.querySelectorAll('.criteria-item').forEach((el, i) => {
+        setTimeout(() => el.classList.add('visible'), i * 80);
+      });
+    }
+  });
+}, { threshold: 0.15 });
+const criteriaSection = document.getElementById('criteria');
+if (criteriaSection) criteriaObs.observe(criteriaSection);
+
+/* ─── FORM SUBMIT ─────────────────────────── */
+function handleApply(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  btn.textContent = 'Application received';
+  btn.classList.add('success');
+  btn.disabled = true;
+}
+</script>
+</body>
+</html>

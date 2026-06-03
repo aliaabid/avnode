@@ -354,6 +354,44 @@ canvas { display: block; }
 .slide.active .slide-content { opacity: 1; transform: translateY(0); }
 .slide-content-delay { transition-delay: .2s; }
 .slide-content-delay2 { transition-delay: .3s; }
+
+/* PDF BUTTON */
+.pdf-btn {
+  font-size: 12px; font-weight: 500; color: var(--muted);
+  background: none; border: 1px solid var(--border);
+  padding: 6px 14px; border-radius: 100px; cursor: pointer;
+  font-family: 'Inter', sans-serif; transition: all .2s; margin-left: 8px;
+}
+.pdf-btn:hover { border-color: var(--blue); color: var(--text); }
+
+/* ── PRINT STYLES ── */
+@media print {
+  @page { size: 1280px 720px; margin: 0; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  html, body { width: 1280px; height: 720px; overflow: hidden; cursor: auto; }
+  #cur, .deck-nav, .deck-logo, .progress-bar, .pdf-btn { display: none !important; }
+  .deck { width: 1280px; height: 720px; }
+  .slides { display: block; width: 1280px; transform: none !important; }
+  .slide {
+    width: 1280px; height: 720px; min-width: 1280px;
+    page-break-after: always; break-after: page;
+    display: flex !important; padding: 64px 80px;
+    position: relative; overflow: hidden;
+  }
+  .slide-content { opacity: 1 !important; transform: none !important; }
+  canvas { display: none !important; }
+  #s1 { background: #09090C !important; }
+  #s2 { background: #101013 !important; }
+  #s3 { background: #09090C !important; }
+  #s4 { background: #101013 !important; }
+  #s5 { background: #09090C !important; }
+  #s6 { background: #101013 !important; }
+  #s7 { background: #09090C !important; }
+  #s8 { background: #101013 !important; }
+  #s9 { background: #09090C !important; }
+  #s10 { background: #101013 !important; }
+  .s3-bar-fill { width: attr(data-w) !important; }
+}
 </style>
 </head>
 <body>
@@ -691,6 +729,7 @@ canvas { display: block; }
   <div class="nav-dots" id="navDots"></div>
   <button class="nav-btn" id="nextBtn" onclick="nav(1)">→</button>
   <span class="slide-counter" id="counter">1 / 10</span>
+  <button class="pdf-btn" onclick="savePDF()">↓ Save PDF</button>
 </div>
 
 <script>
@@ -891,6 +930,22 @@ function animateBars() {
   }
   draw();
 })();
+
+function savePDF() {
+  // Activate all slides so content is visible when printing
+  document.querySelectorAll('.slide').forEach(s => s.classList.add('active'));
+  // Trigger bars animation values inline for print
+  document.querySelectorAll('.s3-bar-fill').forEach(f => {
+    f.style.width = (f.dataset.w || 0) + '%';
+  });
+  window.print();
+  // Restore state after print dialog closes
+  setTimeout(() => {
+    document.querySelectorAll('.slide').forEach((s, i) => {
+      s.classList.toggle('active', i === current);
+    });
+  }, 1000);
+}
 </script>
 </body>
 </html>

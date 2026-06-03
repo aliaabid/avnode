@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aabid Ali — Founder · AVNode</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #09090C;
+  --surface: #101013;
+  --border: #1A1A22;
+  --border-hi: #2A2A36;
+  --text: #EEEEF2;
+  --muted: #6A6A7E;
+  --dim: #32323F;
+  --blue: #2F6BF5;
+  --blue-faint: rgba(47,107,245,0.1);
+  --blue-line: rgba(47,107,245,0.22);
+}
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; cursor: none; }
+::selection { background: var(--blue); color: #fff; }
+::-webkit-scrollbar { width: 3px; } ::-webkit-scrollbar-track { background: var(--bg); } ::-webkit-scrollbar-thumb { background: var(--dim); }
+
+/* CURSOR */
+#cur { width: 5px; height: 5px; background: #fff; border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); mix-blend-mode: difference; transition: width .15s, height .15s; }
+#cur.h { width: 28px; height: 28px; }
+@media (pointer: coarse) { #cur { display: none; } body { cursor: auto; } }
+
+/* NAV */
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 28px 56px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid transparent; transition: all .4s; }
+nav.scrolled { padding: 18px 56px; background: rgba(9,9,12,.94); backdrop-filter: blur(20px); border-color: var(--border); }
+.nav-logo { font-family: 'Space Grotesk', sans-serif; font-size: 17px; font-weight: 600; letter-spacing: -.02em; color: var(--text); text-decoration: none; }
+.nav-right { display: flex; align-items: center; gap: 32px; }
+.nav-link { font-size: 13px; color: var(--muted); text-decoration: none; transition: color .2s; }
+.nav-link:hover { color: var(--text); }
+.nav-cta { font-size: 13px; font-weight: 500; color: var(--text); text-decoration: none; border: 1px solid var(--border-hi); padding: 8px 18px; border-radius: 100px; transition: border-color .2s; }
+.nav-cta:hover { border-color: var(--blue); }
+@media (max-width: 768px) { nav, nav.scrolled { padding: 20px 24px; } .nav-link { display: none; } }
+
+/* REVEAL */
+.reveal { opacity: 0; transform: translateY(18px); transition: opacity .8s cubic-bezier(.16,1,.3,1), transform .8s cubic-bezier(.16,1,.3,1); }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-d1 { transition-delay: .1s; } .reveal-d2 { transition-delay: .2s; } .reveal-d3 { transition-delay: .3s; } .reveal-d4 { transition-delay: .4s; }
+
+/* ── HERO ─────────────────────────────────── */
+#hero { position: relative; min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; align-items: center; padding: 120px 56px 80px; overflow: hidden; gap: 0; }
+#hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hero-left { position: relative; z-index: 2; }
+.hero-eyebrow { font-size: 11px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--blue); font-family: 'Space Grotesk', sans-serif; margin-bottom: 28px; }
+.hero-name { font-family: 'Space Grotesk', sans-serif; font-size: clamp(56px, 7vw, 100px); font-weight: 700; letter-spacing: -.04em; line-height: .95; color: var(--text); margin-bottom: 20px; }
+.hero-title { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 400; color: var(--muted); letter-spacing: -.01em; margin-bottom: 36px; }
+.hero-line { width: 40px; height: 1px; background: var(--blue); margin-bottom: 28px; }
+.hero-thesis { font-size: 17px; color: var(--muted); line-height: 1.7; max-width: 460px; }
+.hero-thesis strong { color: var(--text); font-weight: 500; }
+.hero-right { position: relative; z-index: 2; display: flex; justify-content: flex-end; align-items: center; padding-left: 48px; }
+.portrait-frame { width: 100%; max-width: 440px; aspect-ratio: 4/5; position: relative; }
+.portrait-bg { width: 100%; height: 100%; background: var(--surface); border: 1px solid var(--border); position: relative; overflow: hidden; border-radius: 2px; }
+#portrait-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.portrait-initials { position: absolute; bottom: 28px; left: 28px; font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 500; color: var(--dim); letter-spacing: .08em; z-index: 2; }
+.portrait-tag { position: absolute; top: 24px; right: 24px; font-size: 10px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--blue); background: var(--blue-faint); border: 1px solid var(--blue-line); padding: 5px 10px; border-radius: 100px; z-index: 2; }
+@media (max-width: 900px) { #hero { grid-template-columns: 1fr; padding: 100px 24px 64px; } .hero-right { justify-content: flex-start; padding-left: 0; margin-top: 48px; } .portrait-frame { max-width: 280px; } }
+
+/* ── WHY AVNODE EXISTS ────────────────────── */
+#why { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 120px 56px; }
+.why-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 280px 1fr; gap: 80px; align-items: start; }
+.why-label { font-size: 11px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--blue); font-family: 'Space Grotesk', sans-serif; padding-top: 6px; position: sticky; top: 100px; }
+.why-content {}
+.why-pull { font-family: 'Space Grotesk', sans-serif; font-size: clamp(28px, 3.2vw, 46px); font-weight: 500; line-height: 1.15; letter-spacing: -.025em; color: var(--text); margin-bottom: 40px; }
+.why-pull em { color: var(--blue); font-style: normal; }
+.why-body { display: flex; flex-direction: column; gap: 20px; }
+.why-body p { font-size: 17px; color: var(--muted); line-height: 1.75; }
+.why-body strong { color: var(--text); font-weight: 500; }
+.why-divider { width: 100%; height: 1px; background: var(--border); margin: 32px 0; }
+.why-statement { font-family: 'Space Grotesk', sans-serif; font-size: clamp(18px, 2vw, 24px); font-weight: 500; line-height: 1.4; letter-spacing: -.015em; color: var(--text); padding: 32px; border: 1px solid var(--border-hi); border-left: 3px solid var(--blue); border-radius: 0 4px 4px 0; background: var(--bg); }
+@media (max-width: 768px) { #why { padding: 80px 24px; } .why-inner { grid-template-columns: 1fr; gap: 32px; } .why-label { position: static; } }
+
+/* ── TIMELINE ─────────────────────────────── */
+#timeline { background: var(--bg); border-bottom: 1px solid var(--border); padding: 120px 56px; }
+.timeline-header { max-width: 1100px; margin: 0 auto 72px; }
+.section-eyebrow { font-size: 11px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--blue); font-family: 'Space Grotesk', sans-serif; margin-bottom: 16px; }
+.section-headline { font-family: 'Space Grotesk', sans-serif; font-size: clamp(30px, 3.5vw, 48px); font-weight: 600; letter-spacing: -.03em; line-height: 1.1; color: var(--text); }
+.timeline-track { max-width: 1100px; margin: 0 auto; position: relative; }
+.timeline-line { position: absolute; left: 0; top: 28px; right: 0; height: 1px; background: var(--border); }
+.timeline-line-fill { height: 100%; background: linear-gradient(90deg, var(--blue), var(--blue-faint)); width: 0; transition: width 1.4s cubic-bezier(.16,1,.3,1); }
+.timeline-entries { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; position: relative; }
+.timeline-entry { padding: 56px 40px 0 0; position: relative; }
+.timeline-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--blue); border: 2px solid var(--bg); position: absolute; top: 22px; left: 0; box-shadow: 0 0 0 4px var(--blue-faint); }
+.timeline-dot.dim { background: var(--dim); box-shadow: none; border-color: var(--bg); }
+.timeline-year { font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 500; color: var(--dim); letter-spacing: .06em; margin-bottom: 16px; }
+.timeline-co { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 600; letter-spacing: -.015em; color: var(--text); margin-bottom: 6px; }
+.timeline-role { font-size: 13px; color: var(--blue); font-weight: 500; margin-bottom: 16px; letter-spacing: .01em; }
+.timeline-desc { font-size: 14px; color: var(--muted); line-height: 1.65; margin-bottom: 20px; }
+.timeline-outcome { font-size: 12px; font-weight: 500; color: var(--text); padding: 8px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; display: inline-block; letter-spacing: .02em; }
+.timeline-outcome.current { background: var(--blue-faint); border-color: var(--blue-line); color: var(--blue); }
+@media (max-width: 768px) { #timeline { padding: 80px 24px; } .timeline-entries { grid-template-columns: 1fr; gap: 48px; } .timeline-line { display: none; } .timeline-dot { display: none; } .timeline-entry { padding: 0; border-left: 2px solid var(--border); padding-left: 24px; } }
+
+/* ── OPERATOR BACKGROUND ─────────────────── */
+#operator { background: var(--surface); border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 1fr 1fr; }
+.op-left { padding: 120px 56px; border-right: 1px solid var(--border); }
+.op-right { padding: 120px 56px; }
+.op-headline { font-family: 'Space Grotesk', sans-serif; font-size: clamp(28px, 3vw, 44px); font-weight: 600; letter-spacing: -.03em; line-height: 1.1; color: var(--text); margin-bottom: 28px; }
+.op-body { font-size: 16px; color: var(--muted); line-height: 1.75; margin-bottom: 48px; }
+.op-stats { display: flex; flex-direction: column; gap: 0; }
+.op-stat { padding: 22px 0; border-top: 1px solid var(--border); }
+.op-stat-n { font-family: 'Space Grotesk', sans-serif; font-size: 36px; font-weight: 700; letter-spacing: -.035em; color: var(--text); line-height: 1; margin-bottom: 5px; }
+.op-stat-l { font-size: 13px; color: var(--muted); }
+.domain-list { display: flex; flex-direction: column; gap: 0; }
+.domain-item { display: grid; grid-template-columns: 140px 1fr; gap: 24px; padding: 22px 0; border-top: 1px solid var(--border); align-items: start; }
+.domain-item:last-child { border-bottom: 1px solid var(--border); }
+.domain-tag { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); padding-top: 2px; }
+.domain-text h4 { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+.domain-text p { font-size: 13px; color: var(--muted); line-height: 1.55; }
+@media (max-width: 900px) { #operator { grid-template-columns: 1fr; } .op-left { padding: 80px 24px; border-right: none; border-bottom: 1px solid var(--border); } .op-right { padding: 72px 24px; } }
+
+/* ── BUILT FROM EXPERIENCE ───────────────── */
+#experience { background: var(--bg); border-bottom: 1px solid var(--border); padding: 120px 56px; }
+.exp-inner { max-width: 1100px; margin: 0 auto; }
+.exp-header { margin-bottom: 72px; display: flex; justify-content: space-between; align-items: flex-end; }
+.exp-headline { font-family: 'Space Grotesk', sans-serif; font-size: clamp(28px, 3.2vw, 46px); font-weight: 600; letter-spacing: -.03em; line-height: 1.1; color: var(--text); max-width: 560px; }
+.exp-aside { max-width: 260px; text-align: right; font-size: 14px; color: var(--muted); line-height: 1.65; }
+.exp-problems { display: flex; flex-direction: column; gap: 0; }
+.exp-row { display: grid; grid-template-columns: 220px 1fr 1fr; gap: 0; border-top: 1px solid var(--border); }
+.exp-row:last-child { border-bottom: 1px solid var(--border); }
+.exp-cell { padding: 28px 32px 28px 0; }
+.exp-cell:not(:first-child) { padding-left: 32px; border-left: 1px solid var(--border); }
+.exp-cell-label { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); margin-bottom: 10px; }
+.exp-cell-val { font-size: 15px; color: var(--text); font-weight: 500; line-height: 1.4; margin-bottom: 4px; }
+.exp-cell-sub { font-size: 13px; color: var(--muted); line-height: 1.5; }
+@media (max-width: 900px) { #experience { padding: 80px 24px; } .exp-header { flex-direction: column; gap: 20px; align-items: flex-start; } .exp-aside { text-align: left; } .exp-row { grid-template-columns: 1fr; } .exp-cell:not(:first-child) { padding-left: 0; border-left: none; border-top: 1px solid var(--border); } }
+
+/* ── CONTACT/INVESTOR ─────────────────────── */
+#contact { background: var(--surface); border-bottom: 1px solid var(--border); padding: 120px 56px; }
+.contact-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+.contact-left {}
+.contact-headline { font-family: 'Space Grotesk', sans-serif; font-size: clamp(30px, 3.5vw, 52px); font-weight: 600; letter-spacing: -.03em; line-height: 1.1; color: var(--text); margin-bottom: 20px; }
+.contact-sub { font-size: 16px; color: var(--muted); line-height: 1.7; margin-bottom: 40px; max-width: 400px; }
+.contact-email { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 500; color: var(--blue); text-decoration: none; letter-spacing: -.01em; transition: color .2s; display: block; margin-bottom: 24px; }
+.contact-email:hover { color: #5585ff; }
+.contact-note { font-size: 13px; color: var(--dim); line-height: 1.55; }
+.contact-right {}
+.contact-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 40px; position: relative; overflow: hidden; }
+.contact-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--blue), transparent); }
+.contact-card-name { font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 600; letter-spacing: -.02em; margin-bottom: 4px; }
+.contact-card-title { font-size: 14px; color: var(--muted); margin-bottom: 28px; }
+.contact-card-line { height: 1px; background: var(--border); margin-bottom: 24px; }
+.contact-card-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.contact-card-row:last-child { border-bottom: none; }
+.contact-card-key { font-size: 12px; color: var(--muted); }
+.contact-card-val { font-size: 13px; font-weight: 500; color: var(--text); }
+@media (max-width: 768px) { #contact { padding: 80px 24px; } .contact-inner { grid-template-columns: 1fr; gap: 48px; } }
+
+/* FOOTER */
+footer { padding: 48px 56px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); }
+.footer-logo { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 600; letter-spacing: -.02em; color: var(--muted); text-decoration: none; }
+.footer-copy { font-size: 13px; color: var(--dim); }
+@media (max-width: 768px) { footer { flex-direction: column; gap: 12px; padding: 32px 24px; text-align: center; } }
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+
+<nav id="nav">
+  <a href="/" class="nav-logo">AVNode</a>
+  <div class="nav-right">
+    <a href="/#operators" class="nav-link">Fleet Operators</a>
+    <a href="/#owners" class="nav-link">Property Owners</a>
+    <a href="/team.html" class="nav-link" style="color:var(--text);">Team</a>
+    <a href="/#apply" class="nav-cta">Apply</a>
+  </div>
+</nav>
+
+<!-- ── HERO ──────────────────────────────────── -->
+<section id="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-left">
+    <div class="hero-eyebrow reveal">Founder · AVNode</div>
+    <h1 class="hero-name reveal reveal-d1">Aabid<br>Ali</h1>
+    <div class="hero-title reveal reveal-d2">Founder — AVNode</div>
+    <div class="hero-line reveal reveal-d3"></div>
+    <p class="hero-thesis reveal reveal-d3">
+      Mobility operator and infrastructure founder. Previously built and scaled a <strong>150-vehicle fleet company</strong> to exit, then co-founded <strong>SUMN</strong> — an EV mobility platform across real estate.
+      Now building the <strong>distributed physical layer</strong> autonomous fleets need to operate at scale.
+    </p>
+  </div>
+  <div class="hero-right reveal reveal-d2">
+    <div class="portrait-frame">
+      <div class="portrait-bg">
+        <canvas id="portrait-canvas"></canvas>
+        <div class="portrait-tag">Founder</div>
+        <div class="portrait-initials">AA · AVNode</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── WHY AVNODE EXISTS ──────────────────────── -->
+<section id="why">
+  <div class="why-inner">
+    <div class="why-label reveal">Why AVNode<br>exists</div>
+    <div class="why-content">
+      <p class="why-pull reveal reveal-d1">
+        Autonomous vehicles will not scale through <em>software alone.</em>
+      </p>
+      <div class="why-body">
+        <p class="reveal reveal-d1">
+          The robotaxi companies, autonomous trucking operators, and last-mile delivery fleets being built today share one structural problem: <strong>they need physical infrastructure in cities, and there is no coordinated network to provide it.</strong>
+        </p>
+        <p class="reveal reveal-d2">
+          Charging. Staging. Cleaning. Inspection. Fleet recovery. Maintenance pads. These are not optional services. They are operational requirements that happen dozens of times per vehicle, per week. Right now, every fleet operator either builds expensive central depots or runs vehicles back to origin — burning miles, burning time, and scaling poorly.
+        </p>
+        <p class="reveal reveal-d3">
+          The insight behind AVNode is simple: <strong>the real estate already exists.</strong> Hotels, parking structures, mixed-use developments, and commercial properties across every city have underutilized space, power access, and staff on site. They just have no relationship with the fleet operators who need them.
+        </p>
+        <div class="why-divider"></div>
+        <div class="why-statement reveal reveal-d4">
+          AVNode was built to be the network layer between property owners who have space and fleet operators who need distributed infrastructure — qualified, connected, and managed at city scale.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TIMELINE ──────────────────────────────── -->
+<section id="timeline">
+  <div class="timeline-header reveal">
+    <div class="section-eyebrow">Career</div>
+    <h2 class="section-headline">Built across three companies,<br>one operational thesis.</h2>
+  </div>
+  <div class="timeline-track">
+    <div class="timeline-line"><div class="timeline-line-fill" id="timelineFill"></div></div>
+    <div class="timeline-entries">
+      <div class="timeline-entry reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-year">2018 — 2022</div>
+        <div class="timeline-co">Fleet Management Co.</div>
+        <div class="timeline-role">Co-Founder & Operator</div>
+        <p class="timeline-desc">Co-founded and scaled a fleet management business from the ground up. Handled vehicle procurement, driver operations, dispatch, maintenance scheduling, and depot logistics across multiple markets.</p>
+        <span class="timeline-outcome">150+ vehicles · Thousands of trips · Exit</span>
+      </div>
+      <div class="timeline-entry reveal reveal-d2">
+        <div class="timeline-dot"></div>
+        <div class="timeline-year">2022 — 2024</div>
+        <div class="timeline-co">SUMN</div>
+        <div class="timeline-role">Co-Founder</div>
+        <p class="timeline-desc">Co-founded SUMN, an electric mobility platform deploying EV car sharing and micromobility programs across multifamily residential, hospitality, and mixed-use communities. Bridged the gap between real estate operators and EV charging infrastructure.</p>
+        <span class="timeline-outcome">EV deployment · Real estate partnerships</span>
+      </div>
+      <div class="timeline-entry reveal reveal-d3">
+        <div class="timeline-dot current" style="background:var(--blue);box-shadow:0 0 0 4px var(--blue-faint), 0 0 16px rgba(47,107,245,.4);"></div>
+        <div class="timeline-year">2024 — Present</div>
+        <div class="timeline-co">AVNode</div>
+        <div class="timeline-role">Founder</div>
+        <p class="timeline-desc">Building the distributed infrastructure network for autonomous and electric fleet operators — connecting qualified property owners with fleet companies that need charging, staging, parking, cleaning, and operations nodes across cities.</p>
+        <span class="timeline-outcome current">Active · Texas markets · Building</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── OPERATOR BACKGROUND ─────────────────── -->
+<section id="operator">
+  <div class="op-left">
+    <div class="section-eyebrow reveal">Operator Background</div>
+    <h2 class="op-headline reveal reveal-d1">Not a theorist.<br>An operator.</h2>
+    <p class="op-body reveal reveal-d2">Aabid built and ran fleets before writing a deck about them. The problems AVNode solves are problems he personally navigated — empty miles, charging downtime, depot costs, and the friction of scaling physical operations across cities.</p>
+    <div class="op-stats reveal reveal-d3">
+      <div class="op-stat">
+        <div class="op-stat-n">150+</div>
+        <div class="op-stat-l">vehicles managed at peak fleet scale</div>
+      </div>
+      <div class="op-stat">
+        <div class="op-stat-n">3+</div>
+        <div class="op-stat-l">markets operated across fleet and EV deployments</div>
+      </div>
+      <div class="op-stat">
+        <div class="op-stat-n">2</div>
+        <div class="op-stat-l">mobility companies co-founded and operated</div>
+      </div>
+    </div>
+  </div>
+  <div class="op-right">
+    <div class="section-eyebrow reveal">Domain Expertise</div>
+    <div class="domain-list">
+      <div class="domain-item reveal reveal-d1">
+        <span class="domain-tag">Fleet Ops</span>
+        <div class="domain-text">
+          <h4>Fleet operations at scale</h4>
+          <p>Vehicle procurement, dispatch, driver management, maintenance scheduling, and multi-market expansion from hands-on operational experience.</p>
+        </div>
+      </div>
+      <div class="domain-item reveal reveal-d2">
+        <span class="domain-tag">EV Infra</span>
+        <div class="domain-text">
+          <h4>EV charging deployment</h4>
+          <p>Deployed EV charging infrastructure across real estate properties. Understands utility requirements, hardware constraints, and property owner economics.</p>
+        </div>
+      </div>
+      <div class="domain-item reveal reveal-d2">
+        <span class="domain-tag">Real Estate</span>
+        <div class="domain-text">
+          <h4>Real estate partnership structures</h4>
+          <p>Experience negotiating and structuring operational agreements with multifamily, hospitality, and commercial property operators.</p>
+        </div>
+      </div>
+      <div class="domain-item reveal reveal-d3">
+        <span class="domain-tag">Logistics</span>
+        <div class="domain-text">
+          <h4>Vehicle logistics &amp; depot operations</h4>
+          <p>Understands the unit economics of depot-based operations: real costs of non-revenue miles, charging turnaround, and utilization rate impact at fleet scale.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── BUILT FROM EXPERIENCE ─────────────────── -->
+<section id="experience">
+  <div class="exp-inner">
+    <div class="exp-header reveal">
+      <h2 class="exp-headline">Built from real fleet experience — not from research.</h2>
+      <p class="exp-aside">Each problem AVNode solves is a problem Aabid has personally run into while operating fleets across markets.</p>
+    </div>
+    <div class="exp-problems reveal reveal-d1">
+      <div class="exp-row">
+        <div class="exp-cell">
+          <div class="exp-cell-label">Problem</div>
+          <div class="exp-cell-val">Non-revenue miles</div>
+          <div class="exp-cell-sub">Vehicles returning to central depot for charging or service</div>
+        </div>
+        <div class="exp-cell">
+          <div class="exp-cell-label">Operational reality</div>
+          <div class="exp-cell-val">16–20 miles per depot visit</div>
+          <div class="exp-cell-sub">Multiplied across hundreds of vehicles, twice per day</div>
+        </div>
+        <div class="exp-cell">
+          <div class="exp-cell-label">AVNode approach</div>
+          <div class="exp-cell-val">Nodes within 2 miles of operation</div>
+          <div class="exp-cell-sub">Property owner sites distributed across the fleet's operating zone</div>
+        </div>
+      </div>
+      <div class="exp-row">
+        <div class="exp-cell">
+          <div class="exp-cell-label">Problem</div>
+          <div class="exp-cell-val">Charging staff cost</div>
+          <div class="exp-cell-sub">Dedicated FTEs required to manage charging at central depots</div>
+        </div>
+        <div class="exp-cell">
+          <div class="exp-cell-label">Operational reality</div>
+          <div class="exp-cell-val">3–4 FTEs per 100-vehicle fleet</div>
+          <div class="exp-cell-sub">$165K+ annually just to manage plug-in operations</div>
+        </div>
+        <div class="exp-cell">
+          <div class="exp-cell-label">AVNode approach</div>
+          <div class="exp-cell-val">Property owner staff handles plug-in</div>
+          <div class="exp-cell-sub">Existing personnel at hotels, garages, and offices absorb this function</div>
+        </div>
+      </div>
+      <div class="exp-row">
+        <div class="exp-cell">
+          <div class="exp-cell-label">Problem</div>
+          <div class="exp-cell-val">Market expansion friction</div>
+          <div class="exp-cell-sub">Building a new depot to enter each city requires capital and lead time</div>
+        </div>
+        <div class="exp-cell">
+          <div class="exp-cell-label">Operational reality</div>
+          <div class="exp-cell-val">6–18 months to open a new depot</div>
+          <div class="exp-cell-sub">Delays fleet deployment, limits market responsiveness</div>
+        </div>
+        <div class="exp-cell">
+          <div class="exp-cell-label">AVNode approach</div>
+          <div class="exp-cell-val">First node active in 14 days</div>
+          <div class="exp-cell-sub">Qualified property owners onboarded from existing network — no construction required</div>
+        </div>
+      </div>
+      <div class="exp-row">
+        <div class="exp-cell">
+          <div class="exp-cell-label">Problem</div>
+          <div class="exp-cell-val">Utilization ceiling</div>
+          <div class="exp-cell-sub">Vehicles limited by time spent traveling to and from centralized infrastructure</div>
+        </div>
+        <div class="exp-cell">
+          <div class="exp-cell-label">Operational reality</div>
+          <div class="exp-cell-val">63% avg. utilization — depot model</div>
+          <div class="exp-cell-sub">47 minutes per vehicle per day lost to depot trips alone</div>
+        </div>
+        <div class="exp-cell">
+          <div class="exp-cell-label">AVNode approach</div>
+          <div class="exp-cell-val">88%+ utilization — distributed model</div>
+          <div class="exp-cell-sub">Vehicles charge and stage near demand — minimal out-of-service time</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CONTACT ────────────────────────────────── -->
+<section id="contact">
+  <div class="contact-inner">
+    <div class="contact-left reveal">
+      <h2 class="contact-headline">Talk to the founder directly.</h2>
+      <p class="contact-sub">If you operate an autonomous or electric fleet, own strategically located real estate, or are building in the autonomy infrastructure space — reach out.</p>
+      <a href="mailto:hello@avnode.com" class="contact-email">hello@avnode.com</a>
+      <p class="contact-note">AVNode is currently qualifying property owner sites in Houston, Austin, and Dallas. Fleet operator conversations are open across all Texas markets.</p>
+    </div>
+    <div class="contact-right reveal reveal-d2">
+      <div class="contact-card">
+        <div class="contact-card-name">Aabid Ali</div>
+        <div class="contact-card-title">Founder — AVNode</div>
+        <div class="contact-card-line"></div>
+        <div class="contact-card-row">
+          <span class="contact-card-key">Company</span>
+          <span class="contact-card-val">AVNode</span>
+        </div>
+        <div class="contact-card-row">
+          <span class="contact-card-key">Focus</span>
+          <span class="contact-card-val">Distributed fleet infrastructure</span>
+        </div>
+        <div class="contact-card-row">
+          <span class="contact-card-key">Active markets</span>
+          <span class="contact-card-val">Houston · Austin · Dallas</span>
+        </div>
+        <div class="contact-card-row">
+          <span class="contact-card-key">Expanding to</span>
+          <span class="contact-card-val">Arizona · Florida · California</span>
+        </div>
+        <div class="contact-card-row">
+          <span class="contact-card-key">Email</span>
+          <span class="contact-card-val" style="color:var(--blue);">hello@avnode.com</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <a href="/" class="footer-logo">AVNode</a>
+  <span class="footer-copy">© 2026 AVNode · Distributed Infrastructure for Autonomous Fleets</span>
+</footer>
+
+<script>
+'use strict';
+
+// CURSOR
+const cur = document.getElementById('cur');
+document.addEventListener('mousemove', e => { cur.style.left = e.clientX+'px'; cur.style.top = e.clientY+'px'; });
+document.querySelectorAll('a,button').forEach(el => {
+  el.addEventListener('mouseenter', () => cur.classList.add('h'));
+  el.addEventListener('mouseleave', () => cur.classList.remove('h'));
+});
+
+// NAV SCROLL
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 60);
+}, { passive: true });
+
+// REVEAL OBSERVER
+const ro = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+
+// TIMELINE FILL
+const tlo = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) {
+    setTimeout(() => { document.getElementById('timelineFill').style.width = '100%'; }, 200);
+  }
+}, { threshold: 0.3 });
+const tlSection = document.getElementById('timeline');
+if (tlSection) tlo.observe(tlSection);
+
+// HERO CANVAS — city grid background
+(function() {
+  const canvas = document.getElementById('hero-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  resize(); window.addEventListener('resize', resize);
+  const COLS = 24, ROWS = 16;
+  const pts = Array.from({length: 28}, () => ({
+    x: Math.random(), y: Math.random(),
+    vx: (Math.random()-.5)*.3, vy: (Math.random()-.5)*.3,
+    p: Math.random()*Math.PI*2
+  }));
+  function draw() {
+    requestAnimationFrame(draw);
+    ctx.clearRect(0,0,W,H);
+    // Grid
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)'; ctx.lineWidth = .5;
+    for(let c=0;c<=COLS;c++){ctx.beginPath();ctx.moveTo(c*W/COLS,0);ctx.lineTo(c*W/COLS,H);ctx.stroke();}
+    for(let r=0;r<=ROWS;r++){ctx.beginPath();ctx.moveTo(0,r*H/ROWS);ctx.lineTo(W,r*H/ROWS);ctx.stroke();}
+    // Nodes
+    pts.forEach((p,i) => {
+      p.x+=p.vx/W; p.y+=p.vy/H; p.p+=.012;
+      if(p.x<0)p.x=1; if(p.x>1)p.x=0; if(p.y<0)p.y=1; if(p.y>1)p.y=0;
+    });
+    for(let i=0;i<pts.length;i++){
+      for(let j=i+1;j<pts.length;j++){
+        const dx=(pts[i].x-pts[j].x)*W, dy=(pts[i].y-pts[j].y)*H;
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if(d<160){ctx.globalAlpha=(1-d/160)*.09;ctx.strokeStyle='#2F6BF5';ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(pts[i].x*W,pts[i].y*H);ctx.lineTo(pts[j].x*W,pts[j].y*H);ctx.stroke();}
+      }
+    }
+    pts.forEach(p=>{
+      const g=Math.sin(p.p)*.25+.75;
+      ctx.globalAlpha=g*.4; ctx.fillStyle='#2F6BF5';
+      ctx.beginPath(); ctx.arc(p.x*W,p.y*H,2*g,0,Math.PI*2); ctx.fill();
+    });
+    ctx.globalAlpha=1;
+  }
+  draw();
+})();
+
+// PORTRAIT CANVAS — technical grid / AV node visualization
+(function() {
+  const canvas = document.getElementById('portrait-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  function resize() { W = canvas.width = canvas.offsetWidth; H = canvas.height = canvas.offsetHeight; }
+  resize(); window.addEventListener('resize', resize);
+
+  // Pre-defined node positions (simulating a city grid)
+  const nodes = [
+    {x:.2,y:.15},{x:.55,y:.1},{x:.8,y:.22},
+    {x:.12,y:.4},{x:.45,y:.35},{x:.75,y:.45},
+    {x:.25,y:.62},{x:.6,y:.58},{x:.85,y:.7},
+    {x:.18,y:.82},{x:.5,y:.78},{x:.78,y:.88}
+  ];
+  // One "active" node (center) that pulses
+  const activeNode = {x:.5,y:.48};
+  const t0 = Date.now();
+
+  function draw() {
+    requestAnimationFrame(draw);
+    const elapsed = (Date.now()-t0)/1000;
+    ctx.clearRect(0,0,W,H);
+
+    // Dark background
+    ctx.fillStyle = '#101013';
+    ctx.fillRect(0,0,W,H);
+
+    // Fine grid
+    ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=.5;
+    const step = Math.min(W,H)/14;
+    for(let x=0;x<W;x+=step){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+    for(let y=0;y<H;y+=step){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+    // Connection lines between nodes
+    nodes.forEach((a,i)=>{
+      nodes.forEach((b,j)=>{
+        if(j<=i)return;
+        const dx=(a.x-b.x)*W, dy=(a.y-b.y)*H;
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if(d<W*.38){
+          ctx.globalAlpha=(1-d/(W*.38))*.18;
+          ctx.strokeStyle='#2F6BF5'; ctx.lineWidth=.8;
+          ctx.beginPath();ctx.moveTo(a.x*W,a.y*H);ctx.lineTo(b.x*W,b.y*H);ctx.stroke();
+        }
+      });
+    });
+
+    // Line from nodes to active center
+    nodes.forEach(n=>{
+      ctx.globalAlpha=.08; ctx.strokeStyle='#2F6BF5'; ctx.lineWidth=.6;
+      ctx.setLineDash([3,5]);
+      ctx.beginPath();ctx.moveTo(n.x*W,n.y*H);ctx.lineTo(activeNode.x*W,activeNode.y*H);ctx.stroke();
+      ctx.setLineDash([]);
+    });
+
+    // Regular nodes
+    nodes.forEach((n,i)=>{
+      const px=n.x*W, py=n.y*H;
+      const pulse=Math.sin(elapsed*1.2+i*.7)*.2+.8;
+      const g=ctx.createRadialGradient(px,py,0,px,py,14*pulse);
+      g.addColorStop(0,`rgba(47,107,245,${.3*pulse})`);
+      g.addColorStop(1,'rgba(47,107,245,0)');
+      ctx.globalAlpha=1; ctx.fillStyle=g;
+      ctx.beginPath();ctx.arc(px,py,14*pulse,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#2F6BF5'; ctx.beginPath();ctx.arc(px,py,3.5,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,.7)'; ctx.beginPath();ctx.arc(px,py,1.8,0,Math.PI*2);ctx.fill();
+    });
+
+    // Active center node (AVNode HQ)
+    const ax=activeNode.x*W, ay=activeNode.y*H;
+    const pulse=Math.sin(elapsed*2)*.4+.7;
+    const outerR=32*pulse;
+    const grad=ctx.createRadialGradient(ax,ay,0,ax,ay,outerR);
+    grad.addColorStop(0,`rgba(47,107,245,${.45*pulse})`);
+    grad.addColorStop(.5,`rgba(47,107,245,${.15*pulse})`);
+    grad.addColorStop(1,'rgba(47,107,245,0)');
+    ctx.fillStyle=grad; ctx.beginPath();ctx.arc(ax,ay,outerR,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#2F6BF5'; ctx.beginPath();ctx.arc(ax,ay,8,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff'; ctx.beginPath();ctx.arc(ax,ay,4,0,Math.PI*2);ctx.fill();
+
+    ctx.globalAlpha=1;
+  }
+  draw();
+})();
+</script>
+</body>
+</html>
