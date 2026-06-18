@@ -1042,30 +1042,32 @@ footer {
     </div>
     <div class="apply-right">
       <form class="apply-form" id="applyForm" onsubmit="handleApply(event)">
+        <input type="hidden" name="_subject" value="New AVNode Application"/>
+        <input type="text" name="_gotcha" style="display:none"/>
         <div class="form-row">
           <div class="field-group">
             <label class="field-label">First Name</label>
-            <input class="field-input" type="text" placeholder="—" required>
+            <input class="field-input" type="text" name="first_name" placeholder="—" required>
           </div>
           <div class="field-group">
             <label class="field-label">Last Name</label>
-            <input class="field-input" type="text" placeholder="—" required>
+            <input class="field-input" type="text" name="last_name" placeholder="—" required>
           </div>
         </div>
         <div class="form-row">
           <div class="field-group">
             <label class="field-label">Company</label>
-            <input class="field-input" type="text" placeholder="—" required>
+            <input class="field-input" type="text" name="company" placeholder="—" required>
           </div>
           <div class="field-group">
             <label class="field-label">Email</label>
-            <input class="field-input" type="email" placeholder="—" required>
+            <input class="field-input" type="email" name="email" placeholder="—" required>
           </div>
         </div>
         <div class="form-row single">
           <div class="field-group">
             <label class="field-label">I am a</label>
-            <select class="field-input" required>
+            <select class="field-input" name="role" required>
               <option value="" disabled selected>Select one</option>
               <option>Fleet operator — seeking infrastructure access</option>
               <option>Property owner — interested in becoming a node</option>
@@ -1078,7 +1080,7 @@ footer {
         <div class="form-row single">
           <div class="field-group">
             <label class="field-label">Market of Interest</label>
-            <select class="field-input">
+            <select class="field-input" name="market">
               <option value="" disabled selected>City</option>
               <option>Houston, TX</option>
               <option>Austin, TX</option>
@@ -1092,13 +1094,13 @@ footer {
         <div class="form-row single">
           <div class="field-group">
             <label class="field-label">Property Address (if applicable)</label>
-            <input class="field-input" type="text" placeholder="—">
+            <input class="field-input" type="text" name="property_address" placeholder="—">
           </div>
         </div>
         <div class="form-row single">
           <div class="field-group">
             <label class="field-label">Tell us more</label>
-            <textarea class="field-input" placeholder="Property details, fleet size, operational context…"></textarea>
+            <textarea class="field-input" name="message" placeholder="Property details, fleet size, operational context…"></textarea>
           </div>
         </div>
         <div class="form-bottom">
@@ -2108,12 +2110,32 @@ const criteriaSection = document.getElementById('criteria');
 if (criteriaSection) criteriaObs.observe(criteriaSection);
 
 /* ─── FORM SUBMIT ─────────────────────────── */
-function handleApply(e) {
+async function handleApply(e) {
   e.preventDefault();
   const btn = document.getElementById('submitBtn');
-  btn.textContent = 'Application received';
-  btn.classList.add('success');
+  btn.textContent = 'Submitting…';
   btn.disabled = true;
+
+  try {
+    const res = await fetch('https://formspree.io/f/xkoaaebp', {
+      method: 'POST',
+      body: new FormData(e.target),
+      headers: { 'Accept': 'application/json' }
+    });
+
+    if (res.ok) {
+      btn.textContent = 'Application received ✓';
+      btn.classList.add('success');
+    } else {
+      btn.textContent = 'Submit application';
+      btn.disabled = false;
+      alert('Something went wrong. Please try again.');
+    }
+  } catch {
+    btn.textContent = 'Submit application';
+    btn.disabled = false;
+    alert('Network error. Please check your connection.');
+  }
 }
 </script>
 </body>
