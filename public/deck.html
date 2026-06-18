@@ -3,949 +3,1678 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AVNode — Fleet Infrastructure Partnership</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<title>AVNode — The Physical Infrastructure Layer for Autonomous Mobility</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg: #09090C;
-  --surface: #101013;
-  --border: #1A1A22;
-  --text: #EEEEF2;
-  --muted: #6A6A7E;
-  --dim: #32323F;
-  --blue: #2F6BF5;
-  --blue-bright: #5585FF;
-  --blue-faint: rgba(47,107,245,0.1);
-  --green: #34D399;
-  --amber: #F59E0B;
+  --bg: #070709;
+  --surface: #0f0f12;
+  --surface-2: #16161b;
+  --border: #1e1e26;
+  --border-2: #2a2a38;
+  --blue: #0A84FF;
+  --blue-2: #38A3FF;
+  --blue-dim: rgba(10,132,255,0.12);
+  --blue-glow: rgba(10,132,255,0.25);
+  --text: #FFFFFF;
+  --text-2: #A0A0B0;
+  --text-3: #50505f;
+  --red: #FF453A;
+  --green: #30D158;
+  --yellow: #FFD60A;
 }
-html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); }
-body { font-family: 'Inter', sans-serif; color: var(--text); cursor: none; }
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;-webkit-font-smoothing:antialiased}
 
-/* CURSOR */
-#cur { width: 5px; height: 5px; background: #fff; border-radius: 50%;
-  position: fixed; pointer-events: none; z-index: 9999;
-  transform: translate(-50%,-50%); mix-blend-mode: difference; transition: width .15s, height .15s; }
-#cur.h { width: 28px; height: 28px; background: rgba(255,255,255,.1); }
-@media (pointer: coarse) { #cur { display: none; } body { cursor: auto; } }
+/* ── DECK SHELL ── */
+.deck{position:relative;width:100vw;height:100vh}
+.slide{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  padding:90px 100px 100px;
+  opacity:0;pointer-events:none;
+  transition:opacity .55s cubic-bezier(.4,0,.2,1);
+  overflow:hidden;
+}
+.slide.active{opacity:1;pointer-events:all}
 
-/* DECK SHELL */
-.deck { width: 100vw; height: 100vh; position: relative; overflow: hidden; }
+/* ── CHROME ── */
+.chrome-logo{
+  position:fixed;top:32px;left:44px;
+  font-size:13px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--text-3);z-index:200;
+}
+.chrome-slide{
+  position:fixed;top:32px;right:44px;
+  font-size:12px;color:var(--text-3);letter-spacing:.1em;z-index:200;
+}
+.progress-bar{
+  position:fixed;top:0;left:0;height:2px;
+  background:linear-gradient(90deg,var(--blue),var(--blue-2));
+  transition:width .45s cubic-bezier(.4,0,.2,1);z-index:200;
+}
+.nav{
+  position:fixed;bottom:36px;left:50%;transform:translateX(-50%);
+  display:flex;align-items:center;gap:16px;z-index:200;
+}
+.nav-btn{
+  width:40px;height:40px;border-radius:50%;
+  border:1px solid var(--border-2);
+  background:rgba(255,255,255,.04);
+  color:var(--text-2);cursor:pointer;font-size:16px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;backdrop-filter:blur(12px);
+}
+.nav-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-dim)}
+.nav-count{font-size:12px;color:var(--text-3);letter-spacing:.08em;min-width:44px;text-align:center}
 
-/* SLIDES */
-.slides { display: flex; width: 100%; height: 100%;
-  transition: transform 0.65s cubic-bezier(0.16,1,0.3,1); }
-.slide {
-  min-width: 100vw; height: 100vh;
-  display: flex; flex-direction: column; justify-content: center;
-  padding: 80px 100px; position: relative; overflow: hidden;
-  flex-shrink: 0;
+/* dots */
+.nav-dots{display:flex;gap:6px;align-items:center}
+.dot{
+  width:4px;height:4px;border-radius:50%;
+  background:var(--border-2);cursor:pointer;transition:all .25s;
 }
-@media (max-width: 768px) { .slide { padding: 60px 32px; } }
+.dot.active{background:var(--blue);width:16px;border-radius:2px}
 
-/* NAV */
-.deck-nav {
-  position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
-  z-index: 100; display: flex; align-items: center; gap: 12px;
-  background: rgba(9,9,12,0.85); backdrop-filter: blur(16px);
-  border: 1px solid var(--border); border-radius: 100px;
-  padding: 10px 20px;
+/* ── TYPOGRAPHY ── */
+.eyebrow{
+  font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--blue);margin-bottom:18px;
 }
-.nav-dots { display: flex; gap: 6px; }
-.nav-dot { width: 5px; height: 5px; border-radius: 50%;
-  background: var(--dim); cursor: pointer; transition: all .25s; }
-.nav-dot.active { background: var(--blue); width: 18px; border-radius: 3px; }
-.nav-btn { background: none; border: none; color: var(--muted); cursor: pointer;
-  font-size: 16px; padding: 2px 8px; transition: color .2s; font-family: inherit; }
-.nav-btn:hover { color: var(--text); }
-.slide-counter { font-size: 11px; color: var(--dim);
-  font-family: 'Space Grotesk', sans-serif; padding: 0 8px; letter-spacing: .05em; }
+.hero{font-size:92px;font-weight:900;line-height:.92;letter-spacing:-.04em}
+.h1{font-size:58px;font-weight:800;line-height:1.02;letter-spacing:-.025em}
+.h2{font-size:44px;font-weight:800;line-height:1.06;letter-spacing:-.02em}
+.h3{font-size:28px;font-weight:700;line-height:1.15;letter-spacing:-.015em}
+.h4{font-size:18px;font-weight:600;line-height:1.3}
+.body{font-size:17px;font-weight:400;line-height:1.65;color:var(--text-2)}
+.small{font-size:13px;color:var(--text-2);line-height:1.5}
+.label{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3)}
 
-/* LOGO MARK */
-.deck-logo {
-  position: fixed; top: 32px; left: 48px; z-index: 100;
-  font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 600;
-  color: var(--muted); letter-spacing: -0.02em;
-}
-.deck-logo span { color: var(--text); }
+/* ── LAYOUT ── */
+.col{display:flex;flex-direction:column}
+.row{display:flex;align-items:center}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:80px;width:100%;align-items:center}
+.two-col.wide-right{grid-template-columns:1fr 1.4fr}
+.two-col.wide-left{grid-template-columns:1.4fr 1fr}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:28px;width:100%}
+.center{display:flex;flex-direction:column;align-items:center;text-align:center;width:100%}
 
-/* PROGRESS BAR */
-.progress-bar {
-  position: fixed; top: 0; left: 0; height: 2px;
-  background: var(--blue); transition: width 0.65s cubic-bezier(0.16,1,0.3,1);
-  z-index: 100;
-}
+/* ── COMPONENTS ── */
+.accent-line{width:36px;height:3px;background:var(--blue);border-radius:2px;margin-bottom:22px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px}
+.card.blue{border-color:rgba(10,132,255,.35);background:var(--blue-dim)}
+.card.dark{background:var(--surface-2);border-color:var(--border-2)}
 
-/* ── SHARED TYPE STYLES ─────────────────── */
-.eyebrow {
-  font-size: 11px; font-weight: 500; letter-spacing: .14em;
-  text-transform: uppercase; color: var(--blue);
-  font-family: 'Space Grotesk', sans-serif; margin-bottom: 20px;
-}
-.display {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(48px, 6vw, 88px);
-  font-weight: 700; line-height: 1.0; letter-spacing: -.04em;
-}
-.h1 {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(36px, 4.5vw, 64px);
-  font-weight: 600; line-height: 1.05; letter-spacing: -.03em;
-}
-.h2 {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(26px, 3vw, 44px);
-  font-weight: 600; line-height: 1.1; letter-spacing: -.025em;
-}
-.body-l { font-size: 18px; color: var(--muted); line-height: 1.7; }
-.body { font-size: 15px; color: var(--muted); line-height: 1.65; }
-.mono { font-family: 'Space Grotesk', sans-serif; }
-
-/* ── SLIDE 1: COVER ─────────────────────── */
-#s1 { background: var(--bg); }
-#s1-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-.s1-content { position: relative; z-index: 2; max-width: 760px; }
-.s1-tag {
-  display: inline-flex; align-items: center; gap: 8px;
-  border: 1px solid var(--border); border-radius: 100px;
-  padding: 6px 14px; margin-bottom: 36px;
-  font-size: 12px; color: var(--muted); letter-spacing: .04em;
-}
-.s1-tag .dot { width: 6px; height: 6px; border-radius: 50%;
-  background: var(--blue); animation: blink 2s infinite; }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
-.s1-title { margin-bottom: 24px; }
-.s1-title em { color: var(--blue-bright); font-style: normal; }
-.s1-sub { margin-bottom: 48px; max-width: 520px; }
-.s1-footer {
-  position: absolute; bottom: 80px; right: 100px;
-  text-align: right; z-index: 2;
-}
-.s1-footer-company {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 28px; font-weight: 600; letter-spacing: -.02em;
-  color: var(--text); margin-bottom: 4px;
-}
-.s1-footer-sub { font-size: 13px; color: var(--muted); }
-.s1-date { font-size: 11px; color: var(--dim); margin-top: 8px; letter-spacing: .06em; text-transform: uppercase; }
-
-/* ── SLIDE 2: THE PROBLEM ───────────────── */
-#s2 { background: var(--surface); }
-.s2-grid {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 64px; align-items: center; width: 100%;
-}
-.s2-number {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(96px, 14vw, 180px);
-  font-weight: 700; letter-spacing: -.06em;
-  line-height: .9; color: var(--text);
-}
-.s2-number sup { font-size: .35em; vertical-align: super; }
-.s2-unit { font-size: 14px; letter-spacing: .08em; text-transform: uppercase;
-  color: var(--muted); margin-top: 16px; }
-.s2-divider { width: 1px; height: 100%; background: var(--border);
-  position: absolute; left: 50%; top: 0; }
-.s2-right { padding-left: 0; }
-.s2-stat-row {
-  display: flex; flex-direction: column; gap: 0;
-}
-.s2-stat {
-  padding: 22px 0; border-bottom: 1px solid var(--border);
-}
-.s2-stat:first-child { padding-top: 0; }
-.s2-stat-n {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 32px; font-weight: 600; letter-spacing: -.03em;
-  color: var(--text); margin-bottom: 4px;
-}
-.s2-stat-l { font-size: 13px; color: var(--muted); }
-
-/* ── SLIDE 3: SCALE PROBLEM ─────────────── */
-#s3 { background: var(--bg); }
-.s3-inner { max-width: 900px; }
-.s3-pull {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(28px, 3.5vw, 52px);
-  font-weight: 500; line-height: 1.15; letter-spacing: -.025em;
-  color: var(--text); margin-bottom: 48px;
-}
-.s3-pull .hl { color: var(--blue-bright); }
-.s3-bar-group { display: flex; flex-direction: column; gap: 16px; }
-.s3-bar-row { display: flex; align-items: center; gap: 16px; }
-.s3-bar-label { font-size: 13px; color: var(--muted); width: 160px; flex-shrink: 0; }
-.s3-bar-track { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-.s3-bar-fill { height: 100%; border-radius: 3px; background: var(--blue);
-  width: 0; transition: width 1.2s cubic-bezier(0.16,1,0.3,1); }
-.s3-bar-fill.red { background: #F87171; }
-.s3-bar-val { font-size: 13px; color: var(--text); font-family: 'Space Grotesk', sans-serif;
-  font-weight: 500; width: 80px; text-align: right; }
-
-/* ── SLIDE 4: SOLUTION ──────────────────── */
-#s4 { background: var(--surface); }
-#s4-canvas { position: absolute; right: 0; top: 0; width: 50%; height: 100%; }
-.s4-content { max-width: 460px; position: relative; z-index: 2; }
-.s4-nodes { display: flex; flex-direction: column; gap: 0; margin-top: 40px; }
-.s4-node {
-  display: flex; align-items: center; gap: 16px;
-  padding: 18px 0; border-top: 1px solid var(--border);
-}
-.s4-node:last-child { border-bottom: 1px solid var(--border); }
-.s4-node-icon { width: 36px; height: 36px; border-radius: 8px;
-  background: var(--blue-faint); border: 1px solid rgba(47,107,245,.2);
-  display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
-.s4-node-label { font-size: 15px; font-weight: 500; }
-.s4-node-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
-
-/* ── SLIDE 5: YOUR CITY ─────────────────── */
-#s5 { background: var(--bg); }
-.s5-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; width: 100%; }
-.s5-city-list { display: flex; flex-direction: column; gap: 0; }
-.s5-city {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 18px 0; border-bottom: 1px solid var(--border);
-}
-.s5-city:first-child { border-top: 1px solid var(--border); }
-.s5-city-name { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 500; }
-.s5-city-status { display: flex; align-items: center; gap: 8px; }
-.s5-city-dot { width: 6px; height: 6px; border-radius: 50%; }
-.s5-city-dot.green { background: var(--green); }
-.s5-city-dot.amber { background: var(--amber); }
-.s5-city-spots { font-size: 13px; color: var(--muted); }
-.s5-cta-box {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 16px; padding: 40px; position: relative; overflow: hidden;
-}
-.s5-cta-box::before { content: ''; position: absolute; top: 0; left: 0; right: 0;
-  height: 1px; background: linear-gradient(90deg, transparent, var(--blue), transparent); }
-.s5-cta-big {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 56px; font-weight: 700; letter-spacing: -.04em;
-  color: var(--text); line-height: 1; margin-bottom: 8px;
-}
-.s5-cta-big .u { color: var(--blue-bright); }
-.s5-cta-label { font-size: 14px; color: var(--muted); margin-bottom: 28px; }
-.s5-cta-note { font-size: 12px; color: var(--dim); line-height: 1.55; }
-
-/* ── SLIDE 6: WHAT YOU GET ──────────────── */
-#s6 { background: var(--surface); }
-.s6-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 48px; }
-.s6-item {
-  padding: 28px; border: 1px solid var(--border);
-  border-radius: 12px; background: var(--bg);
-  transition: border-color .2s;
-}
-.s6-item:hover { border-color: rgba(47,107,245,.3); }
-.s6-num {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 36px; font-weight: 700; letter-spacing: -.03em;
-  margin-bottom: 8px; line-height: 1;
-}
-.s6-num.green { color: var(--green); }
-.s6-num.blue { color: var(--blue-bright); }
-.s6-num.white { color: var(--text); }
-.s6-item-l { font-size: 13px; color: var(--muted); }
-
-/* ── SLIDE 7: HOW PARTNERSHIP WORKS ────── */
-#s7 { background: var(--bg); }
-.s7-steps { display: flex; flex-direction: column; gap: 0; margin-top: 40px; max-width: 700px; }
-.s7-step {
-  display: grid; grid-template-columns: 64px 1fr;
-  gap: 24px; padding: 28px 0; border-top: 1px solid var(--border);
-  align-items: start;
-}
-.s7-step:last-child { border-bottom: 1px solid var(--border); }
-.s7-step-num {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 28px; font-weight: 700; letter-spacing: -.03em;
-  color: var(--blue); line-height: 1;
-}
-.s7-step h4 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
-.s7-step p { font-size: 14px; color: var(--muted); line-height: 1.6; }
-.s7-aside {
-  position: absolute; right: 100px; top: 50%; transform: translateY(-50%);
-  text-align: right; max-width: 240px;
-}
-.s7-aside-n {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 52px; font-weight: 700; letter-spacing: -.04em;
-  color: var(--text); line-height: 1; margin-bottom: 8px;
-}
-.s7-aside-l { font-size: 13px; color: var(--muted); line-height: 1.5; }
-
-/* ── SLIDE 8: CRITERIA ──────────────────── */
-#s8 { background: var(--surface); }
-.s8-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; width: 100%; }
-.s8-list { display: flex; flex-direction: column; gap: 0; }
-.s8-item {
-  display: flex; align-items: center; gap: 14px;
-  padding: 16px 0; border-bottom: 1px solid var(--border);
-  font-size: 15px; font-weight: 400;
-}
-.s8-item:first-child { border-top: 1px solid var(--border); }
-.s8-check { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
-  background: var(--blue); display: flex; align-items: center; justify-content: center;
-  font-size: 10px; color: #fff; font-weight: 700; }
-.s8-score-card {
-  background: var(--bg); border: 1px solid var(--border);
-  border-radius: 16px; padding: 36px; text-align: center;
-}
-.s8-score {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 80px; font-weight: 700; letter-spacing: -.05em;
-  color: var(--text); line-height: 1; margin-bottom: 8px;
-}
-.s8-score-label { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
-.s8-qual-rate { font-size: 36px; font-weight: 700;
-  color: var(--blue-bright); font-family: 'Space Grotesk', sans-serif;
-  letter-spacing: -.02em; margin-bottom: 4px; }
-.s8-qual-label { font-size: 12px; color: var(--dim); }
-
-/* ── SLIDE 9: THE ASK ───────────────────── */
-#s9 { background: var(--bg); }
-#s9-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-.s9-content { position: relative; z-index: 2; max-width: 680px; }
-.s9-asks { display: flex; flex-direction: column; gap: 0; margin-top: 40px; }
-.s9-ask {
-  display: flex; align-items: flex-start; gap: 20px;
-  padding: 24px 0; border-top: 1px solid var(--border);
-}
-.s9-ask:last-child { border-bottom: 1px solid var(--border); }
-.s9-ask-n {
-  font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 500;
-  color: var(--blue); letter-spacing: .06em; flex-shrink: 0; padding-top: 2px; min-width: 24px;
-}
-.s9-ask h4 { font-size: 16px; font-weight: 600; margin-bottom: 5px; }
-.s9-ask p { font-size: 14px; color: var(--muted); line-height: 1.6; }
-
-/* ── SLIDE 10: CLOSE ────────────────────── */
-#s10 { background: var(--surface); }
-.s10-center { text-align: center; width: 100%; }
-.s10-big {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(40px, 6vw, 84px);
-  font-weight: 700; letter-spacing: -.04em; line-height: 1;
-  color: var(--text); margin-bottom: 24px;
-}
-.s10-big span { color: var(--blue-bright); }
-.s10-sub { font-size: 18px; color: var(--muted); margin-bottom: 48px; }
-.s10-contact {
-  display: inline-flex; flex-direction: column; gap: 4px;
-  text-align: left; background: var(--bg);
-  border: 1px solid var(--border); border-radius: 12px;
-  padding: 28px 36px;
-}
-.s10-contact-name { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600; }
-.s10-contact-role { font-size: 13px; color: var(--muted); }
-.s10-contact-email { font-size: 14px; color: var(--blue-bright); margin-top: 8px; }
-.s10-avnode {
-  position: absolute; bottom: 80px; width: 100%; text-align: center;
-  font-family: 'Space Grotesk', sans-serif; font-size: 13px; color: var(--dim);
-  letter-spacing: .02em;
+.badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--blue-dim);border:1px solid rgba(10,132,255,.3);
+  border-radius:100px;padding:6px 14px;
+  font-size:12px;font-weight:600;letter-spacing:.05em;color:var(--blue-2);
 }
 
-/* CANVAS COMMON */
-canvas { display: block; }
+.stat-num{font-size:64px;font-weight:900;letter-spacing:-.04em;line-height:1;color:var(--blue)}
+.stat-label{font-size:13px;color:var(--text-2);margin-top:6px;letter-spacing:.03em}
 
-/* TRANSITION ANIMATIONS */
-.slide-content { opacity: 0; transform: translateY(16px);
-  transition: opacity .5s .1s, transform .5s .1s; }
-.slide.active .slide-content { opacity: 1; transform: translateY(0); }
-.slide-content-delay { transition-delay: .2s; }
-.slide-content-delay2 { transition-delay: .3s; }
+.check{color:var(--green);font-size:14px;margin-right:10px}
+.cross{color:var(--red);font-size:14px;margin-right:10px}
 
-/* PDF BUTTON */
-.pdf-btn {
-  font-size: 12px; font-weight: 500; color: var(--muted);
-  background: none; border: 1px solid var(--border);
-  padding: 6px 14px; border-radius: 100px; cursor: pointer;
-  font-family: 'Inter', sans-serif; transition: all .2s; margin-left: 8px;
+.divider{width:100%;height:1px;background:var(--border);margin:24px 0}
+
+/* ── BACKGROUNDS ── */
+.grid-bg{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
+  background-size:64px 64px;
+  pointer-events:none;
 }
-.pdf-btn:hover { border-color: var(--blue); color: var(--text); }
-
-/* ── PRINT STYLES ── */
-@media print {
-  @page { size: 1280px 720px; margin: 0; }
-  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  html, body { width: 1280px; height: 720px; overflow: hidden; cursor: auto; }
-  #cur, .deck-nav, .deck-logo, .progress-bar, .pdf-btn { display: none !important; }
-  .deck { width: 1280px; height: 720px; }
-  .slides { display: block; width: 1280px; transform: none !important; }
-  .slide {
-    width: 1280px; height: 720px; min-width: 1280px;
-    page-break-after: always; break-after: page;
-    display: flex !important; padding: 64px 80px;
-    position: relative; overflow: hidden;
-  }
-  .slide-content { opacity: 1 !important; transform: none !important; }
-  canvas { display: none !important; }
-  #s1 { background: #09090C !important; }
-  #s2 { background: #101013 !important; }
-  #s3 { background: #09090C !important; }
-  #s4 { background: #101013 !important; }
-  #s5 { background: #09090C !important; }
-  #s6 { background: #101013 !important; }
-  #s7 { background: #09090C !important; }
-  #s8 { background: #101013 !important; }
-  #s9 { background: #09090C !important; }
-  #s10 { background: #101013 !important; }
-  .s3-bar-fill { width: attr(data-w) !important; }
+.glow{
+  position:absolute;border-radius:50%;
+  filter:blur(100px);pointer-events:none;opacity:.6;
 }
+
+/* hexagon clip */
+.hex{
+  clip-path:polygon(50% 0%,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%);
+}
+
+/* ══════════════════════════════════════════════
+   SLIDE 1 — COVER
+══════════════════════════════════════════════ */
+#s1{background:var(--bg)}
+#s1 .glow-1{width:800px;height:800px;background:radial-gradient(circle,rgba(10,132,255,.18) 0%,transparent 70%);top:-200px;left:-150px}
+#s1 .glow-2{width:600px;height:600px;background:radial-gradient(circle,rgba(10,132,255,.1) 0%,transparent 70%);bottom:-100px;right:-100px}
+
+#s1 .content{
+  position:relative;z-index:2;
+  display:flex;flex-direction:column;
+  max-width:900px;
+}
+#s1 .tagline{
+  font-size:20px;font-weight:400;
+  color:var(--text-2);line-height:1.55;
+  max-width:580px;margin-top:32px;
+}
+#s1 .partners{
+  display:flex;gap:12px;flex-wrap:wrap;margin-top:56px;
+}
+#s1 .partner-tag{
+  font-size:11px;font-weight:500;letter-spacing:.08em;
+  color:var(--text-3);border:1px solid var(--border);
+  border-radius:6px;padding:5px 12px;
+}
+
+/* city grid visual */
+#s1 .city-viz{
+  position:absolute;right:-60px;top:0;bottom:0;
+  width:55%;opacity:.25;
+}
+
+/* ══════════════════════════════════════════════
+   SLIDE 2 — THE PROBLEM
+══════════════════════════════════════════════ */
+#s2{}
+#s2 .left{max-width:380px}
+#s2 .drain-list{display:flex;flex-direction:column;gap:12px;margin-top:28px}
+#s2 .drain-item{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 18px;
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  font-size:14px;font-weight:500;color:var(--text-2);
+}
+#s2 .drain-item .dot-red{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--red);flex-shrink:0;box-shadow:0 0 8px var(--red);
+}
+
+/* ══════════════════════════════════════════════
+   SLIDE 3 — HIDDEN COST
+══════════════════════════════════════════════ */
+#s3{flex-direction:column;gap:0}
+#s3 .stats-row{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:32px;
+  width:100%;margin-top:48px;
+}
+#s3 .stat-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:28px 32px;
+}
+
+/* ══════════════════════════════════════════════
+   SLIDE 4 — CRE FAILURE
+══════════════════════════════════════════════ */
+#s4 .compare-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:24px;width:100%;
+}
+#s4 .compare-col{
+  border-radius:16px;padding:36px 32px;
+  display:flex;flex-direction:column;gap:14px;
+}
+#s4 .compare-col.bad{
+  background:rgba(255,69,58,.06);border:1px solid rgba(255,69,58,.2);
+}
+#s4 .compare-col.good{
+  background:var(--blue-dim);border:1px solid rgba(10,132,255,.35);
+}
+#s4 .compare-label{
+  font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;
+  margin-bottom:8px;
+}
+#s4 .compare-col.bad .compare-label{color:var(--red)}
+#s4 .compare-col.good .compare-label{color:var(--blue)}
+#s4 .compare-row{font-size:15px;color:var(--text-2);display:flex;align-items:flex-start;gap:10px}
+
+/* ══════════════════════════════════════════════
+   SLIDE 5 — INTRODUCING AVNODE
+══════════════════════════════════════════════ */
+#s5{flex-direction:column;align-items:center}
+#s5 .eco-wrap{
+  display:grid;grid-template-columns:1fr auto 1fr;
+  gap:40px;width:100%;align-items:center;margin-top:48px;
+}
+#s5 .eco-side{
+  display:flex;flex-direction:column;gap:10px;
+}
+#s5 .eco-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 16px;
+  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  font-size:14px;font-weight:500;color:var(--text-2);
+}
+#s5 .eco-center{
+  display:flex;flex-direction:column;align-items:center;gap:16px;
+}
+#s5 .eco-hex{
+  width:160px;height:160px;
+  background:linear-gradient(135deg,rgba(10,132,255,.3),rgba(10,132,255,.08));
+  border:1px solid rgba(10,132,255,.4);
+  border-radius:24px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:6px;box-shadow:0 0 60px rgba(10,132,255,.2);
+}
+#s5 .eco-hex .logo{font-size:20px;font-weight:900;letter-spacing:-.02em}
+#s5 .eco-hex .sub{font-size:10px;color:var(--blue-2);letter-spacing:.12em;text-transform:uppercase}
+
+/* ══════════════════════════════════════════════
+   SLIDE 6 — HOTELS
+══════════════════════════════════════════════ */
+#s6 .hotel-stats{display:flex;flex-direction:column;gap:40px}
+#s6 .hotel-feature{
+  display:flex;align-items:flex-start;gap:16px;padding-bottom:32px;
+  border-bottom:1px solid var(--border);
+}
+#s6 .hotel-feature:last-child{border-bottom:none;padding-bottom:0}
+#s6 .hotel-icon{
+  width:44px;height:44px;border-radius:10px;
+  background:var(--blue-dim);border:1px solid rgba(10,132,255,.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;
+}
+
+/* ══════════════════════════════════════════════
+   SLIDE 7 — PROPERTY OWNERS
+══════════════════════════════════════════════ */
+#s7{flex-direction:column;align-items:flex-start}
+#s7 .benefit-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:20px;
+  width:100%;margin-top:48px;
+}
+#s7 .benefit-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;padding:32px 28px;
+  display:flex;flex-direction:column;gap:14px;
+}
+#s7 .benefit-num{
+  font-size:44px;font-weight:900;letter-spacing:-.03em;
+  color:var(--blue);line-height:1;
+}
+
+/* ══════════════════════════════════════════════
+   SLIDE 8 — FLEET OPERATORS
+══════════════════════════════════════════════ */
+#s8 .vs-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:24px;
+  width:100%;margin-top:8px;
+}
+#s8 .vs-col{border-radius:16px;padding:40px 36px}
+#s8 .vs-col.without{
+  background:rgba(255,69,58,.05);border:1px solid rgba(255,69,58,.18);
+}
+#s8 .vs-col.with{
+  background:var(--blue-dim);border:1px solid rgba(10,132,255,.35);
+  position:relative;overflow:hidden;
+}
+#s8 .vs-col.with::before{
+  content:'';position:absolute;top:-60px;right:-60px;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(10,132,255,.25),transparent 70%);
+}
+#s8 .vs-head{font-size:12px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;margin-bottom:24px}
+#s8 .vs-col.without .vs-head{color:var(--red)}
+#s8 .vs-col.with .vs-head{color:var(--blue)}
+#s8 .vs-step{
+  display:flex;align-items:flex-start;gap:14px;
+  padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);
+  font-size:15px;color:var(--text-2);
+}
+#s8 .vs-step:last-child{border-bottom:none}
+#s8 .step-num{
+  width:24px;height:24px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;
+}
+#s8 .vs-col.without .step-num{background:rgba(255,69,58,.15);color:var(--red)}
+#s8 .vs-col.with .step-num{background:rgba(10,132,255,.2);color:var(--blue)}
+#s8 .single-step{
+  display:flex;flex-direction:column;align-items:flex-start;gap:12px;margin-top:12px;
+}
+#s8 .single-step .big{font-size:32px;font-weight:800;letter-spacing:-.02em;color:var(--text)}
+#s8 .single-step .desc{font-size:15px;color:var(--text-2);line-height:1.5}
+
+/* ══════════════════════════════════════════════
+   SLIDE 9 — DEPLOYMENT READY
+══════════════════════════════════════════════ */
+#s9 .market-stats{display:flex;flex-direction:column;gap:32px}
+#s9 .market-item{
+  padding-bottom:28px;border-bottom:1px solid var(--border);
+}
+#s9 .market-item:last-child{border-bottom:none;padding-bottom:0}
+#s9 .market-name{font-size:22px;font-weight:700;margin-bottom:6px}
+#s9 .market-bar-wrap{
+  width:100%;height:4px;background:var(--border-2);
+  border-radius:2px;margin-top:10px;overflow:hidden;
+}
+#s9 .market-bar{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--blue),var(--blue-2))}
+
+/* ══════════════════════════════════════════════
+   SLIDE 10 — NETWORK MAP
+══════════════════════════════════════════════ */
+#s10{flex-direction:column}
+#s10 .map-header{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  width:100%;margin-bottom:32px;
+}
+#s10 .phase-legend{display:flex;gap:24px}
+#s10 .phase-item{
+  display:flex;align-items:center;gap:8px;
+  font-size:12px;color:var(--text-2);
+}
+#s10 .phase-dot{width:8px;height:8px;border-radius:50%}
+
+/* ══════════════════════════════════════════════
+   SLIDE 11 — WHY MOOVE
+══════════════════════════════════════════════ */
+#s11 .moove-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:24px;
+  width:100%;margin-top:8px;
+}
+#s11 .moove-col{border-radius:16px;padding:36px 32px}
+#s11 .moove-col.focus{
+  background:var(--surface);border:1px solid var(--border);
+}
+#s11 .moove-col.avnode{
+  background:var(--blue-dim);border:1px solid rgba(10,132,255,.35);
+}
+#s11 .moove-col-head{font-size:12px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;margin-bottom:24px}
+#s11 .moove-col.focus .moove-col-head{color:var(--text-3)}
+#s11 .moove-col.avnode .moove-col-head{color:var(--blue)}
+#s11 .moove-item{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);
+  font-size:15px;color:var(--text-2);
+}
+#s11 .moove-item:last-child{border-bottom:none}
+#s11 .moove-icon{font-size:18px;width:28px;text-align:center}
+
+/* ══════════════════════════════════════════════
+   SLIDE 12 — PARTNERSHIP MODEL
+══════════════════════════════════════════════ */
+#s12 .matrix{width:100%;border-collapse:collapse;margin-top:8px}
+#s12 .matrix th{
+  padding:16px 24px;text-align:left;
+  font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;
+  border-bottom:1px solid var(--border);
+}
+#s12 .matrix th.avnode-col{color:var(--blue)}
+#s12 .matrix th.fleet-col{color:var(--text-3)}
+#s12 .matrix td{
+  padding:14px 24px;
+  font-size:15px;color:var(--text-2);
+  border-bottom:1px solid var(--border);
+  vertical-align:middle;
+}
+#s12 .matrix tr:last-child td{border-bottom:none}
+#s12 .matrix td .check-cell{display:flex;align-items:center;gap:10px}
+#s12 .matrix td .chk{
+  width:20px;height:20px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;flex-shrink:0;
+}
+#s12 .matrix td .chk.yes-av{background:var(--blue-dim);color:var(--blue)}
+#s12 .matrix td .chk.yes-fl{background:rgba(255,255,255,.05);color:var(--text-2)}
+#s12 .matrix td .chk.no{background:transparent;color:var(--text-3)}
+
+/* ══════════════════════════════════════════════
+   SLIDE 13 — VISION
+══════════════════════════════════════════════ */
+#s13{background:var(--bg)}
+#s13 .glow-v{
+  position:absolute;width:900px;height:900px;border-radius:50%;
+  background:radial-gradient(circle,rgba(10,132,255,.15) 0%,transparent 65%);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  pointer-events:none;
+}
+#s13 .vision-content{
+  position:relative;z-index:2;
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  max-width:900px;gap:40px;
+}
+#s13 .vision-quote{
+  font-size:52px;font-weight:800;line-height:1.1;
+  letter-spacing:-.025em;
+}
+#s13 .vision-quote em{
+  font-style:normal;
+  background:linear-gradient(90deg,var(--blue),var(--blue-2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+#s13 .vision-analogy{
+  display:flex;flex-direction:column;gap:12px;
+  border-left:2px solid var(--blue);
+  padding-left:24px;text-align:left;
+}
+#s13 .analogy-row{font-size:17px;color:var(--text-2);line-height:1.5}
+#s13 .analogy-row strong{color:var(--text);font-weight:600}
+
+/* ══════════════════════════════════════════════
+   SLIDE 14 — CTA
+══════════════════════════════════════════════ */
+#s14{background:var(--bg)}
+#s14 .glow-cta{
+  position:absolute;width:700px;height:700px;border-radius:50%;
+  background:radial-gradient(circle,rgba(10,132,255,.2) 0%,transparent 65%);
+  bottom:-200px;right:-100px;pointer-events:none;
+}
+#s14 .cta-content{
+  position:relative;z-index:2;
+  display:flex;flex-direction:column;
+  max-width:820px;
+}
+#s14 .partner-logos{
+  display:flex;flex-wrap:wrap;gap:12px;margin-top:40px;
+}
+#s14 .partner-chip{
+  padding:8px 18px;border-radius:8px;
+  border:1px solid var(--border-2);background:var(--surface);
+  font-size:13px;font-weight:600;color:var(--text-2);
+  letter-spacing:.03em;
+}
+#s14 .closing{
+  margin-top:48px;font-size:28px;font-weight:700;
+  letter-spacing:-.01em;line-height:1.3;
+}
+#s14 .closing span{color:var(--blue)}
+#s14 .contact{
+  margin-top:36px;display:flex;gap:32px;
+}
+#s14 .contact-item{font-size:14px;color:var(--text-3)}
+#s14 .contact-item strong{color:var(--text-2);display:block;margin-bottom:2px}
 </style>
 </head>
 <body>
 
-<div id="cur"></div>
-<div class="progress-bar" id="progress"></div>
-<div class="deck-logo">AV<span>Node</span></div>
+<!-- Chrome -->
+<div class="chrome-logo">AVNode</div>
+<div class="chrome-slide" id="slideNum">01 / 14</div>
+<div class="progress-bar" id="progressBar" style="width:7.14%"></div>
 
-<div class="deck">
-  <div class="slides" id="slides">
+<!-- Deck -->
+<div class="deck" id="deck">
 
-    <!-- SLIDE 1: COVER -->
-    <div class="slide" id="s1">
-      <canvas id="s1-canvas"></canvas>
-      <div class="s1-content">
-        <div class="s1-tag slide-content"><div class="dot"></div> Confidential · Fleet Infrastructure Partnership</div>
-        <h1 class="display s1-title slide-content">The infrastructure layer<br><em>your fleet is missing.</em></h1>
-        <p class="body-l s1-sub slide-content">How AVNode eliminates non-revenue miles, increases vehicle uptime, and reduces the operational cost of running a distributed fleet.</p>
-      </div>
-      <div class="s1-footer slide-content">
-        <div class="s1-footer-sub">Fleet Infrastructure Partnership</div>
-        <div class="s1-date">AVNode · June 2026</div>
+<!-- ══════════════════════════════════════
+     SLIDE 01 — COVER
+══════════════════════════════════════ -->
+<div class="slide active" id="s1">
+  <div class="grid-bg"></div>
+  <div class="glow glow-1"></div>
+  <div class="glow glow-2"></div>
+
+  <!-- City SVG background -->
+  <svg class="city-viz" viewBox="0 0 600 800" preserveAspectRatio="xMaxYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="cityFade" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#070709" stop-opacity="1"/>
+        <stop offset="40%" stop-color="#070709" stop-opacity="0"/>
+      </linearGradient>
+      <radialGradient id="nodeGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#0A84FF" stop-opacity="0.9"/>
+        <stop offset="100%" stop-color="#0A84FF" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <!-- City grid lines -->
+    <g stroke="rgba(10,132,255,0.12)" stroke-width="1">
+      <line x1="0" y1="200" x2="600" y2="200"/>
+      <line x1="0" y1="300" x2="600" y2="300"/>
+      <line x1="0" y1="400" x2="600" y2="400"/>
+      <line x1="0" y1="500" x2="600" y2="500"/>
+      <line x1="0" y1="600" x2="600" y2="600"/>
+      <line x1="100" y1="0" x2="100" y2="800"/>
+      <line x1="200" y1="0" x2="200" y2="800"/>
+      <line x1="300" y1="0" x2="300" y2="800"/>
+      <line x1="400" y1="0" x2="400" y2="800"/>
+      <line x1="500" y1="0" x2="500" y2="800"/>
+    </g>
+    <!-- Buildings -->
+    <g fill="rgba(10,132,255,0.08)" stroke="rgba(10,132,255,0.2)" stroke-width="0.5">
+      <rect x="110" y="320" width="60" height="180"/>
+      <rect x="180" y="280" width="45" height="220"/>
+      <rect x="235" y="350" width="35" height="150"/>
+      <rect x="310" y="260" width="70" height="240"/>
+      <rect x="390" y="310" width="50" height="190"/>
+      <rect x="450" y="240" width="55" height="260"/>
+      <rect x="515" y="350" width="40" height="150"/>
+      <rect x="120" y="480" width="25" height="40"/>
+      <rect x="200" y="490" width="30" height="30"/>
+      <rect x="330" y="490" width="35" height="20"/>
+    </g>
+    <!-- AV vehicles (circles) -->
+    <circle cx="220" cy="490" r="5" fill="#0A84FF" opacity="0.9">
+      <animate attributeName="cx" values="220;420;420" dur="8s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="380" cy="410" r="5" fill="#0A84FF" opacity="0.7">
+      <animate attributeName="cy" values="410;590;590" dur="10s" repeatCount="indefinite"/>
+    </circle>
+    <!-- Charging nodes -->
+    <circle cx="300" cy="400" r="24" fill="url(#nodeGlow)"/>
+    <circle cx="300" cy="400" r="6" fill="#0A84FF"/>
+    <circle cx="450" cy="300" r="18" fill="url(#nodeGlow)" opacity="0.6"/>
+    <circle cx="450" cy="300" r="5" fill="#0A84FF"/>
+    <!-- Connection lines -->
+    <line x1="220" y1="490" x2="300" y2="400" stroke="rgba(10,132,255,0.3)" stroke-width="1" stroke-dasharray="4,4"/>
+    <line x1="380" y1="410" x2="300" y2="400" stroke="rgba(10,132,255,0.3)" stroke-width="1" stroke-dasharray="4,4"/>
+    <!-- Fade overlay -->
+    <rect x="0" y="0" width="600" height="800" fill="url(#cityFade)"/>
+  </svg>
+
+  <div class="content">
+    <div class="badge" style="width:fit-content;margin-bottom:32px">
+      <span style="width:6px;height:6px;background:var(--blue);border-radius:50%;display:inline-block"></span>
+      Fleet Infrastructure as a Service
+    </div>
+    <div class="hero" style="max-width:760px">AVNode</div>
+    <div style="margin-top:24px;font-size:26px;font-weight:300;color:var(--text-2);max-width:680px;line-height:1.4;letter-spacing:-.01em">
+      The Physical Infrastructure Layer<br>for Autonomous Mobility
+    </div>
+    <div class="tagline">
+      Sourcing, activating, and operating distributed charging and operations infrastructure that enables autonomous fleets to scale.
+    </div>
+    <div class="partners">
+      <span class="partner-tag">Robotaxis</span>
+      <span class="partner-tag">Autonomous Delivery</span>
+      <span class="partner-tag">Fleet Operators</span>
+      <span class="partner-tag">Mobility Networks</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 02 — THE PROBLEM
+══════════════════════════════════════ -->
+<div class="slide" id="s2">
+  <div class="grid-bg" style="opacity:.5"></div>
+  <div class="two-col wide-right">
+    <div class="left">
+      <div class="eyebrow">The Problem</div>
+      <div class="h1">Central Hubs Can't Be Everywhere</div>
+      <div class="body" style="margin-top:24px">Fleet management partners are experts at running vehicles. But their central hub sits in one fixed location — while demand moves across the city all day.</div>
+      <div class="drain-list">
+        <div class="drain-item"><span class="dot-red"></span>Vehicles detour back to depot to charge</div>
+        <div class="drain-item"><span class="dot-red"></span>Hub capacity gets bottlenecked at peak</div>
+        <div class="drain-item"><span class="dot-red"></span>Dead miles burn battery and time</div>
+        <div class="drain-item"><span class="dot-red"></span>Revenue zones left uncovered</div>
+        <div class="drain-item"><span class="dot-red"></span>Hub real estate cost scales with fleet</div>
+        <div class="drain-item"><span class="dot-red"></span>New markets require building from scratch</div>
       </div>
     </div>
 
-    <!-- SLIDE 2: THE NUMBER -->
-    <div class="slide" id="s2">
-      <div class="s2-grid slide-content">
+    <!-- Drain Diagram SVG -->
+    <svg viewBox="0 0 520 480" style="width:100%;max-width:520px" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="avGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="rgba(10,132,255,0.25)"/>
+          <stop offset="100%" stop-color="rgba(10,132,255,0.05)"/>
+        </radialGradient>
+        <marker id="arrowRed" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+          <path d="M0,0 L6,3 L0,6 Z" fill="rgba(255,69,58,0.7)"/>
+        </marker>
+      </defs>
+      <!-- Center hex -->
+      <polygon points="260,195 300,172 340,195 340,240 300,263 260,240"
+        fill="url(#avGrad)" stroke="rgba(10,132,255,0.4)" stroke-width="1.5"/>
+      <text x="300" y="210" text-anchor="middle" fill="white" font-family="Inter" font-size="11" font-weight="700" letter-spacing="1">AV COMPANY</text>
+      <text x="300" y="228" text-anchor="middle" fill="rgba(10,132,255,0.8)" font-family="Inter" font-size="9" letter-spacing="1">CORE FOCUS</text>
+
+      <!-- Drain nodes + lines -->
+      <!-- Real Estate - top left -->
+      <line x1="270" y1="183" x2="140" y2="100" stroke="rgba(255,69,58,0.5)" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowRed)"/>
+      <rect x="60" y="60" width="130" height="50" rx="10" fill="rgba(255,69,58,0.08)" stroke="rgba(255,69,58,0.25)" stroke-width="1"/>
+      <text x="125" y="80" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="Inter" font-size="11" font-weight="600">Real Estate</text>
+      <text x="125" y="98" text-anchor="middle" fill="rgba(255,69,58,0.7)" font-family="Inter" font-size="9">Acquisition</text>
+
+      <!-- Utilities - top right -->
+      <line x1="330" y1="183" x2="400" y2="100" stroke="rgba(255,69,58,0.5)" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowRed)"/>
+      <rect x="340" y="60" width="120" height="50" rx="10" fill="rgba(255,69,58,0.08)" stroke="rgba(255,69,58,0.25)" stroke-width="1"/>
+      <text x="400" y="80" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="Inter" font-size="11" font-weight="600">Utilities</text>
+      <text x="400" y="98" text-anchor="middle" fill="rgba(255,69,58,0.7)" font-family="Inter" font-size="9">Negotiation</text>
+
+      <!-- Permitting - right -->
+      <line x1="340" y1="218" x2="440" y2="218" stroke="rgba(255,69,58,0.5)" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowRed)"/>
+      <rect x="440" y="195" width="70" height="45" rx="10" fill="rgba(255,69,58,0.08)" stroke="rgba(255,69,58,0.25)" stroke-width="1"/>
+      <text x="475" y="213" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="Inter" font-size="10" font-weight="600">Permits</text>
+      <text x="475" y="228" text-anchor="middle" fill="rgba(255,69,58,0.7)" font-family="Inter" font-size="9">Timelines</text>
+
+      <!-- Site Operations - bottom right -->
+      <line x1="330" y1="252" x2="400" y2="330" stroke="rgba(255,69,58,0.5)" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowRed)"/>
+      <rect x="340" y="320" width="130" height="50" rx="10" fill="rgba(255,69,58,0.08)" stroke="rgba(255,69,58,0.25)" stroke-width="1"/>
+      <text x="405" y="340" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="Inter" font-size="11" font-weight="600">Site Operations</text>
+      <text x="405" y="358" text-anchor="middle" fill="rgba(255,69,58,0.7)" font-family="Inter" font-size="9">Staffing &amp; Management</text>
+
+      <!-- Charging - bottom left -->
+      <line x1="270" y1="252" x2="140" y2="330" stroke="rgba(255,69,58,0.5)" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowRed)"/>
+      <rect x="60" y="318" width="130" height="50" rx="10" fill="rgba(255,69,58,0.08)" stroke="rgba(255,69,58,0.25)" stroke-width="1"/>
+      <text x="125" y="338" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="Inter" font-size="11" font-weight="600">Charging Deploy</text>
+      <text x="125" y="356" text-anchor="middle" fill="rgba(255,69,58,0.7)" font-family="Inter" font-size="9">Infrastructure Build</text>
+
+      <!-- Landlords - left -->
+      <line x1="260" y1="218" x2="140" y2="218" stroke="rgba(255,69,58,0.5)" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowRed)"/>
+      <rect x="10" y="195" width="130" height="46" rx="10" fill="rgba(255,69,58,0.08)" stroke="rgba(255,69,58,0.25)" stroke-width="1"/>
+      <text x="75" y="214" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-family="Inter" font-size="11" font-weight="600">Landlords</text>
+      <text x="75" y="230" text-anchor="middle" fill="rgba(255,69,58,0.7)" font-family="Inter" font-size="9">Relationships</text>
+
+      <!-- Label -->
+      <text x="260" y="440" text-anchor="middle" fill="rgba(255,69,58,0.6)" font-family="Inter" font-size="11" letter-spacing="2" font-weight="600">CENTRAL HUB — SINGLE POINT OF FRICTION</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 03 — HIDDEN COST
+══════════════════════════════════════ -->
+<div class="slide" id="s3">
+  <div class="grid-bg" style="opacity:.4"></div>
+  <div style="width:100%;display:flex;flex-direction:column;gap:0">
+    <div style="margin-bottom:32px">
+      <div class="eyebrow">The Hidden Cost</div>
+      <div class="h1">Your Hub Is an Asset. Distance Is the Problem.</div>
+      <div class="body" style="margin-top:12px;max-width:680px">Your central hub is built for operations. But every time a vehicle has to return for a charge, the hub's location works against fleet efficiency.</div>
+    </div>
+
+    <!-- Before / After flow comparison -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;width:100%">
+
+      <!-- WITHOUT AVNODE -->
+      <div style="background:rgba(255,69,58,0.05);border:1px solid rgba(255,69,58,0.18);border-radius:14px;padding:24px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.18em;color:var(--red);margin-bottom:16px">WITHOUT AVNODE NODES</div>
+        <svg viewBox="0 0 480 100" style="width:100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrowR" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+              <path d="M0,0 L7,3.5 L0,7 Z" fill="rgba(255,69,58,0.7)"/>
+            </marker>
+          </defs>
+          <circle cx="44" cy="50" r="30" fill="rgba(10,132,255,0.12)" stroke="rgba(10,132,255,0.4)" stroke-width="1.5"/>
+          <text x="44" y="46" text-anchor="middle" fill="white" font-family="Inter" font-size="9" font-weight="700">TRIP</text>
+          <text x="44" y="59" text-anchor="middle" fill="white" font-family="Inter" font-size="9" font-weight="700">ENDS</text>
+
+          <line x1="76" y1="50" x2="148" y2="50" stroke="rgba(255,69,58,0.6)" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowR)"/>
+          <text x="112" y="40" text-anchor="middle" fill="rgba(255,69,58,0.8)" font-family="Inter" font-size="9">7 mi empty</text>
+
+          <circle cx="188" cy="50" r="30" fill="rgba(30,30,38,0.9)" stroke="rgba(80,80,95,0.4)" stroke-width="1.5"/>
+          <text x="188" y="46" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-family="Inter" font-size="8" font-weight="700">CENTRAL</text>
+          <text x="188" y="59" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-family="Inter" font-size="8" font-weight="700">HUB</text>
+
+          <line x1="220" y1="50" x2="292" y2="50" stroke="rgba(255,212,10,0.5)" stroke-width="1.5" marker-end="url(#arrowR)"/>
+          <text x="256" y="40" text-anchor="middle" fill="rgba(255,212,10,0.8)" font-family="Inter" font-size="9">47 min wait</text>
+
+          <circle cx="332" cy="50" r="30" fill="rgba(30,30,38,0.9)" stroke="rgba(80,80,95,0.4)" stroke-width="1.5"/>
+          <text x="332" y="46" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-family="Inter" font-size="8" font-weight="700">CHARGE</text>
+          <text x="332" y="59" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-family="Inter" font-size="8" font-weight="700">SESSION</text>
+
+          <line x1="364" y1="50" x2="426" y2="50" stroke="rgba(255,69,58,0.6)" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowR)"/>
+          <text x="396" y="40" text-anchor="middle" fill="rgba(255,69,58,0.8)" font-family="Inter" font-size="9">7 mi empty</text>
+
+          <circle cx="452" cy="50" r="22" fill="rgba(10,132,255,0.12)" stroke="rgba(10,132,255,0.4)" stroke-width="1.5"/>
+          <text x="452" y="46" text-anchor="middle" fill="white" font-family="Inter" font-size="8" font-weight="700">BACK</text>
+          <text x="452" y="59" text-anchor="middle" fill="white" font-family="Inter" font-size="8" font-weight="700">IN SVC</text>
+        </svg>
+        <div style="font-size:12px;color:var(--red);margin-top:12px;font-weight:600">14 mi wasted · 47 min downtime · revenue zone uncovered</div>
+      </div>
+
+      <!-- WITH AVNODE -->
+      <div style="background:var(--blue-dim);border:1px solid rgba(10,132,255,0.35);border-radius:14px;padding:24px;position:relative;overflow:hidden">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.18em;color:var(--blue);margin-bottom:16px">WITH AVNODE NODES</div>
+        <svg viewBox="0 0 480 100" style="width:100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrowBl" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+              <path d="M0,0 L7,3.5 L0,7 Z" fill="rgba(10,132,255,0.9)"/>
+            </marker>
+          </defs>
+          <circle cx="44" cy="50" r="30" fill="rgba(10,132,255,0.15)" stroke="rgba(10,132,255,0.5)" stroke-width="1.5"/>
+          <text x="44" y="46" text-anchor="middle" fill="white" font-family="Inter" font-size="9" font-weight="700">TRIP</text>
+          <text x="44" y="59" text-anchor="middle" fill="white" font-family="Inter" font-size="9" font-weight="700">ENDS</text>
+
+          <line x1="76" y1="50" x2="148" y2="50" stroke="rgba(10,132,255,0.6)" stroke-width="1.5" marker-end="url(#arrowBl)"/>
+          <text x="112" y="40" text-anchor="middle" fill="rgba(10,132,255,0.8)" font-family="Inter" font-size="9">0.5 mi nearby</text>
+
+          <circle cx="188" cy="50" r="30" fill="rgba(10,132,255,0.25)" stroke="rgba(10,132,255,0.7)" stroke-width="1.5"/>
+          <text x="188" y="46" text-anchor="middle" fill="white" font-family="Inter" font-size="8" font-weight="800">AV</text>
+          <text x="188" y="59" text-anchor="middle" fill="white" font-family="Inter" font-size="8" font-weight="800">NODE</text>
+
+          <line x1="220" y1="50" x2="292" y2="50" stroke="rgba(48,209,88,0.6)" stroke-width="1.5" marker-end="url(#arrowBl)"/>
+          <text x="256" y="40" text-anchor="middle" fill="rgba(48,209,88,0.9)" font-family="Inter" font-size="9">Quick charge</text>
+
+          <circle cx="332" cy="50" r="30" fill="rgba(48,209,88,0.12)" stroke="rgba(48,209,88,0.5)" stroke-width="1.5"/>
+          <text x="332" y="46" text-anchor="middle" fill="white" font-family="Inter" font-size="8" font-weight="700">CHARGE</text>
+          <text x="332" y="59" text-anchor="middle" fill="rgba(48,209,88,0.8)" font-family="Inter" font-size="8" font-weight="700">DONE</text>
+
+          <line x1="364" y1="50" x2="426" y2="50" stroke="rgba(10,132,255,0.6)" stroke-width="1.5" marker-end="url(#arrowBl)"/>
+          <text x="396" y="40" text-anchor="middle" fill="rgba(10,132,255,0.8)" font-family="Inter" font-size="9">back in zone</text>
+
+          <circle cx="452" cy="50" r="22" fill="rgba(10,132,255,0.2)" stroke="rgba(10,132,255,0.6)" stroke-width="1.5"/>
+          <text x="452" y="46" text-anchor="middle" fill="white" font-family="Inter" font-size="8" font-weight="700">MORE</text>
+          <text x="452" y="59" text-anchor="middle" fill="rgba(10,132,255,0.9)" font-family="Inter" font-size="8" font-weight="700">TRIPS</text>
+        </svg>
+        <div style="font-size:12px;color:var(--green);margin-top:12px;font-weight:600">Hub preserved for operations · vehicles stay in demand zone · utilization maximized</div>
+      </div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="stats-row" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:28px">
+      <div class="stat-card">
+        <div class="stat-num" style="font-size:52px">14 mi</div>
+        <div class="stat-label">Deadhead miles recovered per vehicle daily</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="font-size:52px">47 min</div>
+        <div class="stat-label">Productive time returned per vehicle daily</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="font-size:52px">$16.1M</div>
+        <div class="stat-label">Annual drag recovered — 500 vehicle fleet</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 04 — CRE FAILURE
+══════════════════════════════════════ -->
+<div class="slide" id="s4">
+  <div style="width:100%;display:flex;flex-direction:column;gap:36px">
+    <div>
+      <div class="eyebrow">Why Existing Solutions Fail</div>
+      <div class="h1" style="max-width:660px">Traditional Real Estate Was Never Built For AV</div>
+    </div>
+    <div class="compare-grid">
+      <div class="compare-col bad">
+        <div class="compare-label">Traditional Parking / CRE</div>
+        <div class="compare-row"><span class="cross">✕</span> Low-voltage power — wrong electrical capacity</div>
+        <div class="compare-row"><span class="cross">✕</span> Vehicle traffic conflicts — not designed for fleet rotation</div>
+        <div class="compare-row"><span class="cross">✕</span> No AV operations support or staffing</div>
+        <div class="compare-row"><span class="cross">✕</span> 5–10 year leases with no flexibility</div>
+        <div class="compare-row"><span class="cross">✕</span> Permitting timelines of 12–24 months</div>
+        <div class="compare-row"><span class="cross">✕</span> No charging expertise or infrastructure</div>
+        <div class="compare-row"><span class="cross">✕</span> Wrong locations relative to demand zones</div>
+      </div>
+      <div class="compare-col good">
+        <div class="compare-label">AVNode Hub</div>
+        <div class="compare-row"><span class="check">✓</span> 480V+ DC fast charging infrastructure</div>
+        <div class="compare-row"><span class="check">✓</span> Dedicated AV lanes and staging zones</div>
+        <div class="compare-row"><span class="check">✓</span> 24/7 staffed fleet operations support</div>
+        <div class="compare-row"><span class="check">✓</span> Flexible terms matched to fleet contracts</div>
+        <div class="compare-row"><span class="check">✓</span> Pre-qualified and deployment-ready</div>
+        <div class="compare-row"><span class="check">✓</span> Charging-native from day one</div>
+        <div class="compare-row"><span class="check">✓</span> Positioned within high-demand corridors</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 05 — INTRODUCING AVNODE
+══════════════════════════════════════ -->
+<div class="slide" id="s5">
+  <div class="grid-bg" style="opacity:.6"></div>
+  <div style="width:100%;display:flex;flex-direction:column;align-items:center;gap:0">
+    <div style="text-align:center;margin-bottom:40px">
+      <div class="eyebrow">The Solution</div>
+      <div class="h1">Your Hub Does More. Everywhere.</div>
+      <div class="body" style="max-width:620px;margin:16px auto 0">Fleet managers keep their central hub — it's their operational core. AVNode's distributed nodes extend that hub's reach across the city, so vehicles stay in demand zones instead of returning for every charge.</div>
+    </div>
+
+    <div class="eco-wrap">
+      <!-- Left: Fleet Operators -->
+      <div class="eco-side">
+        <div class="label" style="margin-bottom:12px;padding-left:4px">Fleet Operators</div>
+        <div class="eco-item">🚕 &nbsp;Waymo / Uber AV</div>
+        <div class="eco-item">📦 &nbsp;Autonomous Delivery</div>
+        <div class="eco-item">🚐 &nbsp;Robotaxi Networks</div>
+        <div class="eco-item">🔋 &nbsp;EV Fleet Operators</div>
+        <div class="eco-item" style="margin-top:8px;background:var(--blue-dim);border-color:rgba(10,132,255,.3);color:white">
+          Need: <span style="color:var(--blue-2);margin-left:6px">Scale &amp; Speed</span>
+        </div>
+      </div>
+
+      <!-- Connection arrows -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:20px">
+        <svg width="300" height="160" viewBox="0 0 300 160" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+              <path d="M0,1 L7,4 L0,7 Z" fill="rgba(10,132,255,0.9)"/>
+            </marker>
+            <radialGradient id="hexGrad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="rgba(10,132,255,0.3)"/>
+              <stop offset="100%" stop-color="rgba(10,132,255,0.05)"/>
+            </radialGradient>
+          </defs>
+          <!-- Left arrow -->
+          <line x1="30" y1="80" x2="95" y2="80" stroke="rgba(10,132,255,0.6)" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+          <text x="62" y="68" text-anchor="middle" fill="rgba(10,132,255,0.6)" font-family="Inter" font-size="9" letter-spacing="1">DEMAND</text>
+          <!-- Right arrow -->
+          <line x1="205" y1="80" x2="270" y2="80" stroke="rgba(10,132,255,0.6)" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+          <text x="237" y="68" text-anchor="middle" fill="rgba(10,132,255,0.6)" font-family="Inter" font-size="9" letter-spacing="1">SUPPLY</text>
+          <!-- Center hex -->
+          <polygon points="150,35 185,55 185,105 150,125 115,105 115,55"
+            fill="url(#hexGrad)" stroke="rgba(10,132,255,0.5)" stroke-width="1.5"/>
+          <text x="150" y="74" text-anchor="middle" fill="white" font-family="Inter" font-size="13" font-weight="800">AV</text>
+          <text x="150" y="90" text-anchor="middle" fill="white" font-family="Inter" font-size="13" font-weight="800">NODE</text>
+          <!-- Glow -->
+          <circle cx="150" cy="80" r="50" fill="transparent" stroke="rgba(10,132,255,0.15)" stroke-width="20"/>
+        </svg>
+        <!-- Services below hex -->
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+          <span style="font-size:11px;color:var(--blue-2);padding:4px 10px;background:var(--blue-dim);border-radius:6px;border:1px solid rgba(10,132,255,.2)">Charging</span>
+          <span style="font-size:11px;color:var(--blue-2);padding:4px 10px;background:var(--blue-dim);border-radius:6px;border:1px solid rgba(10,132,255,.2)">Staging</span>
+          <span style="font-size:11px;color:var(--blue-2);padding:4px 10px;background:var(--blue-dim);border-radius:6px;border:1px solid rgba(10,132,255,.2)">Operations</span>
+          <span style="font-size:11px;color:var(--blue-2);padding:4px 10px;background:var(--blue-dim);border-radius:6px;border:1px solid rgba(10,132,255,.2)">Utilities</span>
+          <span style="font-size:11px;color:var(--blue-2);padding:4px 10px;background:var(--blue-dim);border-radius:6px;border:1px solid rgba(10,132,255,.2)">Site Ops</span>
+        </div>
+      </div>
+
+      <!-- Right: Property Owners -->
+      <div class="eco-side">
+        <div class="label" style="margin-bottom:12px;padding-left:4px">Property Network</div>
+        <div class="eco-item">🏨 &nbsp;Hotel Operators</div>
+        <div class="eco-item">🅿️ &nbsp;Parking Operators</div>
+        <div class="eco-item">🏢 &nbsp;Commercial Developers</div>
+        <div class="eco-item">✈️ &nbsp;Airport-Adjacent Assets</div>
+        <div class="eco-item" style="margin-top:8px;background:rgba(48,209,88,.08);border-color:rgba(48,209,88,.25);color:white">
+          Offer: <span style="color:var(--green);margin-left:6px">Idle Infrastructure</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 06 — HOTELS
+══════════════════════════════════════ -->
+<div class="slide" id="s6">
+  <div class="two-col wide-left">
+    <div>
+      <div class="eyebrow">The Secret Weapon</div>
+      <div class="h1" style="max-width:480px">The Largest Untapped Infrastructure Network in America</div>
+      <div class="body" style="margin-top:20px;margin-bottom:36px">Hotels already have everything AV fleets need — and no one is using it.</div>
+      <div class="hotel-stats">
+        <div class="hotel-feature">
+          <div class="hotel-icon">⚡</div>
+          <div>
+            <div class="h4">Existing Electrical Infrastructure</div>
+            <div class="small" style="margin-top:4px">Commercial power already on site. Upgrade cost is a fraction of a ground-up build.</div>
+          </div>
+        </div>
+        <div class="hotel-feature">
+          <div class="hotel-icon">🔒</div>
+          <div>
+            <div class="h4">24/7 Staffing &amp; Security</div>
+            <div class="small" style="margin-top:4px">Front desk, security cameras, controlled access — already operational.</div>
+          </div>
+        </div>
+        <div class="hotel-feature">
+          <div class="hotel-icon">📍</div>
+          <div>
+            <div class="h4">Prime Demand-Zone Locations</div>
+            <div class="small" style="margin-top:4px">Airport proximity, downtown corridors, and high-density travel nodes — exactly where AV fleets need to operate.</div>
+          </div>
+        </div>
+        <div class="hotel-feature">
+          <div class="hotel-icon">🅿️</div>
+          <div>
+            <div class="h4">Excess Parking — Revenue Generating</div>
+            <div class="small" style="margin-top:4px">12M+ underutilized parking spaces near US airports alone. Zero incremental real estate cost.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hotel → Hub transformation visual -->
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <svg viewBox="0 0 420 460" style="width:100%" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="hotelGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="rgba(10,132,255,0.2)"/>
+            <stop offset="100%" stop-color="transparent"/>
+          </radialGradient>
+        </defs>
+        <!-- Background -->
+        <rect width="420" height="460" rx="16" fill="#0f0f12" stroke="#1e1e26" stroke-width="1"/>
+
+        <!-- Map grid -->
+        <g stroke="rgba(255,255,255,0.04)" stroke-width="1">
+          <line x1="0" y1="80" x2="420" y2="80"/>
+          <line x1="0" y1="160" x2="420" y2="160"/>
+          <line x1="0" y1="240" x2="420" y2="240"/>
+          <line x1="0" y1="320" x2="420" y2="320"/>
+          <line x1="0" y1="400" x2="420" y2="400"/>
+          <line x1="80" y1="0" x2="80" y2="460"/>
+          <line x1="160" y1="0" x2="160" y2="460"/>
+          <line x1="240" y1="0" x2="240" y2="460"/>
+          <line x1="320" y1="0" x2="320" y2="460"/>
+          <line x1="400" y1="0" x2="400" y2="460"/>
+        </g>
+
+        <!-- Airport indicator -->
+        <circle cx="210" cy="230" r="80" fill="rgba(10,132,255,0.04)" stroke="rgba(10,132,255,0.15)" stroke-width="1" stroke-dasharray="6,4"/>
+        <text x="210" y="234" text-anchor="middle" fill="rgba(10,132,255,0.3)" font-family="Inter" font-size="10" letter-spacing="2">AIRPORT ZONE</text>
+
+        <!-- Hotel nodes becoming hubs -->
+        <!-- Hub 1 (active) -->
+        <circle cx="140" cy="160" r="28" fill="url(#hotelGlow)"/>
+        <circle cx="140" cy="160" r="10" fill="rgba(10,132,255,0.9)" stroke="white" stroke-width="1.5"/>
+        <text x="140" y="200" text-anchor="middle" fill="rgba(10,132,255,0.8)" font-family="Inter" font-size="9" font-weight="600">HILTON → NODE</text>
+
+        <!-- Hub 2 (active) -->
+        <circle cx="300" cy="140" r="22" fill="url(#hotelGlow)"/>
+        <circle cx="300" cy="140" r="8" fill="rgba(10,132,255,0.9)" stroke="white" stroke-width="1.5"/>
+        <text x="300" y="175" text-anchor="middle" fill="rgba(10,132,255,0.8)" font-family="Inter" font-size="9" font-weight="600">MARRIOTT → NODE</text>
+
+        <!-- Hub 3 (active) -->
+        <circle cx="90" cy="320" r="20" fill="url(#hotelGlow)"/>
+        <circle cx="90" cy="320" r="7" fill="rgba(10,132,255,0.9)" stroke="white" stroke-width="1.5"/>
+        <text x="90" y="352" text-anchor="middle" fill="rgba(10,132,255,0.8)" font-family="Inter" font-size="9" font-weight="600">IHG → NODE</text>
+
+        <!-- Hub 4 (potential) -->
+        <circle cx="340" cy="310" r="7" fill="transparent" stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-dasharray="3,2"/>
+        <text x="340" y="336" text-anchor="middle" fill="rgba(255,255,255,0.2)" font-family="Inter" font-size="9">QUALIFYING...</text>
+
+        <!-- Hub 5 (potential) -->
+        <circle cx="200" cy="380" r="7" fill="transparent" stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-dasharray="3,2"/>
+        <text x="200" y="404" text-anchor="middle" fill="rgba(255,255,255,0.2)" font-family="Inter" font-size="9">QUALIFYING...</text>
+
+        <!-- Connection lines -->
+        <line x1="140" y1="160" x2="300" y2="140" stroke="rgba(10,132,255,0.3)" stroke-width="1" stroke-dasharray="4,3"/>
+        <line x1="140" y1="160" x2="90" y2="320" stroke="rgba(10,132,255,0.3)" stroke-width="1" stroke-dasharray="4,3"/>
+        <line x1="300" y1="140" x2="210" y2="230" stroke="rgba(10,132,255,0.2)" stroke-width="1" stroke-dasharray="4,3"/>
+
+        <!-- AV vehicle -->
+        <circle cx="210" cy="265" r="5" fill="white" opacity="0.8">
+          <animateMotion dur="6s" repeatCount="indefinite" path="M0,0 L-70,-105 L90,-125 L-120,55 Z"/>
+        </circle>
+
+        <!-- Legend -->
+        <circle cx="28" cy="432" r="6" fill="rgba(10,132,255,0.9)"/>
+        <text x="42" y="436" fill="rgba(255,255,255,0.5)" font-family="Inter" font-size="10">Active Node</text>
+        <circle cx="130" cy="432" r="6" fill="transparent" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="2,2"/>
+        <text x="144" y="436" fill="rgba(255,255,255,0.5)" font-family="Inter" font-size="10">Qualifying</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 07 — PROPERTY OWNERS
+══════════════════════════════════════ -->
+<div class="slide" id="s7">
+  <div style="width:100%;display:flex;flex-direction:column">
+    <div style="margin-bottom:48px">
+      <div class="eyebrow">For Property Owners</div>
+      <div class="h1" style="max-width:620px">Idle Parking Becomes Productive Infrastructure</div>
+    </div>
+    <div class="benefit-grid">
+      <div class="benefit-card">
+        <div class="benefit-num">01</div>
+        <div class="h4">New Revenue Stream</div>
+        <div class="small" style="margin-top:8px">Generate recurring monthly income from parking spaces that currently sit empty — especially overnight and on weekends.</div>
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+          <div class="label">Revenue type</div>
+          <div style="font-size:14px;color:var(--text);margin-top:6px">Parking + Charging + Operations</div>
+        </div>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-num">02</div>
+        <div class="h4">Long-Term Contracts</div>
+        <div class="small" style="margin-top:8px">Fleet operators sign multi-year agreements. AVNode provides stable, predictable revenue with professional counterparties.</div>
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+          <div class="label">Contract length</div>
+          <div style="font-size:14px;color:var(--text);margin-top:6px">3–7 year initial terms</div>
+        </div>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-num">03</div>
+        <div class="h4">Infrastructure Investment</div>
+        <div class="small" style="margin-top:8px">AVNode and fleet partners fund charging equipment. Property owners receive upgraded infrastructure at no upfront cost.</div>
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+          <div class="label">Upfront cost to owner</div>
+          <div style="font-size:14px;color:var(--green);margin-top:6px">$0</div>
+        </div>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-num">04</div>
+        <div class="h4">Three-Stage Growth Path</div>
+        <div class="small" style="margin-top:8px">Start with basic staging and parking. Progress to Level 2 charging, then DC fast charging as demand scales.</div>
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+          <div style="display:flex;gap:8px">
+            <span style="font-size:10px;padding:4px 8px;background:var(--surface-2);border-radius:4px;color:var(--text-2)">Stage 1: Staging</span>
+            <span style="font-size:10px;padding:4px 8px;background:var(--blue-dim);border-radius:4px;color:var(--blue-2)">Stage 2: L2</span>
+            <span style="font-size:10px;padding:4px 8px;background:var(--blue-dim);border-radius:4px;color:var(--blue-2)">Stage 3: DCFC</span>
+          </div>
+        </div>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-num">05</div>
+        <div class="h4">Asset Differentiation</div>
+        <div class="small" style="margin-top:8px">AV-ready certification positions your property as future-forward infrastructure, increasing asset value and attracting premium tenants.</div>
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+          <div class="label">Certification</div>
+          <div style="font-size:14px;color:var(--text);margin-top:6px">AVNode Verified Hub</div>
+        </div>
+      </div>
+      <div class="benefit-card" style="background:var(--blue-dim);border-color:rgba(10,132,255,.3)">
+        <div class="benefit-num" style="color:var(--blue-2)">~30%</div>
+        <div class="h4">Of Sites Qualify</div>
+        <div class="small" style="margin-top:8px">AVNode runs a rigorous six-point qualification: power access, dedicated spaces, security, 24/7 access, demand proximity, lease stability.</div>
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(10,132,255,.2)">
+          <div class="label" style="color:var(--blue-2)">Apply today</div>
+          <div style="font-size:14px;color:var(--text);margin-top:6px">av-node.com/qualify</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 08 — FLEET OPERATORS
+══════════════════════════════════════ -->
+<div class="slide" id="s8">
+  <div style="width:100%;display:flex;flex-direction:column">
+    <div style="margin-bottom:32px">
+      <div class="eyebrow">For Fleet Operators</div>
+      <div class="h1">Central Hub + AVNode Nodes = Maximum Utilization</div>
+      <div class="body" style="margin-top:12px;max-width:700px">Your hub is the command center. AVNode's nodes are the distributed endpoints that keep your fleet in revenue-generating zones all day — without driving back to depot.</div>
+    </div>
+    <div class="vs-grid">
+      <div class="vs-col without">
+        <div class="vs-head">Hub Only — Today</div>
+        <div class="vs-step"><span class="step-num">1</span>Vehicle completes trip in downtown corridor</div>
+        <div class="vs-step"><span class="step-num">2</span>Needs charge — drives 7 mi back to central hub</div>
+        <div class="vs-step"><span class="step-num">3</span>Waits in charging queue at depot</div>
+        <div class="vs-step"><span class="step-num">4</span>Drives 7 mi back to demand zone</div>
+        <div class="vs-step"><span class="step-num">5</span>Hub charging bays become bottleneck at peak</div>
+        <div class="vs-step"><span class="step-num">6</span>Expanding fleet requires expanding hub footprint</div>
+        <div style="margin-top:20px;padding:14px;background:rgba(255,69,58,.08);border-radius:8px;border:1px solid rgba(255,69,58,.2)">
+          <div style="font-size:13px;color:var(--red);font-weight:600">Hub is a bottleneck at scale</div>
+          <div style="font-size:12px;color:var(--text-2);margin-top:4px">Fleet utilization capped by hub capacity and location.</div>
+        </div>
+      </div>
+      <div class="vs-col with">
+        <div class="vs-head">Hub + AVNode — Tomorrow</div>
+        <div class="single-step">
+          <div class="big">Hub handles ops.<br>Nodes handle charge.</div>
+          <div class="desc">AVNode's distributed network sits inside demand zones. Vehicles charge nearby, stay productive, and only return to the hub for maintenance and deep operations.</div>
+          <div style="margin-top:24px;display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text-2)"><span style="color:var(--green)">✓</span> Hub freed up for maintenance &amp; inspections</div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text-2)"><span style="color:var(--green)">✓</span> Vehicles stay in revenue zones longer</div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text-2)"><span style="color:var(--green)">✓</span> Fleet scales without scaling the hub</div>
+            <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text-2)"><span style="color:var(--green)">✓</span> Enter new markets without building from scratch</div>
+          </div>
+          <div style="margin-top:20px;padding:14px;background:rgba(10,132,255,.15);border-radius:8px;border:1px solid rgba(10,132,255,.3)">
+            <div style="font-size:13px;color:var(--blue-2);font-weight:600">Your hub investment is protected. AVNode extends it.</div>
+            <div style="font-size:12px;color:var(--text-2);margin-top:4px">Additive, not disruptive. Complementary infrastructure.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 09 — DEPLOYMENT READY
+══════════════════════════════════════ -->
+<div class="slide" id="s9">
+  <div class="grid-bg" style="opacity:.4"></div>
+  <div class="two-col wide-right" style="align-items:start">
+    <div>
+      <div class="eyebrow">Ready Now</div>
+      <div class="h1" style="max-width:340px">Real Estate Partners Already In Place</div>
+      <div class="body" style="margin-top:20px;margin-bottom:40px">AVNode has established relationships with property owners, hotel operators, developers, and parking operators across our launch markets — today.</div>
+      <div class="market-stats">
+        <div class="market-item">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <div class="market-name">Houston, TX</div>
+            <div style="font-size:13px;color:var(--blue)">12 / 20 filled</div>
+          </div>
+          <div class="small" style="margin-top:2px">Primary launch market. Airport corridor focus.</div>
+          <div class="market-bar-wrap"><div class="market-bar" style="width:60%"></div></div>
+        </div>
+        <div class="market-item">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <div class="market-name">Austin, TX</div>
+            <div style="font-size:13px;color:var(--blue)">8 / 15 filled</div>
+          </div>
+          <div class="small" style="margin-top:2px">Downtown + tech corridor strategy.</div>
+          <div class="market-bar-wrap"><div class="market-bar" style="width:53%"></div></div>
+        </div>
+        <div class="market-item">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <div class="market-name">Tempe, AZ</div>
+            <div style="font-size:13px;color:var(--yellow)">4 / 10 limited</div>
+          </div>
+          <div class="small" style="margin-top:2px">Limited capacity — ASU district and Waymo zone.</div>
+          <div class="market-bar-wrap"><div class="market-bar" style="width:40%;background:linear-gradient(90deg,var(--yellow),var(--yellow))"></div></div>
+        </div>
+      </div>
+      <div style="margin-top:32px;display:flex;gap:24px">
         <div>
-          <div class="eyebrow">The cost no one talks about</div>
-          <div class="s2-number">$42</div>
-          <div class="s2-unit">Per depot visit · Per vehicle</div>
+          <div class="stat-num" style="font-size:36px">3</div>
+          <div class="stat-label">Live markets</div>
         </div>
-        <div class="s2-right">
-          <div class="s2-stat-row">
-            <div class="s2-stat">
-              <div class="s2-stat-n">16–20 mi</div>
-              <div class="s2-stat-l">empty miles per depot visit</div>
-            </div>
-            <div class="s2-stat">
-              <div class="s2-stat-n">~1 hr</div>
-              <div class="s2-stat-l">vehicle out of service per visit</div>
-            </div>
-            <div class="s2-stat">
-              <div class="s2-stat-n">2×/day</div>
-              <div class="s2-stat-l">typical depot visit frequency</div>
-            </div>
-            <div class="s2-stat">
-              <div class="s2-stat-n" style="color:#F87171;">$30,660/yr</div>
-              <div class="s2-stat-l">depot visit cost · per vehicle · 2×/day</div>
-            </div>
-            <div class="s2-stat" style="border-bottom:none;">
-              <div class="s2-stat-n" style="color:#F87171;">+$1,650/yr</div>
-              <div class="s2-stat-l">charging staff allocation · per vehicle</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SLIDE 3: SCALE -->
-    <div class="slide" id="s3">
-      <div class="s3-inner slide-content">
-        <div class="eyebrow">At fleet scale</div>
-        <p class="s3-pull">A 100-vehicle fleet running two depot visits per day is burning <span class="hl">$3.2M+ annually</span> — including the charging staff your depot requires around the clock.</p>
-        <div class="s3-bar-group slide-content slide-content-delay">
-          <div class="s3-bar-row">
-            <span class="s3-bar-label">Empty miles / yr</span>
-            <div class="s3-bar-track"><div class="s3-bar-fill red" data-w="82"></div></div>
-            <span class="s3-bar-val">1.2M mi</span>
-          </div>
-          <div class="s3-bar-row">
-            <span class="s3-bar-label">Hours lost / yr</span>
-            <div class="s3-bar-track"><div class="s3-bar-fill red" data-w="70"></div></div>
-            <span class="s3-bar-val">73,000 hr</span>
-          </div>
-          <div class="s3-bar-row">
-            <span class="s3-bar-label">Depot visits cost / yr</span>
-            <div class="s3-bar-track"><div class="s3-bar-fill red" data-w="91"></div></div>
-            <span class="s3-bar-val">$3.07M</span>
-          </div>
-          <div class="s3-bar-row">
-            <span class="s3-bar-label">Charging staff / yr</span>
-            <div class="s3-bar-track"><div class="s3-bar-fill red" data-w="5"></div></div>
-            <span class="s3-bar-val">$165K</span>
-          </div>
-          <div class="s3-bar-row" style="margin-top:8px;">
-            <span class="s3-bar-label" style="color:var(--text);">Annual savings w/ AVNode</span>
-            <div class="s3-bar-track"><div class="s3-bar-fill" data-w="37"></div></div>
-            <span class="s3-bar-val" style="color:var(--green);">$1.2M</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SLIDE 4: SOLUTION -->
-    <div class="slide" id="s4">
-      <canvas id="s4-canvas"></canvas>
-      <div class="s4-content slide-content">
-        <div class="eyebrow">The AVNode Solution</div>
-        <h2 class="h1" style="margin-bottom:12px;">Infrastructure distributed across the city.</h2>
-        <p class="body" style="max-width:380px;margin-bottom:0;">AVNode qualifies and connects your fleet to real estate nodes positioned where your vehicles already operate.</p>
-        <div class="s4-nodes slide-content slide-content-delay">
-          <div class="s4-node">
-            <div class="s4-node-icon">⚡</div>
-            <div><div class="s4-node-label">Charging</div><div class="s4-node-sub">Staff on-site to plug in vehicles</div></div>
-          </div>
-          <div class="s4-node">
-            <div class="s4-node-icon">🅿</div>
-            <div><div class="s4-node-label">Staging & Parking</div><div class="s4-node-sub">Pre-positioned near demand zones</div></div>
-          </div>
-          <div class="s4-node">
-            <div class="s4-node-icon">🚿</div>
-            <div><div class="s4-node-label">Cleaning</div><div class="s4-node-sub">In-service cleaning without depot return</div></div>
-          </div>
-          <div class="s4-node">
-            <div class="s4-node-icon">🔧</div>
-            <div><div class="s4-node-label">Light Ops</div><div class="s4-node-sub">Inspections, resets, minor service</div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SLIDE 5: YOUR MARKETS -->
-    <div class="slide" id="s5">
-      <div class="s5-layout slide-content">
+        <div style="width:1px;background:var(--border)"></div>
         <div>
-          <div class="eyebrow">Active Markets</div>
-          <h2 class="h2" style="margin-bottom:32px;">Where we operate today — and where we're expanding.</h2>
-          <div class="s5-city-list">
-            <div class="s5-city">
-              <div><div class="s5-city-name">Houston</div></div>
-              <div class="s5-city-status">
-                <div class="s5-city-dot green"></div>
-                <span class="s5-city-spots">12 of 20 nodes available</span>
-              </div>
-            </div>
-            <div class="s5-city">
-              <div><div class="s5-city-name">Austin</div></div>
-              <div class="s5-city-status">
-                <div class="s5-city-dot green"></div>
-                <span class="s5-city-spots">8 of 15 nodes available</span>
-              </div>
-            </div>
-            <div class="s5-city">
-              <div><div class="s5-city-name">Dallas</div></div>
-              <div class="s5-city-status">
-                <div class="s5-city-dot green"></div>
-                <span class="s5-city-spots">15 of 25 nodes available</span>
-              </div>
-            </div>
-            <div class="s5-city">
-              <div><div class="s5-city-name">Arizona</div></div>
-              <div class="s5-city-status">
-                <div class="s5-city-dot" style="background:var(--dim);"></div>
-                <span class="s5-city-spots" style="color:var(--dim);">Coming Soon</span>
-              </div>
-            </div>
-            <div class="s5-city">
-              <div><div class="s5-city-name">Florida</div></div>
-              <div class="s5-city-status">
-                <div class="s5-city-dot" style="background:var(--dim);"></div>
-                <span class="s5-city-spots" style="color:var(--dim);">Coming Soon</span>
-              </div>
-            </div>
-            <div class="s5-city">
-              <div><div class="s5-city-name">California</div></div>
-              <div class="s5-city-status">
-                <div class="s5-city-dot" style="background:var(--dim);"></div>
-                <span class="s5-city-spots" style="color:var(--dim);">Coming Soon</span>
-              </div>
-            </div>
-          </div>
+          <div class="stat-num" style="font-size:36px">45</div>
+          <div class="stat-label">Node slots identified</div>
         </div>
-        <div class="s5-cta-box slide-content slide-content-delay">
-          <div class="s5-cta-big"><span class="u">~2.3</span> mi</div>
-          <div class="s5-cta-label">Average vehicle-to-node distance · distributed model</div>
-          <div style="height:1px;background:var(--border);margin:24px 0;"></div>
-          <div class="s5-cta-big" style="font-size:44px;"><span class="u">9.2</span> mi</div>
-          <div class="s5-cta-label">Average vehicle-to-depot distance · centralized model</div>
-          <div style="height:1px;background:var(--border);margin:24px 0;"></div>
-          <div class="s5-cta-note">Savings scale with fleet size and deployment density. Texas markets are active and accepting fleet operator applications now.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SLIDE 6: WHAT YOU GET -->
-    <div class="slide" id="s6">
-      <div style="width:100%;">
-        <div class="eyebrow slide-content">For Fleet Operators</div>
-        <h2 class="h1 slide-content" style="margin-bottom:0;">What the AVNode network delivers.</h2>
-        <div class="s6-grid slide-content slide-content-delay">
-          <div class="s6-item">
-            <div class="s6-num green">–14 mi</div>
-            <div class="s6-item-l">empty miles saved per vehicle per day</div>
-          </div>
-          <div class="s6-item">
-            <div class="s6-num blue">+47 min</div>
-            <div class="s6-item-l">service time recovered per vehicle daily</div>
-          </div>
-          <div class="s6-item">
-            <div class="s6-num white">$1.2M</div>
-            <div class="s6-item-l">annual savings · 100-vehicle fleet · incl. charging staff</div>
-          </div>
-          <div class="s6-item">
-            <div class="s6-num green">$0</div>
-            <div class="s6-item-l">charging staff cost — property owners handle plug-in</div>
-          </div>
-          <div class="s6-item">
-            <div class="s6-num blue">3×</div>
-            <div class="s6-item-l">faster market expansion without depot builds</div>
-          </div>
-          <div class="s6-item">
-            <div class="s6-num green">–60%</div>
-            <div class="s6-item-l">infrastructure capex vs. centralized depot model</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SLIDE 7: HOW IT WORKS -->
-    <div class="slide" id="s7">
-      <div style="position:relative;width:100%;">
-        <div class="eyebrow slide-content">How Nodes Grow</div>
-        <div class="s7-steps slide-content slide-content-delay">
-          <div class="s7-step">
-            <div class="s7-step-num" style="color:var(--muted);">S1</div>
-            <div>
-              <h4>Staging &amp; parking — no hardware required</h4>
-              <p>Property owner qualifies with 5+ spaces, on-site staff, and 120V/240V outlets. Fleet vehicles park, stage, and charge via standard outlets. Staff manually plugs in each vehicle. Zero capital from the property owner.</p>
-            </div>
-          </div>
-          <div class="s7-step">
-            <div class="s7-step-num" style="color:var(--blue);">S2</div>
-            <div>
-              <h4>DC fast charging installed — AVNode manages</h4>
-              <p>Once usage data validates the location, AVNode and/or the fleet operator installs DC fast charging hardware at the site. Property owner's staff continues to plug in vehicles. AVNode handles network monitoring, billing, and scheduling.</p>
-            </div>
-          </div>
-          <div class="s7-step">
-            <div class="s7-step-num" style="color:#34D399;">S3</div>
-            <div>
-              <h4>Full fleet node — co-invested infrastructure</h4>
-              <p>High-utilization sites become full operational nodes: DCFC, fleet management software, cleaning, light ops. Infrastructure investment co-funded by AVNode and fleet operator partners based on demonstrated demand.</p>
-            </div>
-          </div>
-        </div>
-        <div class="s7-aside slide-content slide-content-delay2">
-          <div class="s7-aside-n">14 days</div>
-          <div class="s7-aside-l">average time from qualification to first vehicle using the node</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SLIDE 8: SITE CRITERIA -->
-    <div class="slide" id="s8">
-      <div class="s8-layout slide-content">
+        <div style="width:1px;background:var(--border)"></div>
         <div>
-          <div class="eyebrow">What we look for</div>
-          <h2 class="h2" style="margin-bottom:32px;">Every node in the network must qualify.</h2>
-          <div class="s8-list">
-            <div class="s8-item"><div class="s8-check">✓</div>5+ dedicated parking spaces</div>
-            <div class="s8-item"><div class="s8-check">✓</div>On-site staff to plug in vehicles</div>
-            <div class="s8-item"><div class="s8-check">✓</div>24/7 fleet access</div>
-            <div class="s8-item"><div class="s8-check">✓</div>120V/240V outlets or electrical upgrade path</div>
-            <div class="s8-item"><div class="s8-check">✓</div>Camera coverage or gated security</div>
-            <div class="s8-item"><div class="s8-check">✓</div>Proximity to active fleet operational zones</div>
-            <div class="s8-item"><div class="s8-check">✓</div>Long-term lease stability</div>
-          </div>
-        </div>
-        <div class="s8-score-card">
-          <div class="s8-score">~30%</div>
-          <div class="s8-score-label">of submitted sites qualify</div>
-          <div style="height:1px;background:var(--border);margin:24px 0;"></div>
-          <div class="s8-qual-rate">6 cities</div>
-          <div class="s8-qual-label" style="margin-bottom:24px;">currently active</div>
-          <div class="s8-qual-rate">108</div>
-          <div class="s8-qual-label">total target nodes</div>
+          <div class="stat-num" style="font-size:36px">24</div>
+          <div class="stat-label">Active agreements</div>
         </div>
       </div>
     </div>
 
-    <!-- SLIDE 9: THE ASK -->
-    <div class="slide" id="s9">
-      <canvas id="s9-canvas"></canvas>
-      <div class="s9-content slide-content">
-        <div class="eyebrow">Next steps</div>
-        <h2 class="h1" style="margin-bottom:0;">Three things we need from you.</h2>
-        <div class="s9-asks slide-content slide-content-delay">
-          <div class="s9-ask">
-            <span class="s9-ask-n">01</span>
-            <div>
-              <h4>Share your operational zone data</h4>
-              <p>Your primary operational geofences and vehicle distribution across active markets. We use this to model optimal node placement and identify which Texas sites give you maximum day-one impact.</p>
-            </div>
-          </div>
-          <div class="s9-ask">
-            <span class="s9-ask-n">02</span>
-            <div>
-              <h4>Pick a pilot city in Texas</h4>
-              <p>Houston, Austin, or Dallas — start with one market where depot utilization is highest. We'll have your first node active within 14 days of qualification, then expand from there.</p>
-            </div>
-          </div>
-          <div class="s9-ask">
-            <span class="s9-ask-n">03</span>
-            <div>
-              <h4>Connect us with your operations lead</h4>
-              <p>The implementation conversation belongs with whoever manages fleet dispatch and routing. We need 30 minutes to understand your current stack and map the integration.</p>
-            </div>
-          </div>
-        </div>
+    <!-- Regional Map SVG -->
+    <svg viewBox="0 0 480 500" style="width:100%;max-width:480px" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="hGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="rgba(10,132,255,0.35)"/>
+          <stop offset="100%" stop-color="transparent"/>
+        </radialGradient>
+        <radialGradient id="yGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="rgba(255,212,10,0.35)"/>
+          <stop offset="100%" stop-color="transparent"/>
+        </radialGradient>
+      </defs>
+      <rect width="480" height="500" rx="16" fill="#0d0d10" stroke="#1e1e26" stroke-width="1"/>
+      <!-- Map grid -->
+      <g stroke="rgba(255,255,255,0.03)" stroke-width="1">
+        <line x1="0" y1="100" x2="480" y2="100"/><line x1="0" y1="200" x2="480" y2="200"/>
+        <line x1="0" y1="300" x2="480" y2="300"/><line x1="0" y1="400" x2="480" y2="400"/>
+        <line x1="96" y1="0" x2="96" y2="500"/><line x1="192" y1="0" x2="192" y2="500"/>
+        <line x1="288" y1="0" x2="288" y2="500"/><line x1="384" y1="0" x2="384" y2="500"/>
+      </g>
+      <!-- Texas outline (simplified) -->
+      <path d="M80,60 L280,60 L310,100 L320,180 L280,240 L260,300 L230,360 L200,390 L160,400 L110,350 L80,280 L60,200 L60,100 Z"
+        fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>
+      <!-- Arizona (simplified) -->
+      <path d="M20,60 L75,60 L75,200 L60,200 L30,200 L20,150 Z"
+        fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>
+
+      <!-- Houston -->
+      <circle cx="240" cy="330" r="48" fill="url(#hGlow)"/>
+      <circle cx="240" cy="330" r="12" fill="#0A84FF" opacity="0.9"/>
+      <circle cx="240" cy="330" r="20" fill="transparent" stroke="rgba(10,132,255,0.4)" stroke-width="1"/>
+      <text x="240" y="370" text-anchor="middle" fill="white" font-family="Inter" font-size="12" font-weight="700">HOUSTON</text>
+      <text x="240" y="385" text-anchor="middle" fill="rgba(10,132,255,0.7)" font-family="Inter" font-size="10">12 nodes active</text>
+
+      <!-- Austin -->
+      <circle cx="180" cy="270" r="36" fill="url(#hGlow)" opacity="0.7"/>
+      <circle cx="180" cy="270" r="9" fill="#0A84FF" opacity="0.8"/>
+      <circle cx="180" cy="270" r="16" fill="transparent" stroke="rgba(10,132,255,0.35)" stroke-width="1"/>
+      <text x="130" y="265" text-anchor="middle" fill="white" font-family="Inter" font-size="11" font-weight="700">AUSTIN</text>
+      <text x="130" y="280" text-anchor="middle" fill="rgba(10,132,255,0.7)" font-family="Inter" font-size="9">8 active</text>
+
+      <!-- Tempe -->
+      <circle cx="50" cy="155" r="28" fill="url(#yGlow)" opacity="0.7"/>
+      <circle cx="50" cy="155" r="8" fill="#FFD60A" opacity="0.9"/>
+      <circle cx="50" cy="155" r="16" fill="transparent" stroke="rgba(255,212,10,0.35)" stroke-width="1" stroke-dasharray="3,3"/>
+      <text x="50" y="195" text-anchor="middle" fill="white" font-family="Inter" font-size="11" font-weight="700">TEMPE</text>
+      <text x="50" y="210" text-anchor="middle" fill="rgba(255,212,10,0.7)" font-family="Inter" font-size="9">Limited</text>
+
+      <!-- Connection -->
+      <line x1="180" y1="270" x2="240" y2="330" stroke="rgba(10,132,255,0.3)" stroke-width="1.5" stroke-dasharray="5,4"/>
+
+      <!-- Labels -->
+      <text x="155" y="480" text-anchor="middle" fill="rgba(255,255,255,0.15)" font-family="Inter" font-size="10" letter-spacing="3">TEXAS</text>
+      <text x="45" y="30" text-anchor="middle" fill="rgba(255,255,255,0.15)" font-family="Inter" font-size="10" letter-spacing="3">AZ</text>
+
+      <!-- Status box -->
+      <rect x="290" y="380" width="175" height="95" rx="10" fill="#0f0f12" stroke="#1e1e26" stroke-width="1"/>
+      <text x="306" y="400" fill="rgba(10,132,255,0.7)" font-family="Inter" font-size="9" font-weight="600" letter-spacing="1.5">NETWORK STATUS</text>
+      <circle cx="306" cy="418" r="3" fill="#30D158"/>
+      <text x="316" y="422" fill="rgba(255,255,255,0.7)" font-family="Inter" font-size="11">Deployment-ready</text>
+      <circle cx="306" cy="436" r="3" fill="#0A84FF"/>
+      <text x="316" y="440" fill="rgba(255,255,255,0.7)" font-family="Inter" font-size="11">Partners identified</text>
+      <circle cx="306" cy="454" r="3" fill="#FFD60A"/>
+      <text x="316" y="458" fill="rgba(255,255,255,0.7)" font-family="Inter" font-size="11">Qualifying sites</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 10 — NETWORK MAP
+══════════════════════════════════════ -->
+<div class="slide" id="s10">
+  <div class="grid-bg" style="opacity:.35"></div>
+  <div style="width:100%;display:flex;flex-direction:column">
+    <div class="map-header">
+      <div>
+        <div class="eyebrow">The Network</div>
+        <div class="h1">Building a Distributed Infrastructure Layer</div>
+      </div>
+      <div class="phase-legend">
+        <div class="phase-item"><div class="phase-dot" style="background:#0A84FF;box-shadow:0 0 8px #0A84FF"></div>Active</div>
+        <div class="phase-item"><div class="phase-dot" style="background:#30D158;box-shadow:0 0 8px #30D158"></div>Phase 2</div>
+        <div class="phase-item"><div class="phase-dot" style="background:rgba(255,255,255,0.25)"></div>Phase 3</div>
       </div>
     </div>
 
-    <!-- SLIDE 10: CLOSE -->
-    <div class="slide" id="s10">
-      <div class="s10-center slide-content">
-        <div class="s10-big">Let's build<br><span>the network.</span></div>
-        <p class="s10-sub">The physical network your fleet needs. Built on property owners. Proven in Texas.</p>
-        <div class="s10-contact">
-          <div class="s10-contact-name">AVNode</div>
-          <div class="s10-contact-role">Distributed Infrastructure for Autonomous Fleets</div>
-          <div class="s10-contact-email">hello@avnode.com</div>
-        </div>
-      </div>
-      <div class="s10-avnode">avnode.com &nbsp;·&nbsp; Confidential · June 2026</div>
+    <svg viewBox="0 0 960 420" style="width:100%;flex:1" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="activeGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="rgba(10,132,255,0.4)"/>
+          <stop offset="100%" stop-color="transparent"/>
+        </radialGradient>
+        <radialGradient id="phase2Glow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="rgba(48,209,88,0.3)"/>
+          <stop offset="100%" stop-color="transparent"/>
+        </radialGradient>
+      </defs>
+
+      <!-- US outline (very simplified) -->
+      <path d="M60,80 L180,50 L320,40 L420,50 L500,45 L600,50 L700,60 L790,55 L840,90 L870,130 L890,180 L880,230 L840,280 L800,310 L750,330 L680,350 L620,360 L600,380 L560,380 L500,370 L440,380 L380,380 L300,360 L220,340 L140,300 L80,260 L50,200 L40,140 Z"
+        fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.06)" stroke-width="1.5"/>
+
+      <!-- Connection lines — active (blue) -->
+      <g stroke="rgba(10,132,255,0.25)" stroke-width="1" stroke-dasharray="5,4">
+        <!-- Houston - Austin -->
+        <line x1="525" y1="315" x2="488" y2="295"/>
+        <!-- Austin - Dallas -->
+        <line x1="488" y1="295" x2="510" y2="255"/>
+        <!-- Dallas - Houston -->
+        <line x1="510" y1="255" x2="525" y2="315"/>
+        <!-- Houston - Miami -->
+        <line x1="525" y1="315" x2="748" y2="345"/>
+        <!-- Phoenix - Dallas -->
+        <line x1="225" y1="255" x2="510" y2="255"/>
+      </g>
+
+      <!-- Connection lines — phase 2 (green) -->
+      <g stroke="rgba(48,209,88,0.2)" stroke-width="1" stroke-dasharray="5,4">
+        <line x1="510" y1="255" x2="620" y2="170"/>
+        <line x1="620" y1="170" x2="748" y2="345"/>
+        <line x1="620" y1="170" x2="700" y2="120"/>
+        <line x1="225" y1="255" x2="175" y2="210"/>
+        <line x1="175" y1="210" x2="110" y2="235"/>
+      </g>
+
+      <!-- Connection lines — phase 3 (dim) -->
+      <g stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="5,4">
+        <line x1="700" y1="120" x2="840" y2="108"/>
+        <line x1="620" y1="170" x2="700" y2="120"/>
+      </g>
+
+      <!-- ACTIVE NODES -->
+      <!-- Houston -->
+      <circle cx="525" cy="315" r="32" fill="url(#activeGlow)"/>
+      <circle cx="525" cy="315" r="10" fill="#0A84FF"/>
+      <circle cx="525" cy="315" r="18" fill="transparent" stroke="rgba(10,132,255,0.5)" stroke-width="1"/>
+      <text x="525" y="348" text-anchor="middle" fill="white" font-family="Inter" font-size="10" font-weight="700">HOUSTON</text>
+      <text x="525" y="360" text-anchor="middle" fill="rgba(10,132,255,0.7)" font-family="Inter" font-size="9">12 nodes</text>
+
+      <!-- Austin -->
+      <circle cx="488" cy="295" r="26" fill="url(#activeGlow)" opacity="0.8"/>
+      <circle cx="488" cy="295" r="8" fill="#0A84FF"/>
+      <text x="465" y="282" text-anchor="middle" fill="white" font-family="Inter" font-size="10" font-weight="700">AUSTIN</text>
+      <text x="465" y="293" text-anchor="middle" fill="rgba(10,132,255,0.7)" font-family="Inter" font-size="9">8 nodes</text>
+
+      <!-- Tempe -->
+      <circle cx="225" cy="255" r="24" fill="url(#activeGlow)" opacity="0.7"/>
+      <circle cx="225" cy="255" r="7" fill="#0A84FF" opacity="0.85"/>
+      <text x="225" y="280" text-anchor="middle" fill="white" font-family="Inter" font-size="10" font-weight="700">TEMPE</text>
+      <text x="225" y="292" text-anchor="middle" fill="rgba(10,132,255,0.7)" font-family="Inter" font-size="9">4 nodes</text>
+
+      <!-- Dallas -->
+      <circle cx="510" cy="255" r="22" fill="url(#activeGlow)" opacity="0.6"/>
+      <circle cx="510" cy="255" r="7" fill="#0A84FF" opacity="0.8"/>
+      <text x="530" y="248" text-anchor="middle" fill="white" font-family="Inter" font-size="10" font-weight="700">DALLAS</text>
+
+      <!-- PHASE 2 NODES (green) -->
+      <!-- Phoenix -->
+      <circle cx="175" cy="210" r="20" fill="url(#phase2Glow)"/>
+      <circle cx="175" cy="210" r="7" fill="#30D158" opacity="0.8"/>
+      <text x="175" y="232" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="Inter" font-size="10">PHOENIX</text>
+
+      <!-- Miami -->
+      <circle cx="748" cy="345" r="22" fill="url(#phase2Glow)"/>
+      <circle cx="748" cy="345" r="7" fill="#30D158" opacity="0.8"/>
+      <text x="748" y="368" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="Inter" font-size="10">MIAMI</text>
+
+      <!-- Atlanta -->
+      <circle cx="620" cy="280" r="18" fill="url(#phase2Glow)" opacity="0.7"/>
+      <circle cx="620" cy="280" r="6" fill="#30D158" opacity="0.7"/>
+      <text x="640" y="280" fill="rgba(255,255,255,0.5)" font-family="Inter" font-size="9">ATLANTA</text>
+
+      <!-- Chicago -->
+      <circle cx="620" cy="170" r="18" fill="url(#phase2Glow)" opacity="0.7"/>
+      <circle cx="620" cy="170" r="6" fill="#30D158" opacity="0.7"/>
+      <text x="620" y="156" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-family="Inter" font-size="9">CHICAGO</text>
+
+      <!-- Las Vegas -->
+      <circle cx="110" cy="235" r="16" fill="url(#phase2Glow)" opacity="0.6"/>
+      <circle cx="110" cy="235" r="5" fill="#30D158" opacity="0.7"/>
+      <text x="85" y="225" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-family="Inter" font-size="9">LAS VEGAS</text>
+
+      <!-- PHASE 3 NODES (dim) -->
+      <!-- New York -->
+      <circle cx="840" cy="108" r="7" fill="transparent" stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-dasharray="3,2"/>
+      <text x="840" y="98" text-anchor="middle" fill="rgba(255,255,255,0.25)" font-family="Inter" font-size="9">NEW YORK</text>
+
+      <!-- Los Angeles -->
+      <circle cx="700" cy="120" r="7" fill="transparent" stroke="rgba(255,255,255,0.2)" stroke-width="1" stroke-dasharray="3,2"/>
+      <text x="700" y="110" text-anchor="middle" fill="rgba(255,255,255,0.25)" font-family="Inter" font-size="9">LOS ANGELES</text>
+
+      <!-- Seattle -->
+      <circle cx="110" cy="80" r="7" fill="transparent" stroke="rgba(255,255,255,0.15)" stroke-width="1" stroke-dasharray="3,2"/>
+      <text x="110" y="68" text-anchor="middle" fill="rgba(255,255,255,0.2)" font-family="Inter" font-size="9">SEATTLE</text>
+
+      <!-- Stats -->
+      <rect x="10" y="340" width="140" height="68" rx="10" fill="#0d0d10" stroke="#1e1e26" stroke-width="1"/>
+      <text x="22" y="360" fill="rgba(255,255,255,0.3)" font-family="Inter" font-size="9" letter-spacing="1.5">PHASE 1</text>
+      <text x="22" y="376" fill="white" font-family="Inter" font-size="13" font-weight="700">3 Markets</text>
+      <text x="22" y="393" fill="rgba(10,132,255,0.7)" font-family="Inter" font-size="10">TX + AZ — Active Now</text>
+
+      <rect x="160" y="340" width="140" height="68" rx="10" fill="#0d0d10" stroke="#1e1e26" stroke-width="1"/>
+      <text x="172" y="360" fill="rgba(255,255,255,0.3)" font-family="Inter" font-size="9" letter-spacing="1.5">PHASE 2</text>
+      <text x="172" y="376" fill="white" font-family="Inter" font-size="13" font-weight="700">8 Markets</text>
+      <text x="172" y="393" fill="rgba(48,209,88,0.7)" font-family="Inter" font-size="10">Southeast + Southwest</text>
+
+      <rect x="310" y="340" width="140" height="68" rx="10" fill="#0d0d10" stroke="#1e1e26" stroke-width="1"/>
+      <text x="322" y="360" fill="rgba(255,255,255,0.3)" font-family="Inter" font-size="9" letter-spacing="1.5">PHASE 3</text>
+      <text x="322" y="376" fill="white" font-family="Inter" font-size="13" font-weight="700">National</text>
+      <text x="322" y="393" fill="rgba(255,255,255,0.25)" font-family="Inter" font-size="10">Coast-to-coast coverage</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 11 — WHY MOOVE
+══════════════════════════════════════ -->
+<div class="slide" id="s11">
+  <div style="width:100%;display:flex;flex-direction:column">
+    <div style="margin-bottom:28px">
+      <div class="eyebrow">Partnership Opportunity</div>
+      <div class="h1">Your Hub. Our Network. More Trips.</div>
+      <div class="body" style="margin-top:12px;max-width:680px">Your fleet operation already has a central hub. AVNode doesn't replace that — it extends it. Distributed nodes let your fleet charge in-zone and stay productive between trips, multiplying the value of every vehicle in the fleet.</div>
     </div>
 
-  </div><!-- /slides -->
+    <!-- City map showing hub + satellite nodes -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;width:100%">
+      <svg viewBox="0 0 420 260" style="width:100%;border-radius:14px;border:1px solid var(--border)" xmlns="http://www.w3.org/2000/svg">
+        <rect width="420" height="260" fill="#0d0d10"/>
+        <!-- grid -->
+        <g stroke="rgba(255,255,255,0.03)" stroke-width="1">
+          <line x1="0" y1="65" x2="420" y2="65"/><line x1="0" y1="130" x2="420" y2="130"/>
+          <line x1="0" y1="195" x2="420" y2="195"/>
+          <line x1="84" y1="0" x2="84" y2="260"/><line x1="168" y1="0" x2="168" y2="260"/>
+          <line x1="252" y1="0" x2="252" y2="260"/><line x1="336" y1="0" x2="336" y2="260"/>
+        </g>
+        <!-- Demand zone rings -->
+        <circle cx="210" cy="130" r="90" fill="rgba(10,132,255,0.04)" stroke="rgba(10,132,255,0.1)" stroke-width="1" stroke-dasharray="4,4"/>
+        <circle cx="210" cy="130" r="50" fill="rgba(10,132,255,0.06)" stroke="rgba(10,132,255,0.15)" stroke-width="1" stroke-dasharray="3,3"/>
+        <!-- Hub — far from demand zone -->
+        <circle cx="50" cy="210" r="22" fill="rgba(80,80,95,0.2)" stroke="rgba(80,80,95,0.5)" stroke-width="1.5"/>
+        <text x="50" y="207" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="Inter" font-size="8" font-weight="700">MOOVE</text>
+        <text x="50" y="218" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-family="Inter" font-size="7">HUB</text>
+        <!-- Long return paths -->
+        <path d="M 185,130 Q 120,180 72,210" stroke="rgba(255,69,58,0.35)" stroke-width="1.5" fill="none" stroke-dasharray="5,3"/>
+        <path d="M 210,130 Q 140,170 72,208" stroke="rgba(255,69,58,0.25)" stroke-width="1.5" fill="none" stroke-dasharray="5,3"/>
+        <!-- Vehicles in demand zone -->
+        <circle cx="190" cy="115" r="5" fill="rgba(255,255,255,0.5)"/>
+        <circle cx="225" cy="140" r="5" fill="rgba(255,255,255,0.5)"/>
+        <circle cx="205" cy="155" r="5" fill="rgba(255,255,255,0.5)"/>
+        <!-- Label -->
+        <text x="210" y="130" text-anchor="middle" fill="rgba(255,255,255,0.15)" font-family="Inter" font-size="9" letter-spacing="2">DEMAND ZONE</text>
+        <!-- Title -->
+        <rect x="8" y="8" width="130" height="22" rx="4" fill="rgba(255,69,58,0.15)" stroke="rgba(255,69,58,0.3)" stroke-width="1"/>
+        <text x="73" y="23" text-anchor="middle" fill="rgba(255,69,58,0.9)" font-family="Inter" font-size="9" font-weight="700">HUB ONLY — DEADHEAD</text>
+      </svg>
+
+      <svg viewBox="0 0 420 260" style="width:100%;border-radius:14px;border:1px solid rgba(10,132,255,0.3)" xmlns="http://www.w3.org/2000/svg">
+        <rect width="420" height="260" fill="#0a0c14"/>
+        <g stroke="rgba(255,255,255,0.03)" stroke-width="1">
+          <line x1="0" y1="65" x2="420" y2="65"/><line x1="0" y1="130" x2="420" y2="130"/>
+          <line x1="0" y1="195" x2="420" y2="195"/>
+          <line x1="84" y1="0" x2="84" y2="260"/><line x1="168" y1="0" x2="168" y2="260"/>
+          <line x1="252" y1="0" x2="252" y2="260"/><line x1="336" y1="0" x2="336" y2="260"/>
+        </g>
+        <defs>
+          <radialGradient id="nodeG2" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="rgba(10,132,255,0.35)"/>
+            <stop offset="100%" stop-color="transparent"/>
+          </radialGradient>
+        </defs>
+        <!-- Demand zone rings -->
+        <circle cx="210" cy="130" r="90" fill="rgba(10,132,255,0.04)" stroke="rgba(10,132,255,0.1)" stroke-width="1" stroke-dasharray="4,4"/>
+        <circle cx="210" cy="130" r="50" fill="rgba(10,132,255,0.06)" stroke="rgba(10,132,255,0.15)" stroke-width="1" stroke-dasharray="3,3"/>
+        <!-- Hub — still there, just smaller role -->
+        <circle cx="50" cy="210" r="22" fill="rgba(80,80,95,0.2)" stroke="rgba(80,80,95,0.5)" stroke-width="1.5"/>
+        <text x="50" y="207" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-family="Inter" font-size="8" font-weight="700">MOOVE</text>
+        <text x="50" y="218" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-family="Inter" font-size="7">HUB</text>
+        <!-- AVNode nodes inside demand zone -->
+        <circle cx="185" cy="100" r="18" fill="url(#nodeG2)"/>
+        <circle cx="185" cy="100" r="6" fill="#0A84FF"/>
+        <circle cx="240" cy="145" r="16" fill="url(#nodeG2)" opacity="0.85"/>
+        <circle cx="240" cy="145" r="5" fill="#0A84FF"/>
+        <circle cx="175" cy="155" r="14" fill="url(#nodeG2)" opacity="0.7"/>
+        <circle cx="175" cy="155" r="4" fill="#0A84FF"/>
+        <!-- Short paths — vehicles to nearby node -->
+        <path d="M 190 115 Q 188 108 185 100" stroke="rgba(10,132,255,0.6)" stroke-width="1.5" fill="none"/>
+        <path d="M 225 140 Q 233 142 240 145" stroke="rgba(10,132,255,0.6)" stroke-width="1.5" fill="none"/>
+        <path d="M 205 155 Q 190 155 175 155" stroke="rgba(10,132,255,0.6)" stroke-width="1.5" fill="none"/>
+        <!-- Vehicles -->
+        <circle cx="190" cy="115" r="5" fill="rgba(255,255,255,0.8)"/>
+        <circle cx="225" cy="140" r="5" fill="rgba(255,255,255,0.8)"/>
+        <circle cx="205" cy="155" r="5" fill="rgba(255,255,255,0.8)"/>
+        <!-- Hub connection (maintenance only) -->
+        <path d="M 185,100 Q 120,160 72,210" stroke="rgba(80,80,95,0.2)" stroke-width="1" fill="none" stroke-dasharray="4,4"/>
+        <!-- Node labels -->
+        <text x="185" y="84" text-anchor="middle" fill="rgba(10,132,255,0.7)" font-family="Inter" font-size="7" font-weight="600">AVNODE</text>
+        <text x="258" y="145" fill="rgba(10,132,255,0.7)" font-family="Inter" font-size="7" font-weight="600">AVNODE</text>
+        <text x="160" y="165" text-anchor="middle" fill="rgba(10,132,255,0.7)" font-family="Inter" font-size="7" font-weight="600">AVNODE</text>
+        <text x="210" y="130" text-anchor="middle" fill="rgba(255,255,255,0.15)" font-family="Inter" font-size="9" letter-spacing="2">DEMAND ZONE</text>
+        <!-- Title -->
+        <rect x="8" y="8" width="160" height="22" rx="4" fill="rgba(10,132,255,0.15)" stroke="rgba(10,132,255,0.3)" stroke-width="1"/>
+        <text x="88" y="23" text-anchor="middle" fill="rgba(10,132,255,0.9)" font-family="Inter" font-size="9" font-weight="700">HUB + AVNODE — MAX UTILIZATION</text>
+      </svg>
+    </div>
+
+    <div style="margin-top:20px;padding:20px 28px;background:var(--blue-dim);border:1px solid rgba(10,132,255,.3);border-radius:14px">
+      <div style="font-size:17px;font-weight:700;letter-spacing:-.01em">"Your hub runs the operation. AVNode's nodes keep every vehicle earning — without ever leaving the zone."</div>
+      <div style="font-size:13px;color:var(--text-2);margin-top:6px">Additive infrastructure. Zero disruption. Higher fleet utilization from day one.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 12 — PARTNERSHIP MODEL
+══════════════════════════════════════ -->
+<div class="slide" id="s12">
+  <div style="width:100%;display:flex;flex-direction:column">
+    <div style="margin-bottom:36px">
+      <div class="eyebrow">How We Work Together</div>
+      <div class="h1">Infrastructure Partnership</div>
+    </div>
+    <table class="matrix">
+      <thead>
+        <tr>
+          <th style="color:var(--text-3);width:40%">Responsibility</th>
+          <th class="avnode-col">AVNode</th>
+          <th class="fleet-col">Fleet Operator</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Site identification &amp; qualification</td>
+          <td><div class="check-cell"><span class="chk yes-av">✓</span> Fully managed</div></td>
+          <td><div class="check-cell"><span class="chk no" style="color:var(--text-3)">—</span></div></td>
+        </tr>
+        <tr>
+          <td>Landlord negotiations &amp; lease management</td>
+          <td><div class="check-cell"><span class="chk yes-av">✓</span> Fully managed</div></td>
+          <td><div class="check-cell"><span class="chk no">—</span></div></td>
+        </tr>
+        <tr>
+          <td>Utility coordination &amp; power upgrades</td>
+          <td><div class="check-cell"><span class="chk yes-av">✓</span> Fully managed</div></td>
+          <td><div class="check-cell"><span class="chk no">—</span></div></td>
+        </tr>
+        <tr>
+          <td>Charging infrastructure deployment</td>
+          <td><div class="check-cell"><span class="chk yes-av">✓</span> Fully managed</div></td>
+          <td><div class="check-cell"><span class="chk no">—</span></div></td>
+        </tr>
+        <tr>
+          <td>Facility operations &amp; staffing</td>
+          <td><div class="check-cell"><span class="chk yes-av">✓</span> Fully managed</div></td>
+          <td><div class="check-cell"><span class="chk no">—</span></div></td>
+        </tr>
+        <tr>
+          <td>Network expansion &amp; market entry</td>
+          <td><div class="check-cell"><span class="chk yes-av">✓</span> Fully managed</div></td>
+          <td><div class="check-cell"><span class="chk yes-fl">✓</span> Collaborative</div></td>
+        </tr>
+        <tr>
+          <td>Vehicle operations &amp; fleet management</td>
+          <td><div class="check-cell"><span class="chk no">—</span></div></td>
+          <td><div class="check-cell"><span class="chk yes-fl">✓</span> Core competency</div></td>
+        </tr>
+        <tr>
+          <td>Software, routing &amp; rider experience</td>
+          <td><div class="check-cell"><span class="chk no">—</span></div></td>
+          <td><div class="check-cell"><span class="chk yes-fl">✓</span> Core competency</div></td>
+        </tr>
+        <tr>
+          <td>Fleet growth &amp; revenue generation</td>
+          <td><div class="check-cell"><span class="chk no">—</span></div></td>
+          <td><div class="check-cell"><span class="chk yes-fl">✓</span> Core competency</div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 13 — VISION
+══════════════════════════════════════ -->
+<div class="slide" id="s13">
+  <div class="glow-v"></div>
+  <div class="vision-content">
+    <div class="eyebrow" style="text-align:center">The Long View</div>
+    <div class="vision-quote">
+      <em>The Physical Layer<br>of Autonomy</em>
+    </div>
+    <div class="vision-analogy">
+      <div class="analogy-row"><strong>Cloud computing</strong> required data centers. Amazon built AWS.</div>
+      <div class="analogy-row"><strong>Mobile networks</strong> required cell towers. Tower companies became critical infrastructure.</div>
+      <div class="analogy-row"><strong>Autonomous mobility</strong> requires distributed charging and operations hubs. <strong>AVNode is building that network.</strong></div>
+    </div>
+    <div style="display:flex;gap:48px;margin-top:16px">
+      <div style="text-align:center">
+        <div class="stat-num">Equinix</div>
+        <div class="stat-label">of autonomous vehicles</div>
+      </div>
+      <div style="width:1px;background:var(--border)"></div>
+      <div style="text-align:center">
+        <div class="stat-num" style="font-size:36px">Digital Realty</div>
+        <div class="stat-label">for mobility infrastructure</div>
+      </div>
+      <div style="width:1px;background:var(--border)"></div>
+      <div style="text-align:center">
+        <div class="stat-num" style="font-size:36px">AWS</div>
+        <div class="stat-label">for autonomous fleet ops</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SLIDE 14 — CTA
+══════════════════════════════════════ -->
+<div class="slide" id="s14">
+  <div class="glow-cta"></div>
+  <div class="grid-bg" style="opacity:.3"></div>
+  <div class="cta-content">
+    <div class="eyebrow">Let's Build Together</div>
+    <div class="h1" style="font-size:68px;max-width:700px;line-height:.95">Let's Build the Future of Autonomous Mobility</div>
+    <div class="body" style="margin-top:24px;max-width:520px">AVNode is actively seeking infrastructure partnerships with autonomous fleet operators, hotel networks, and strategic investors across our launch markets.</div>
+    <div class="partner-logos">
+      <div class="partner-chip">Fleet Management Partners</div>
+      <div class="partner-chip">Waymo</div>
+      <div class="partner-chip">Uber AV</div>
+      <div class="partner-chip">Zoox</div>
+      <div class="partner-chip">Nuro</div>
+      <div class="partner-chip">Lyft AV</div>
+      <div class="partner-chip">Hotel Operators</div>
+      <div class="partner-chip">Parking Networks</div>
+      <div class="partner-chip">Infrastructure Investors</div>
+    </div>
+    <div class="closing">
+      Deploy faster.<span style="color:var(--text-3)"> </span>Scale smarter.<br><span class="closing" style="margin-top:0">Build the <span>future</span>.</span>
+    </div>
+    <div class="contact">
+      <div class="contact-item">
+        <strong>Website</strong>
+        av-node.com
+      </div>
+      <div class="contact-item">
+        <strong>Partnerships</strong>
+        partners@av-node.com
+      </div>
+      <div class="contact-item">
+        <strong>Launch Markets</strong>
+        Houston · Austin · Tempe
+      </div>
+    </div>
+  </div>
+</div>
+
 </div><!-- /deck -->
 
-<!-- NAV -->
-<div class="deck-nav">
-  <button class="nav-btn" id="prevBtn" onclick="nav(-1)">←</button>
+<!-- Navigation -->
+<div class="nav">
+  <button class="nav-btn" id="prevBtn" onclick="navigate(-1)">&#8592;</button>
   <div class="nav-dots" id="navDots"></div>
-  <button class="nav-btn" id="nextBtn" onclick="nav(1)">→</button>
-  <span class="slide-counter" id="counter">1 / 10</span>
-  <button class="pdf-btn" onclick="savePDF()">↓ Save PDF</button>
+  <span class="nav-count" id="navCount">1 / 14</span>
+  <button class="nav-btn" id="nextBtn" onclick="navigate(1)">&#8594;</button>
 </div>
 
 <script>
-'use strict';
-
-// CURSOR
-const cur = document.getElementById('cur');
-document.addEventListener('mousemove', e => {
-  cur.style.left = e.clientX + 'px'; cur.style.top = e.clientY + 'px';
-});
-document.querySelectorAll('button, a, .nav-dot').forEach(el => {
-  el.addEventListener('mouseenter', () => cur.classList.add('h'));
-  el.addEventListener('mouseleave', () => cur.classList.remove('h'));
-});
-
-// SLIDE SYSTEM
-const TOTAL = 10;
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
 let current = 0;
 
-const slidesEl = document.getElementById('slides');
-const progressEl = document.getElementById('progress');
-const counterEl = document.getElementById('counter');
-const dotsEl = document.getElementById('navDots');
+const progressBar = document.getElementById('progressBar');
+const slideNum = document.getElementById('slideNum');
+const navCount = document.getElementById('navCount');
+const navDots = document.getElementById('navDots');
 
 // Build dots
-for (let i = 0; i < TOTAL; i++) {
+slides.forEach((_, i) => {
   const d = document.createElement('div');
-  d.className = 'nav-dot'; d.onclick = () => goTo(i);
-  dotsEl.appendChild(d);
+  d.className = 'dot' + (i === 0 ? ' active' : '');
+  d.onclick = () => goTo(i);
+  navDots.appendChild(d);
+});
+
+function goTo(n) {
+  slides[current].classList.remove('active');
+  navDots.children[current].classList.remove('active');
+  current = Math.max(0, Math.min(total - 1, n));
+  slides[current].classList.add('active');
+  navDots.children[current].classList.add('active');
+  const pct = ((current + 1) / total * 100).toFixed(2);
+  progressBar.style.width = pct + '%';
+  const label = String(current + 1).padStart(2, '0') + ' / ' + String(total).padStart(2, '0');
+  slideNum.textContent = label;
+  navCount.textContent = (current + 1) + ' / ' + total;
 }
 
-function goTo(idx) {
-  document.querySelectorAll('.slide')[current].classList.remove('active');
-  current = Math.max(0, Math.min(TOTAL - 1, idx));
-  document.querySelectorAll('.slide')[current].classList.add('active');
-  slidesEl.style.transform = `translateX(${-current * 100}vw)`;
-  progressEl.style.width = ((current + 1) / TOTAL * 100) + '%';
-  counterEl.textContent = (current + 1) + ' / ' + TOTAL;
-  document.querySelectorAll('.nav-dot').forEach((d, i) => d.classList.toggle('active', i === current));
-  // Trigger bar animations on slide 3
-  if (current === 2) animateBars();
-}
+function navigate(dir) { goTo(current + dir); }
 
-function nav(dir) { goTo(current + dir); }
-
-// Keyboard
 document.addEventListener('keydown', e => {
-  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); nav(1); }
-  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); nav(-1); }
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') navigate(1);
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') navigate(-1);
 });
 
-// Touch swipe
+// Swipe support
 let touchX = 0;
-document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; });
+document.addEventListener('touchstart', e => touchX = e.touches[0].clientX);
 document.addEventListener('touchend', e => {
-  const dx = e.changedTouches[0].clientX - touchX;
-  if (Math.abs(dx) > 50) nav(dx < 0 ? 1 : -1);
+  const dx = touchX - e.changedTouches[0].clientX;
+  if (Math.abs(dx) > 50) navigate(dx > 0 ? 1 : -1);
 });
-
-// Init
-goTo(0);
-
-// BAR ANIMATIONS (slide 3)
-let barsAnimated = false;
-function animateBars() {
-  if (barsAnimated) return; barsAnimated = true;
-  document.querySelectorAll('.s3-bar-fill').forEach((fill, i) => {
-    const w = fill.dataset.w;
-    setTimeout(() => { fill.style.width = w + '%'; }, i * 150);
-  });
-}
-
-// ── COVER CANVAS (s1) ───────────────────────
-(function() {
-  const canvas = document.getElementById('s1-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  let W, H, nodes = [];
-  function resize() {
-    W = canvas.width = canvas.offsetWidth;
-    H = canvas.height = canvas.offsetHeight;
-    nodes = Array.from({length: 50}, () => ({
-      x: Math.random()*W, y: Math.random()*H,
-      vx: (Math.random()-.5)*.4, vy: (Math.random()-.5)*.4,
-      r: Math.random()*1.5+.5, p: Math.random()*Math.PI*2
-    }));
-  }
-  resize(); window.addEventListener('resize', resize);
-  function draw() {
-    requestAnimationFrame(draw);
-    ctx.clearRect(0,0,W,H);
-    const t = Date.now()/1000;
-    nodes.forEach(n => {
-      n.x += n.vx; n.y += n.vy; n.p += .015;
-      if (n.x<0) n.x=W; if (n.x>W) n.x=0;
-      if (n.y<0) n.y=H; if (n.y>H) n.y=0;
-    });
-    for (let i=0;i<nodes.length;i++) {
-      for (let j=i+1;j<nodes.length;j++) {
-        const dx=nodes[i].x-nodes[j].x, dy=nodes[i].y-nodes[j].y;
-        const d=Math.sqrt(dx*dx+dy*dy);
-        if (d<140) {
-          ctx.globalAlpha=(1-d/140)*.12;
-          ctx.strokeStyle='#2F6BF5'; ctx.lineWidth=.8;
-          ctx.beginPath(); ctx.moveTo(nodes[i].x,nodes[i].y); ctx.lineTo(nodes[j].x,nodes[j].y); ctx.stroke();
-        }
-      }
-    }
-    nodes.forEach(n => {
-      const g=Math.sin(n.p)*.3+.7;
-      ctx.globalAlpha=g*.55;
-      ctx.fillStyle='#2F6BF5';
-      ctx.beginPath(); ctx.arc(n.x,n.y,n.r*g,0,Math.PI*2); ctx.fill();
-    });
-    ctx.globalAlpha=1;
-  }
-  draw();
-})();
-
-// ── SOLUTION CANVAS (s4) ────────────────────
-(function() {
-  const canvas = document.getElementById('s4-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  let W, H;
-  function resize() { W = canvas.width = canvas.offsetWidth; H = canvas.height = canvas.offsetHeight; }
-  resize(); window.addEventListener('resize', resize);
-
-  const cityNodes = [
-    {x:.15,y:.25},{x:.45,y:.15},{x:.75,y:.3},{x:.1,y:.55},{x:.4,y:.5},
-    {x:.7,y:.6},{x:.2,y:.8},{x:.55,y:.75},{x:.85,y:.8},{x:.3,y:.35}
-  ];
-  const t0 = Date.now();
-
-  function draw() {
-    requestAnimationFrame(draw);
-    const elapsed = (Date.now()-t0)/1000;
-    const t = elapsed;
-    ctx.clearRect(0,0,W,H);
-
-    // Grid
-    ctx.strokeStyle='rgba(255,255,255,0.04)'; ctx.lineWidth=.5;
-    for(let x=0;x<W;x+=36){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
-    for(let y=0;y<H;y+=36){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
-
-    // Connections
-    for(let i=0;i<cityNodes.length;i++){
-      for(let j=i+1;j<cityNodes.length;j++){
-        const a=cityNodes[i], b=cityNodes[j];
-        const d=Math.hypot((a.x-b.x)*W,(a.y-b.y)*H);
-        if(d<W*.3){
-          const alpha=(1-d/(W*.3))*.2;
-          ctx.globalAlpha=alpha; ctx.strokeStyle='#2F6BF5'; ctx.lineWidth=1;
-          ctx.setLineDash([3,5]);
-          ctx.beginPath();ctx.moveTo(a.x*W,a.y*H);ctx.lineTo(b.x*W,b.y*H);ctx.stroke();
-          ctx.setLineDash([]);
-        }
-      }
-    }
-
-    // Nodes
-    cityNodes.forEach((n,i)=>{
-      const x=n.x*W,y=n.y*H;
-      const pulse=Math.sin(t*1.4+i*.8)*.3+.7;
-      const g=ctx.createRadialGradient(x,y,0,x,y,20*pulse);
-      g.addColorStop(0,`rgba(47,107,245,${.35*pulse})`);
-      g.addColorStop(1,'rgba(47,107,245,0)');
-      ctx.globalAlpha=1; ctx.fillStyle=g;
-      ctx.beginPath();ctx.arc(x,y,20*pulse,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='#2F6BF5'; ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='#fff'; ctx.beginPath();ctx.arc(x,y,2.5,0,Math.PI*2);ctx.fill();
-    });
-    ctx.globalAlpha=1;
-  }
-  draw();
-})();
-
-// ── CLOSE CANVAS (s9) ───────────────────────
-(function() {
-  const canvas = document.getElementById('s9-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  let W, H;
-  function resize() { W = canvas.width = canvas.offsetWidth; H = canvas.height = canvas.offsetHeight; }
-  resize(); window.addEventListener('resize', resize);
-  function draw() {
-    requestAnimationFrame(draw);
-    ctx.clearRect(0,0,W,H);
-    const t = Date.now()/1000;
-    const cx=W*.75, cy=H*.5, maxR=Math.min(W,H)*.4;
-    [.25,.5,.75,1].forEach((s,i)=>{
-      const pulse=Math.sin(t*1.2+i*.6)*.05+s;
-      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,maxR*pulse);
-      g.addColorStop(0,`rgba(47,107,245,${.06*s})`);
-      g.addColorStop(1,'rgba(47,107,245,0)');
-      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,maxR*pulse,0,Math.PI*2); ctx.fill();
-    });
-  }
-  draw();
-})();
-
-function savePDF() {
-  // Activate all slides so content is visible when printing
-  document.querySelectorAll('.slide').forEach(s => s.classList.add('active'));
-  // Trigger bars animation values inline for print
-  document.querySelectorAll('.s3-bar-fill').forEach(f => {
-    f.style.width = (f.dataset.w || 0) + '%';
-  });
-  window.print();
-  // Restore state after print dialog closes
-  setTimeout(() => {
-    document.querySelectorAll('.slide').forEach((s, i) => {
-      s.classList.toggle('active', i === current);
-    });
-  }, 1000);
-}
 </script>
 </body>
 </html>
