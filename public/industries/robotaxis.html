@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Infrastructure for Robotaxi Fleets | Waymo, Zoox, Uber AV — AVNode</title>
+<meta name="description" content="AVNode builds the infrastructure layer for robotaxi operators — charging depots, staging hubs, and fleet operations centers for Waymo, Zoox, Uber AV, Lyft AV, and next-generation robotaxi networks.">
+<link rel="canonical" href="https://www.av-node.com/industries/robotaxis">
+<meta property="og:title" content="Infrastructure for Robotaxi Fleets | Waymo, Zoox, Uber AV — AVNode">
+<meta property="og:description" content="AVNode builds the infrastructure layer for robotaxi operators — charging depots, staging hubs, and fleet operations centers for Waymo, Zoox, Uber AV, Lyft AV, and next-generation robotaxi networks.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#09090C;--surface:#101013;--surface2:#14141a;--border:#1A1A22;--border-hi:#2A2A36;--text:#EEEEF2;--muted:#6A6A7E;--dim:#32323F;--blue:#2F6BF5;--blue-faint:rgba(47,107,245,0.1);--blue-line:rgba(47,107,245,0.22);--green:#2DCE6C}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;min-height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:24px 48px;transition:all .3s;border-bottom:1px solid transparent}
+nav.scrolled{padding:16px 48px;background:rgba(9,9,12,.95);backdrop-filter:blur(20px);border-color:var(--border)}
+.nav-logo{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:600;letter-spacing:-.02em;color:var(--text);text-decoration:none}
+.nav-right{display:flex;align-items:center;gap:28px}
+.nav-link{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s}
+.nav-link:hover{color:var(--text)}
+.nav-apply{font-size:13px;font-weight:500;color:var(--text);text-decoration:none;border:1px solid var(--border-hi);padding:7px 18px;border-radius:100px;transition:all .2s}
+.nav-apply:hover{border-color:var(--blue)}
+@media(max-width:768px){nav{padding:20px 24px}.nav-link{display:none}}
+.page-hero{padding:160px 48px 80px;max-width:1100px;margin:0 auto;border-bottom:1px solid var(--border)}
+.hero-eyebrow{font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);margin-bottom:20px;font-family:'Space Grotesk',sans-serif}
+.hero-h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(36px,4.5vw,64px);font-weight:600;line-height:1.05;letter-spacing:-.03em;margin-bottom:24px;max-width:820px}
+.hero-sub{font-size:18px;color:var(--muted);line-height:1.7;max-width:620px;margin-bottom:36px}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap}
+.btn-primary{display:inline-flex;align-items:center;padding:12px 28px;background:var(--blue);color:#fff;border-radius:8px;font-size:14px;font-weight:500;text-decoration:none;transition:opacity .2s}
+.btn-primary:hover{opacity:.88}
+.btn-ghost{display:inline-flex;align-items:center;padding:12px 28px;border:1px solid var(--border-hi);color:var(--text);border-radius:8px;font-size:14px;font-weight:500;text-decoration:none;transition:all .2s}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
+.content{max-width:1100px;margin:0 auto;padding:0 48px}
+@media(max-width:768px){.content{padding:0 24px}.page-hero{padding:120px 24px 60px}}
+.section{padding:72px 0;border-bottom:1px solid var(--border)}
+.section:last-child{border-bottom:none}
+.section-label{font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);margin-bottom:14px}
+.section-h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(28px,3vw,44px);font-weight:600;letter-spacing:-.025em;line-height:1.1;margin-bottom:20px}
+.section-body{font-size:16px;color:var(--muted);line-height:1.75;max-width:680px;margin-bottom:32px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px}
+@media(max-width:860px){.two-col{grid-template-columns:1fr}.three-col{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.three-col{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px 32px;margin-bottom:16px}
+.card.blue{border-color:var(--blue-line);background:var(--blue-faint)}
+.card h3{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:600;letter-spacing:-.01em;margin-bottom:10px;color:var(--text)}
+.card p{font-size:14px;color:var(--muted);line-height:1.65;margin:0}
+.grid-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.grid-cards{grid-template-columns:1fr}}
+.list-item{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+.list-item:last-child{border-bottom:none}
+.list-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);margin-top:8px;flex-shrink:0;box-shadow:0 0 8px var(--blue)}
+.list-text h4{font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px}
+.list-text p{font-size:13px;color:var(--muted);line-height:1.55;margin:0}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin:32px 0}
+@media(max-width:600px){.stat-row{grid-template-columns:1fr 1fr}}
+.stat-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px}
+.stat-num{font-family:'Space Grotesk',sans-serif;font-size:40px;font-weight:600;color:var(--blue);letter-spacing:-.03em;line-height:1;margin-bottom:6px}
+.stat-label{font-size:12px;color:var(--muted);letter-spacing:.03em}
+.check-list{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.check-item{display:flex;align-items:flex-start;gap:12px;font-size:14px;color:var(--muted);line-height:1.5}
+.check-item::before{content:'✓';color:var(--green);font-weight:700;font-size:13px;flex-shrink:0;margin-top:1px}
+.bullet-list{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.bullet-item{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--muted)}
+.bullet-item::before{content:'·';color:var(--blue);font-weight:700;font-size:18px;line-height:1.1;flex-shrink:0}
+.tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.tag{display:inline-block;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:500;background:var(--surface2);border:1px solid var(--border-hi);color:var(--muted)}
+.page-cta{background:var(--surface);border-top:1px solid var(--border);padding:80px 48px;text-align:center}
+.cta-h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(28px,3vw,44px);font-weight:600;letter-spacing:-.025em;margin-bottom:16px}
+.cta-sub{font-size:16px;color:var(--muted);margin-bottom:36px;max-width:500px;margin-left:auto;margin-right:auto;line-height:1.65}
+@media(max-width:768px){.page-cta{padding:60px 24px}}
+footer{background:var(--bg);border-top:1px solid var(--border);padding:40px 48px;display:flex;justify-content:space-between;align-items:center}
+.footer-logo{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--muted)}
+.footer-links{display:flex;gap:24px}
+.footer-links a{font-size:12px;color:var(--dim);text-decoration:none;transition:color .2s}
+.footer-links a:hover{color:var(--muted)}
+.footer-copy{font-size:12px;color:var(--dim)}
+@media(max-width:600px){footer{flex-direction:column;gap:16px;padding:32px 24px;text-align:center}.footer-links{display:none}}
+</style>
+</head>
+<body>
+<nav id="mainNav">
+  <a href="/" class="nav-logo">AVNode</a>
+  <div class="nav-right">
+    <a href="/#operators" class="nav-link">Fleet Operators</a>
+    <a href="/#owners" class="nav-link">Property Owners</a>
+    <a href="/resources" class="nav-link">Resources</a>
+    <a href="/#apply" class="nav-apply">Apply</a>
+  </div>
+</nav>
+<div class="page-hero">
+  <div class="hero-eyebrow">Robotaxi Infrastructure</div>
+  <h1 class="hero-h1">Infrastructure for Robotaxi Fleets — At Scale, From Day One</h1>
+  <p class="hero-sub">Waymo, Zoox, Uber AV, and the next generation of robotaxi operators need distributed charging, staging, and operations infrastructure inside demand zones. AVNode builds and operates this layer.</p>
+  <div class="hero-actions">
+    <a href="/#apply" class="btn-primary">Start a Partnership</a>
+    <a href="/services" class="btn-ghost">All Services</a>
+  </div>
+</div>
+<div class="content"><div class="section"><div class="section-label">The Scale Challenge</div><h2 class="section-h2">Robotaxi infrastructure math</h2><p class="section-body">A 500-vehicle robotaxi fleet operating 20 hours a day needs infrastructure that scales with deployment — not a single depot that becomes a bottleneck.</p><div class="stat-row"><div class="stat-box"><div class="stat-num">2–4</div><div class="stat-label">Nodes needed per 100 vehicles in a dense urban market for adequate charging coverage</div></div><div class="stat-box"><div class="stat-num">$16.1M</div><div class="stat-label">Annual operational drag from centralized depot model vs. distributed nodes — 500 vehicles</div></div><div class="stat-box"><div class="stat-num">30–90 days</div><div class="stat-label">AVNode activation timeline vs. 12–24 months building infrastructure from scratch</div></div></div></div><div class="section"><div class="section-label">The Full Infrastructure Stack</div><h2 class="section-h2">What robotaxi fleets actually need</h2><p class="section-body">Robotaxi operations require more than charging. Every vehicle needs a complete support system that keeps it in service, clean, inspected, and dispatched efficiently.</p><div><div class="list-item"><div class="list-dot"></div><div class="list-text"><h4>Distributed Fast Charging</h4><p>DCFC nodes inside demand zones — downtown, airport, entertainment districts. Not at a distant industrial depot.</p></div></div><div class="list-item"><div class="list-dot"></div><div class="list-text"><h4>Vehicle Staging</h4><p>Pre-positioned vehicles ready for high-demand windows. Staging near predicted demand reduces response time and deadhead miles.</p></div></div><div class="list-item"><div class="list-dot"></div><div class="list-text"><h4>Daily Cleaning</h4><p>Interior cleaning after every few rides. Exterior wash at regular intervals. Passenger experience depends on vehicle condition.</p></div></div><div class="list-item"><div class="list-dot"></div><div class="list-text"><h4>Inspection Infrastructure</h4><p>Daily vehicle checks for sensor status, tires, brakes, and connectivity. Requires physical inspection bays or drive-through lanes.</p></div></div><div class="list-item"><div class="list-dot"></div><div class="list-text"><h4>Remote Assistance Stations</h4><p>Human operators available for edge cases. Requires connectivity infrastructure and physical workstations at fleet operations centers.</p></div></div><div class="list-item"><div class="list-dot"></div><div class="list-text"><h4>Maintenance Coordination</h4><p>Scheduled maintenance, sensor calibration, and hardware service. Requires AV-capable maintenance facilities.</p></div></div></div></div><div class="section"><div class="section-label">Operator Compatibility</div><h2 class="section-h2">Built for every robotaxi platform</h2><p class="section-body">AVNode infrastructure is hardware-agnostic and operator-agnostic. We deploy charging and operations infrastructure compatible with every autonomous vehicle platform operating today or launching in the next three years.</p><div class="tag-row"><span class="tag">Waymo</span><span class="tag">Zoox</span><span class="tag">Uber AV</span><span class="tag">Lyft AV</span><span class="tag">Avride</span><span class="tag">Moove</span><span class="tag">May Mobility</span><span class="tag">Motional</span><span class="tag">WeRide</span><span class="tag">Navya</span></div></div></div>
+
+<div class="page-cta">
+  <h2 class="cta-h2">Ready to deploy infrastructure?</h2>
+  <p class="cta-sub">AVNode handles site sourcing, landlords, utilities, charging, and operations. You focus on your fleet.</p>
+  <a href="/#apply" class="btn-primary">Get Started →</a>
+</div>
+<footer>
+  <span class="footer-logo">AVNode</span>
+  <div class="footer-links">
+    <a href="/services">Services</a><a href="/markets/houston">Markets</a>
+    <a href="/resources">Resources</a><a href="/#apply">Contact</a>
+  </div>
+  <span class="footer-copy">© 2026 AVNode</span>
+</footer>
+<script>
+const nav=document.getElementById('mainNav');
+window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>40));
+</script>
+</body></html>
