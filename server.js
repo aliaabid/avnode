@@ -11,8 +11,9 @@ function serve(route, file) {
 }
 
 // Core
-serve('/deck', 'deck.html');
-serve('/team', 'team.html');
+serve('/deck',        'deck.html');
+serve('/team',        'team.html');
+serve('/marketplace', 'marketplace.html');
 
 // Services
 serve('/services',                                   'services/index.html');

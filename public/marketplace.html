@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AVNode Marketplace — Infrastructure for Autonomous Fleets</title>
+<meta name="description" content="The marketplace for autonomous fleet infrastructure. Find charging depots, robotaxi staging facilities, maintenance hubs, and fleet operations centers across North America.">
+<link rel="canonical" href="https://www.av-node.com/marketplace">
+<meta property="og:title" content="AVNode Marketplace — Infrastructure for Autonomous Fleets">
+<meta property="og:description" content="Discover charging depots, staging facilities, maintenance hubs, and deployment-ready real estate for autonomous fleets across North America.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#09090C;--surface:#101013;--surface2:#14141a;--surface3:#1a1a22;
+  --border:#1A1A22;--border-hi:#2A2A36;--border-2:#333344;
+  --text:#EEEEF2;--muted:#6A6A7E;--dim:#32323F;
+  --blue:#2F6BF5;--blue-mid:#1E4FD8;--blue-faint:rgba(47,107,245,0.1);--blue-line:rgba(47,107,245,0.22);
+  --green:#2DCE6C;--green-faint:rgba(45,206,108,0.1);
+  --yellow:#F5C542;--red:#FF453A;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;min-height:100vh}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:20px 48px;background:rgba(9,9,12,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:600;letter-spacing:-.02em;color:var(--text);text-decoration:none}
+.nav-right{display:flex;align-items:center;gap:24px}
+.nav-link{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s}
+.nav-link:hover,.nav-link.active{color:var(--text)}
+.nav-apply{font-size:13px;font-weight:500;color:var(--text);text-decoration:none;border:1px solid var(--border-hi);padding:7px 18px;border-radius:100px;transition:all .2s}
+.nav-apply:hover{border-color:var(--blue)}
+@media(max-width:768px){nav{padding:16px 24px}.nav-link{display:none}}
+
+/* ── HERO ── */
+.hero{padding:110px 48px 60px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+.hero-grid-bg{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(47,107,245,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(47,107,245,.06) 1px,transparent 1px);
+  background-size:60px 60px;pointer-events:none;
+}
+.hero-glow{position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:800px;height:400px;background:radial-gradient(ellipse,rgba(47,107,245,.12) 0%,transparent 65%);pointer-events:none}
+.hero-content{position:relative;z-index:2;max-width:1200px;margin:0 auto}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--blue-faint);border:1px solid var(--blue-line);border-radius:100px;padding:5px 14px;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-bottom:24px}
+.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);box-shadow:0 0 8px var(--blue)}
+.hero-h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(36px,5vw,68px);font-weight:600;line-height:1.02;letter-spacing:-.035em;margin-bottom:20px;max-width:800px}
+.hero-sub{font-size:18px;color:var(--muted);line-height:1.7;max-width:580px;margin-bottom:36px}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:48px}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;background:var(--blue);color:#fff;border-radius:8px;font-size:14px;font-weight:500;text-decoration:none;border:none;cursor:pointer;transition:opacity .2s;font-family:inherit}
+.btn-primary:hover{opacity:.88}
+.btn-ghost{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;border:1px solid var(--border-hi);color:var(--text);border-radius:8px;font-size:14px;font-weight:500;text-decoration:none;cursor:pointer;transition:all .2s;font-family:inherit;background:transparent}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
+
+/* hero stats */
+.hero-stats{display:flex;gap:40px;padding-top:32px;border-top:1px solid var(--border)}
+.hero-stat .n{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:600;color:var(--blue);letter-spacing:-.02em}
+.hero-stat .l{font-size:12px;color:var(--muted);margin-top:2px}
+@media(max-width:768px){.hero{padding:90px 24px 40px}.hero-stats{gap:24px;flex-wrap:wrap}}
+
+/* ── CATEGORIES ── */
+.categories{padding:40px 48px;border-bottom:1px solid var(--border);background:var(--surface)}
+.categories-inner{max-width:1200px;margin:0 auto}
+.categories-label{font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+.cat-grid{display:flex;gap:10px;flex-wrap:wrap}
+.cat-btn{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 18px;border-radius:8px;
+  border:1px solid var(--border-hi);background:var(--surface2);
+  font-size:13px;color:var(--muted);cursor:pointer;
+  transition:all .15s;white-space:nowrap;font-family:inherit;
+}
+.cat-btn:hover{border-color:var(--blue-line);color:var(--text);background:var(--blue-faint)}
+.cat-btn.active{border-color:var(--blue);color:var(--blue);background:var(--blue-faint)}
+.cat-icon{font-size:16px}
+@media(max-width:768px){.categories{padding:24px}.cat-grid{gap:8px}}
+
+/* ── MAIN LAYOUT ── */
+.marketplace-layout{display:grid;grid-template-columns:280px 1fr;gap:0;max-width:1200px;margin:0 auto;padding:0 48px 80px}
+@media(max-width:900px){.marketplace-layout{grid-template-columns:1fr;padding:0 24px 60px}}
+
+/* ── FILTERS SIDEBAR ── */
+.filters-sidebar{padding:32px 32px 32px 0;border-right:1px solid var(--border)}
+@media(max-width:900px){.filters-sidebar{padding:24px 0;border-right:none;border-bottom:1px solid var(--border)}}
+.filter-section{margin-bottom:28px}
+.filter-label{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:block}
+.filter-options{display:flex;flex-direction:column;gap:6px}
+@media(max-width:900px){.filter-options{flex-direction:row;flex-wrap:wrap;gap:8px}}
+.filter-opt{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 12px;border-radius:8px;border:1px solid transparent;
+  cursor:pointer;transition:all .15s;font-size:13px;color:var(--muted);
+  background:transparent;font-family:inherit;text-align:left;width:100%;
+}
+@media(max-width:900px){.filter-opt{width:auto}}
+.filter-opt:hover{background:var(--surface2);color:var(--text);border-color:var(--border)}
+.filter-opt.active{background:var(--blue-faint);color:var(--blue);border-color:var(--blue-line)}
+.filter-opt input[type=checkbox]{accent-color:var(--blue);width:14px;height:14px;flex-shrink:0}
+.filter-divider{height:1px;background:var(--border);margin:4px 0 28px}
+.filter-clear{font-size:12px;color:var(--muted);cursor:pointer;background:none;border:none;font-family:inherit;padding:0;transition:color .15s}
+.filter-clear:hover{color:var(--blue)}
+.filter-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.filter-title{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600}
+
+/* ── LISTINGS ── */
+.listings-panel{padding:32px 0 0 32px}
+@media(max-width:900px){.listings-panel{padding:24px 0 0}}
+.listings-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.listings-count{font-size:13px;color:var(--muted)}
+.listings-sort{background:var(--surface2);border:1px solid var(--border-hi);border-radius:8px;padding:7px 12px;color:var(--text);font-size:13px;font-family:inherit;cursor:pointer;outline:none}
+.listings-sort:focus{border-color:var(--blue)}
+
+/* search bar */
+.search-bar{position:relative;margin-bottom:20px}
+.search-bar input{width:100%;background:var(--surface2);border:1px solid var(--border-hi);border-radius:10px;padding:12px 16px 12px 42px;color:var(--text);font-size:14px;font-family:inherit;outline:none;transition:border-color .15s}
+.search-bar input:focus{border-color:var(--blue)}
+.search-bar input::placeholder{color:var(--muted)}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:16px;pointer-events:none}
+
+/* listing cards grid */
+.listings-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:1100px){.listings-grid{grid-template-columns:1fr}}
+
+.listing-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;
+  transition:border-color .2s,transform .15s;cursor:pointer;
+}
+.listing-card:hover{border-color:var(--blue-line);transform:translateY(-2px)}
+.listing-img{
+  height:140px;background:var(--surface2);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+  border-bottom:1px solid var(--border);
+}
+.listing-img-bg{
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--surface2) 0%,var(--surface3) 100%);
+}
+.listing-img-icon{font-size:36px;position:relative;z-index:1;opacity:.4}
+.listing-img-tag{
+  position:absolute;top:12px;left:12px;z-index:2;
+  background:var(--bg);border:1px solid var(--border-hi);
+  border-radius:6px;padding:3px 10px;
+  font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.05em;
+}
+.listing-img-tag.available{border-color:var(--green);color:var(--green);background:var(--green-faint)}
+.listing-img-tag.limited{border-color:var(--yellow);color:var(--yellow)}
+
+.listing-body{padding:20px}
+.listing-title{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;margin-bottom:4px;color:var(--text)}
+.listing-location{font-size:12px;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:5px}
+.listing-specs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.listing-spec{background:var(--surface2);border-radius:6px;padding:7px 10px}
+.listing-spec .sv{font-size:13px;font-weight:600;color:var(--text)}
+.listing-spec .sl{font-size:10px;color:var(--muted);letter-spacing:.04em;margin-top:1px}
+.listing-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.listing-tag{font-size:11px;padding:3px 9px;border-radius:5px;background:var(--surface3);color:var(--muted);border:1px solid var(--border-hi)}
+.listing-footer{display:flex;gap:8px}
+.btn-access{flex:1;padding:10px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity .2s}
+.btn-access:hover{opacity:.88}
+.btn-details{padding:10px 16px;background:transparent;color:var(--muted);border:1px solid var(--border-hi);border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;transition:all .2s}
+.btn-details:hover{border-color:var(--blue-line);color:var(--text)}
+
+/* empty state */
+.empty-state{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-icon{font-size:40px;margin-bottom:12px;opacity:.4}
+.empty-state p{font-size:14px;line-height:1.6}
+
+/* ── TWO FORMS SECTION ── */
+.forms-section{background:var(--surface);border-top:1px solid var(--border);padding:80px 48px}
+.forms-inner{max-width:1200px;margin:0 auto}
+.forms-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:48px}
+@media(max-width:900px){.forms-section{padding:60px 24px}.forms-grid{grid-template-columns:1fr}}
+.forms-header{text-align:center}
+.forms-eyebrow{font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);margin-bottom:12px}
+.forms-h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(28px,3vw,40px);font-weight:600;letter-spacing:-.025em;margin-bottom:12px}
+.forms-sub{font-size:16px;color:var(--muted);max-width:520px;margin:0 auto;line-height:1.65}
+
+.form-card{background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:36px}
+.form-card.blue{border-color:var(--blue-line);background:rgba(47,107,245,.05)}
+.form-card-icon{font-size:28px;margin-bottom:16px}
+.form-card h3{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:600;letter-spacing:-.01em;margin-bottom:8px}
+.form-card p{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:24px}
+
+/* form fields */
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.field label{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.field input,.field select,.field textarea{background:var(--surface2);border:1px solid var(--border-hi);border-radius:8px;padding:10px 13px;color:var(--text);font-size:13px;font-family:inherit;outline:none;transition:border-color .15s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue)}
+.field input::placeholder{color:var(--dim)}
+.field select{cursor:pointer;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236A6A7E' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.field select option{background:#14141a}
+.field textarea{resize:vertical;min-height:80px;line-height:1.5}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-submit{width:100%;margin-top:8px}
+.form-success{display:none;text-align:center;padding:24px;background:var(--green-faint);border:1px solid rgba(45,206,108,.3);border-radius:10px;margin-top:12px}
+.form-success .si{font-size:28px;margin-bottom:8px}
+.form-success p{font-size:14px;color:var(--green)}
+.form-err{font-size:12px;color:var(--red);margin-top:6px;display:none}
+
+/* ── REQUEST ACCESS MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.75);
+  backdrop-filter:blur(6px);z-index:500;
+  display:none;align-items:center;justify-content:center;padding:24px;
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:var(--surface);border:1px solid var(--border-hi);
+  border-radius:18px;padding:40px;width:100%;max-width:480px;
+  max-height:90vh;overflow-y:auto;position:relative;
+}
+.modal-close{
+  position:absolute;top:16px;right:16px;
+  width:32px;height:32px;border-radius:50%;
+  background:var(--surface2);border:1px solid var(--border);
+  color:var(--muted);font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.modal-close:hover{border-color:var(--blue-line);color:var(--text)}
+.modal-eyebrow{font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);margin-bottom:10px}
+.modal h2{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:600;letter-spacing:-.02em;margin-bottom:6px}
+.modal-listing-info{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin:16px 0;display:flex;flex-direction:column;gap:4px}
+.modal-listing-name{font-size:14px;font-weight:600;color:var(--text)}
+.modal-listing-loc{font-size:12px;color:var(--muted)}
+.modal p.modal-sub{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px}
+
+/* ── FOOTER ── */
+footer{background:var(--bg);border-top:1px solid var(--border);padding:40px 48px;display:flex;justify-content:space-between;align-items:center}
+.footer-logo{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--muted)}
+.footer-links{display:flex;gap:24px}
+.footer-links a{font-size:12px;color:var(--dim);text-decoration:none;transition:color .2s}
+.footer-links a:hover{color:var(--muted)}
+.footer-copy{font-size:12px;color:var(--dim)}
+@media(max-width:600px){footer{flex-direction:column;gap:16px;padding:32px 24px;text-align:center}.footer-links{display:none}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-logo">AVNode</a>
+  <div class="nav-right">
+    <a href="/marketplace" class="nav-link active">Marketplace</a>
+    <a href="/services" class="nav-link">Services</a>
+    <a href="/resources" class="nav-link">Resources</a>
+    <a href="/#apply" class="nav-apply">Apply</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-badge"><span class="hero-badge-dot"></span>AVNode Marketplace</div>
+    <h1 class="hero-h1">Find Infrastructure for<br>Autonomous Fleets</h1>
+    <p class="hero-sub">Discover charging depots, staging facilities, maintenance hubs, fleet operations centers, and deployment-ready real estate across North America.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="document.getElementById('listingsSection').scrollIntoView({behavior:'smooth'})">Browse Infrastructure</button>
+      <button class="btn-ghost" onclick="document.getElementById('listForm').scrollIntoView({behavior:'smooth'})">List Your Property</button>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="n">6</div><div class="l">Active markets</div></div>
+      <div class="hero-stat"><div class="n">45+</div><div class="l">Properties in network</div></div>
+      <div class="hero-stat"><div class="n">~30%</div><div class="l">Of sites qualify</div></div>
+      <div class="hero-stat"><div class="n">30–90d</div><div class="l">Activation timeline</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORIES -->
+<div class="categories">
+  <div class="categories-inner">
+    <div class="categories-label">Browse by Category</div>
+    <div class="cat-grid">
+      <button class="cat-btn active" onclick="filterCat('')"><span class="cat-icon">🗺️</span>All Infrastructure</button>
+      <button class="cat-btn" onclick="filterCat('charging')"><span class="cat-icon">⚡</span>Charging Depots</button>
+      <button class="cat-btn" onclick="filterCat('robotaxi')"><span class="cat-icon">🚕</span>Robotaxi Depots</button>
+      <button class="cat-btn" onclick="filterCat('maintenance')"><span class="cat-icon">🔧</span>Maintenance Facilities</button>
+      <button class="cat-btn" onclick="filterCat('staging')"><span class="cat-icon">📍</span>Staging Locations</button>
+      <button class="cat-btn" onclick="filterCat('operations')"><span class="cat-icon">🏢</span>Fleet Operations Centers</button>
+      <button class="cat-btn" onclick="filterCat('robotics')"><span class="cat-icon">🤖</span>Robotics Hubs</button>
+    </div>
+  </div>
+</div>
+
+<!-- MARKETPLACE BODY -->
+<div style="max-width:1296px;margin:0 auto;padding:0 48px" id="listingsSection">
+<div class="marketplace-layout" style="max-width:100%;padding:0">
+
+  <!-- FILTERS -->
+  <div class="filters-sidebar">
+    <div class="filter-header">
+      <span class="filter-title">Filters</span>
+      <button class="filter-clear" onclick="clearFilters()">Clear all</button>
+    </div>
+
+    <div class="filter-section">
+      <span class="filter-label">Market</span>
+      <div class="filter-options" id="marketFilters">
+        <button class="filter-opt active" onclick="toggleFilter(this,'market','')">All Markets</button>
+        <button class="filter-opt" onclick="toggleFilter(this,'market','Houston')">Houston, TX</button>
+        <button class="filter-opt" onclick="toggleFilter(this,'market','Austin')">Austin, TX</button>
+        <button class="filter-opt" onclick="toggleFilter(this,'market','Dallas')">Dallas, TX</button>
+        <button class="filter-opt" onclick="toggleFilter(this,'market','Phoenix')">Phoenix, AZ</button>
+        <button class="filter-opt" onclick="toggleFilter(this,'market','Miami')">Miami, FL</button>
+        <button class="filter-opt" onclick="toggleFilter(this,'market','Los Angeles')">Los Angeles, CA</button>
+        <button class="filter-opt" onclick="toggleFilter(this,'market','Atlanta')">Atlanta, GA</button>
+      </div>
+    </div>
+
+    <div class="filter-divider"></div>
+
+    <div class="filter-section">
+      <span class="filter-label">Property Type</span>
+      <div class="filter-options" id="typeFilters">
+        <button class="filter-opt active" onclick="toggleFilter(this,'type','')">All Types</button>
+        <button class="filter-opt" onclick="toggleFilter(this,'type','Industrial')">Industrial</button>
+        <button class="filter-opt" onclick="toggleFilter(this,'type','Hotel')">Hotel / Hospitality</button>
+        <button class="filter-opt" onclick="toggleFilter(this,'type','Parking')">Parking Structure</button>
+        <button class="filter-opt" onclick="toggleFilter(this,'type','Office')">Office / Commercial</button>
+        <button class="filter-opt" onclick="toggleFilter(this,'type','Retail')">Retail</button>
+        <button class="filter-opt" onclick="toggleFilter(this,'type','Land')">Raw Land</button>
+      </div>
+    </div>
+
+    <div class="filter-divider"></div>
+
+    <div class="filter-section">
+      <span class="filter-label">Power Available</span>
+      <div class="filter-options" id="powerFilters">
+        <button class="filter-opt active" onclick="toggleFilter(this,'power','')">Any Power</button>
+        <button class="filter-opt" onclick="toggleFilter(this,'power','<500kW')">&lt;500 kW</button>
+        <button class="filter-opt" onclick="toggleFilter(this,'power','500kW-1MW')">500 kW – 1 MW</button>
+        <button class="filter-opt" onclick="toggleFilter(this,'power','1-5MW')">1 – 5 MW</button>
+        <button class="filter-opt" onclick="toggleFilter(this,'power','5MW+')">5 MW+</button>
+      </div>
+    </div>
+
+    <div class="filter-divider"></div>
+
+    <div class="filter-section">
+      <span class="filter-label">Site Size</span>
+      <div class="filter-options" id="sizeFilters">
+        <button class="filter-opt active" onclick="toggleFilter(this,'size','')">Any Size</button>
+        <button class="filter-opt" onclick="toggleFilter(this,'size','<1ac')">&lt;1 Acre</button>
+        <button class="filter-opt" onclick="toggleFilter(this,'size','1-5ac')">1 – 5 Acres</button>
+        <button class="filter-opt" onclick="toggleFilter(this,'size','5-10ac')">5 – 10 Acres</button>
+        <button class="filter-opt" onclick="toggleFilter(this,'size','10ac+')">10+ Acres</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LISTINGS -->
+  <div class="listings-panel">
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search by city, property type, or keyword…" oninput="renderListings()"/>
+    </div>
+    <div class="listings-header">
+      <span class="listings-count" id="listingCount">Showing 12 properties</span>
+      <select class="listings-sort" id="sortSelect" onchange="renderListings()">
+        <option value="default">Sort: Featured</option>
+        <option value="newest">Newest</option>
+        <option value="power">Highest Power</option>
+        <option value="size">Largest Site</option>
+      </select>
+    </div>
+    <div class="listings-grid" id="listingsGrid"></div>
+  </div>
+</div>
+</div>
+
+<!-- FORMS SECTION -->
+<div class="forms-section">
+  <div class="forms-inner">
+    <div class="forms-header">
+      <div class="forms-eyebrow">Join the Network</div>
+      <h2 class="forms-h2">List a Property or Find Infrastructure</h2>
+      <p class="forms-sub">Every submission is reviewed by the AVNode team within 48 hours. We manually match property owners with fleet operators to ensure the right fit.</p>
+    </div>
+
+    <div class="forms-grid">
+
+      <!-- PROPERTY OWNER FORM -->
+      <div class="form-card blue" id="listForm">
+        <div class="form-card-icon">🏢</div>
+        <h3>List Your Infrastructure</h3>
+        <p>Submit your property and AVNode will evaluate it for the network. Qualified sites generate recurring revenue from autonomous fleet operators with zero upfront cost to you.</p>
+
+        <form id="ownerForm" onsubmit="submitForm(event,'ownerForm','ownerSuccess','New AVNode Property Listing — Marketplace')">
+          <input type="hidden" name="_subject" value="New AVNode Property Listing — Marketplace"/>
+          <input type="hidden" name="form_type" value="property_owner_marketplace"/>
+          <input type="text" name="_gotcha" style="display:none"/>
+
+          <div class="field-row">
+            <div class="field"><label>First Name *</label><input name="first_name" type="text" placeholder="Ali" required/></div>
+            <div class="field"><label>Last Name *</label><input name="last_name" type="text" placeholder="Smith" required/></div>
+          </div>
+          <div class="field"><label>Email *</label><input name="email" type="email" placeholder="you@company.com" required/></div>
+          <div class="field"><label>Phone</label><input name="phone" type="tel" placeholder="(555) 000-0000"/></div>
+          <div class="field"><label>Property Address *</label><input name="property_address" type="text" placeholder="1234 Main St, Houston, TX" required/></div>
+          <div class="field-row">
+            <div class="field">
+              <label>Property Type *</label>
+              <select name="property_type" required>
+                <option value="">Select type</option>
+                <option>Hotel / Hospitality</option>
+                <option>Parking Structure</option>
+                <option>Industrial / Warehouse</option>
+                <option>Office / Commercial</option>
+                <option>Retail Center</option>
+                <option>Raw Land</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Site Size (Acres)</label>
+              <input name="acreage" type="text" placeholder="e.g. 4.2"/>
+            </div>
+          </div>
+          <div class="field">
+            <label>Available Power Capacity</label>
+            <select name="power_capacity">
+              <option value="">Select power</option>
+              <option>Less than 500 kW</option>
+              <option>500 kW – 1 MW</option>
+              <option>1 MW – 5 MW</option>
+              <option>5 MW+</option>
+              <option>Unknown / Need assessment</option>
+            </select>
+          </div>
+          <div class="field"><label>Current Use</label><input name="current_use" type="text" placeholder="e.g. Hotel parking — 200 spaces, 30% utilized"/></div>
+          <div class="field"><label>Additional Notes</label><textarea name="message" placeholder="Tell us about the property — location advantages, existing infrastructure, lease terms, etc."></textarea></div>
+          <button type="submit" class="btn-primary form-submit" id="ownerSubmit">Submit Property →</button>
+          <div class="form-err" id="ownerErr"></div>
+        </form>
+        <div class="form-success" id="ownerSuccess">
+          <div class="si">⚡</div>
+          <p>Received. AVNode will evaluate your property within 48 hours and follow up directly.</p>
+        </div>
+      </div>
+
+      <!-- FLEET OPERATOR FORM -->
+      <div class="form-card" id="needForm">
+        <div class="form-card-icon">🚕</div>
+        <h3>Find Infrastructure for Your Fleet</h3>
+        <p>Tell us what your fleet needs and where. AVNode will identify available nodes and qualified property partners that match your requirements.</p>
+
+        <form id="fleetForm" onsubmit="submitForm(event,'fleetForm','fleetSuccess','New AVNode Fleet Infrastructure Request — Marketplace')">
+          <input type="hidden" name="_subject" value="New AVNode Fleet Infrastructure Request — Marketplace"/>
+          <input type="hidden" name="form_type" value="fleet_operator_marketplace"/>
+          <input type="text" name="_gotcha" style="display:none"/>
+
+          <div class="field-row">
+            <div class="field"><label>First Name *</label><input name="first_name" type="text" placeholder="Alex" required/></div>
+            <div class="field"><label>Last Name *</label><input name="last_name" type="text" placeholder="Chen" required/></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Company *</label><input name="company" type="text" placeholder="Waymo Operations" required/></div>
+            <div class="field"><label>Work Email *</label><input name="email" type="email" placeholder="you@company.com" required/></div>
+          </div>
+          <div class="field">
+            <label>Fleet Type *</label>
+            <select name="fleet_type" required>
+              <option value="">Select fleet type</option>
+              <option>Robotaxi / Rideshare AV</option>
+              <option>Autonomous Delivery — Van</option>
+              <option>Autonomous Delivery — Sidewalk Robot</option>
+              <option>EV Fleet (Human-Driven)</option>
+              <option>Autonomous Trucking</option>
+              <option>Shuttle / Transit</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Target Market *</label>
+              <select name="market" required>
+                <option value="">Select city</option>
+                <option>Houston, TX</option>
+                <option>Austin, TX</option>
+                <option>Dallas, TX</option>
+                <option>Phoenix, AZ</option>
+                <option>Tempe, AZ</option>
+                <option>Miami, FL</option>
+                <option>Los Angeles, CA</option>
+                <option>Atlanta, GA</option>
+                <option>Las Vegas, NV</option>
+                <option>Nashville, TN</option>
+                <option>Seattle, WA</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Fleet Size</label>
+              <select name="fleet_size">
+                <option value="">Select range</option>
+                <option>1 – 25 vehicles</option>
+                <option>26 – 100 vehicles</option>
+                <option>101 – 500 vehicles</option>
+                <option>500 – 2,000 vehicles</option>
+                <option>2,000+ vehicles</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label>Power Requirements</label>
+            <select name="power_needed">
+              <option value="">Select power need</option>
+              <option>Less than 500 kW</option>
+              <option>500 kW – 1 MW</option>
+              <option>1 MW – 5 MW</option>
+              <option>5 MW+</option>
+              <option>Need assessment</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Timeline *</label>
+            <select name="timeline" required>
+              <option value="">Select timeline</option>
+              <option>ASAP — actively deploying</option>
+              <option>1 – 3 months</option>
+              <option>3 – 6 months</option>
+              <option>6 – 12 months</option>
+              <option>12+ months (planning ahead)</option>
+            </select>
+          </div>
+          <div class="field"><label>Infrastructure Needs</label><textarea name="message" placeholder="Describe your infrastructure requirements — sites needed, vehicle count per site, any specific requirements…"></textarea></div>
+          <button type="submit" class="btn-primary form-submit" id="fleetSubmit">Submit Requirement →</button>
+          <div class="form-err" id="fleetErr"></div>
+        </form>
+        <div class="form-success" id="fleetSuccess">
+          <div class="si">🚀</div>
+          <p>Received. AVNode will identify matching infrastructure in your target market and follow up within 24 hours.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-logo">AVNode</span>
+  <div class="footer-links">
+    <a href="/services">Services</a>
+    <a href="/marketplace">Marketplace</a>
+    <a href="/resources">Resources</a>
+    <a href="/#apply">Contact</a>
+  </div>
+  <span class="footer-copy">© 2026 AVNode</span>
+</footer>
+
+<!-- REQUEST ACCESS MODAL -->
+<div class="modal-overlay" id="accessModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-eyebrow">Request Access</div>
+    <h2>Get Details on This Property</h2>
+    <div class="modal-listing-info">
+      <div class="modal-listing-name" id="modalListingName">—</div>
+      <div class="modal-listing-loc" id="modalListingLoc">—</div>
+    </div>
+    <p class="modal-sub">AVNode manually qualifies every fleet operator before sharing full property details. Tell us about your fleet and we'll follow up within 24 hours.</p>
+
+    <form id="accessForm" onsubmit="submitAccess(event)">
+      <input type="hidden" name="_subject" id="accessSubject"/>
+      <input type="hidden" name="form_type" value="marketplace_access_request"/>
+      <input type="hidden" name="listing_name" id="accessListingField"/>
+      <input type="text" name="_gotcha" style="display:none"/>
+
+      <div class="field-row">
+        <div class="field"><label>First Name *</label><input name="first_name" type="text" placeholder="Alex" required/></div>
+        <div class="field"><label>Last Name *</label><input name="last_name" type="text" placeholder="Chen" required/></div>
+      </div>
+      <div class="field"><label>Work Email *</label><input name="email" type="email" placeholder="you@company.com" required/></div>
+      <div class="field"><label>Company *</label><input name="company" type="text" placeholder="Waymo Operations" required/></div>
+      <div class="field-row">
+        <div class="field">
+          <label>Fleet Size</label>
+          <select name="fleet_size">
+            <option value="">Select</option>
+            <option>1 – 25</option>
+            <option>26 – 100</option>
+            <option>101 – 500</option>
+            <option>500+</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Timeline</label>
+          <select name="timeline">
+            <option value="">Select</option>
+            <option>ASAP</option>
+            <option>1 – 3 months</option>
+            <option>3 – 6 months</option>
+            <option>6 – 12 months</option>
+            <option>12+ months</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-err" id="accessErr"></div>
+      <button type="submit" class="btn-primary form-submit" id="accessSubmit" style="margin-top:12px">Request Access →</button>
+    </form>
+    <div class="form-success" id="accessSuccess" style="margin-top:12px">
+      <div class="si">✓</div>
+      <p>Request received. AVNode will follow up with full property details within 24 hours.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ────────────────────────────────────────────────────────
+const LISTINGS = [
+  {id:1,title:'Houston Fleet Depot — Airport Corridor',city:'Houston',state:'TX',market:'Houston',type:'Industrial',cat:'charging',power:'3 MW',powerRaw:3000,acres:4.2,acresRaw:4.2,vehicles:150,status:'available',tags:['Zoned Industrial','24/7 Access','Beltway 8 Proximity','DCFC Ready'],icon:'⚡'},
+  {id:2,title:'Hotel Parking Node — Galleria District',city:'Houston',state:'TX',market:'Houston',type:'Hotel',cat:'staging',power:'480 kW',powerRaw:480,acres:1.8,acresRaw:1.8,vehicles:60,status:'available',tags:['Hotel Partner','24/7 Staffed','Existing Power','Airport Adjacent'],icon:'📍'},
+  {id:3,title:'Downtown Austin Robotaxi Hub',city:'Austin',state:'TX',market:'Austin',type:'Parking',cat:'robotaxi',power:'1.2 MW',powerRaw:1200,acres:2.1,acresRaw:2.1,vehicles:80,status:'available',tags:['Downtown Core','AV Zoning Cleared','Level 2 + DCFC','Inspection Bay'],icon:'🚕'},
+  {id:4,title:'DFW Airport Hotel Node',city:'Dallas',state:'TX',market:'Dallas',type:'Hotel',cat:'charging',power:'750 kW',powerRaw:750,acres:3.5,acresRaw:3.5,vehicles:120,status:'available',tags:['Airport Adjacent','Marriott Partner','24/7 Security','High Demand Zone'],icon:'⚡'},
+  {id:5,title:'Tempe AV Maintenance Facility',city:'Tempe',state:'AZ',market:'Phoenix',type:'Industrial',cat:'maintenance',power:'2 MW',powerRaw:2000,acres:6.8,acresRaw:6.8,vehicles:200,status:'limited',tags:['Sensor Cal Zone','EV Service Bay','ASU Corridor','Waymo Zone Adjacent'],icon:'🔧'},
+  {id:6,title:'Brickell Operations Center',city:'Miami',state:'FL',market:'Miami',type:'Office',cat:'operations',power:'500 kW',powerRaw:500,acres:0.8,acresRaw:0.8,vehicles:40,status:'available',tags:['Downtown Miami','Class A Office','Fiber Connected','Dispatch Ready'],icon:'🏢'},
+  {id:7,title:'Dallas Robotics Logistics Hub',city:'Dallas',state:'TX',market:'Dallas',type:'Industrial',cat:'robotics',power:'1.5 MW',powerRaw:1500,acres:3.2,acresRaw:3.2,vehicles:300,status:'available',tags:['Last Mile Zone','Indoor Staging','Level 2 Array','Loading Docks'],icon:'🤖'},
+  {id:8,title:'Houston Medical Center Staging',city:'Houston',state:'TX',market:'Houston',type:'Parking',cat:'staging',power:'250 kW',powerRaw:250,acres:1.2,acresRaw:1.2,vehicles:45,status:'available',tags:['TMC Adjacent','24/7 Access','Level 2 Charging','High Demand'],icon:'📍'},
+  {id:9,title:'Phoenix Industrial Depot',city:'Phoenix',state:'AZ',market:'Phoenix',type:'Industrial',cat:'charging',power:'5 MW',powerRaw:5000,acres:12.4,acresRaw:12.4,vehicles:400,status:'available',tags:['APS Grid Connected','5 MW Capacity','Interstate Access','Expansion Ready'],icon:'⚡'},
+  {id:10,title:'Austin East Tech Corridor Node',city:'Austin',state:'TX',market:'Austin',type:'Commercial',cat:'staging',power:'350 kW',powerRaw:350,acres:1.1,acresRaw:1.1,vehicles:35,status:'limited',tags:['East Austin','Tech Corridor','Hotel Partner','Night Staging'],icon:'📍'},
+  {id:11,title:'Miami Airport Fleet Hub',city:'Miami',state:'FL',market:'Miami',type:'Industrial',cat:'robotaxi',power:'2.5 MW',powerRaw:2500,acres:5.6,acresRaw:5.6,vehicles:180,status:'available',tags:['MIA Adjacent','FPL Grid','DCFC Array','Maintenance Bay'],icon:'🚕'},
+  {id:12,title:'Dallas Maintenance & Inspection Center',city:'Dallas',state:'TX',market:'Dallas',type:'Industrial',cat:'maintenance',power:'1.8 MW',powerRaw:1800,acres:8.3,acresRaw:8.3,vehicles:250,status:'available',tags:['Full Service Bay','Sensor Cal Zone','OTA Update Station','I-35 Access'],icon:'🔧'},
+];
+
+let activeFilters = {cat:'', market:'', type:'', power:'', size:''};
+
+function filterCat(cat) {
+  activeFilters.cat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => {
+    const isAll = b.textContent.includes('All Infrastructure');
+    b.classList.toggle('active', cat === '' ? isAll : b.onclick.toString().includes(`'${cat}'`));
+  });
+  renderListings();
+}
+
+function toggleFilter(btn, key, val) {
+  activeFilters[key] = val;
+  const group = btn.closest('.filter-options');
+  group.querySelectorAll('.filter-opt').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderListings();
+}
+
+function clearFilters() {
+  activeFilters = {cat:'', market:'', type:'', power:'', size:''};
+  document.querySelectorAll('.filter-opt').forEach(b => {
+    b.classList.toggle('active', b.textContent.trim().startsWith('All') || b.textContent.trim().startsWith('Any'));
+  });
+  document.querySelectorAll('.cat-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+  document.getElementById('searchInput').value = '';
+  renderListings();
+}
+
+function matchesPower(listing, pFilter) {
+  if (!pFilter) return true;
+  const kw = listing.powerRaw;
+  if (pFilter === '<500kW') return kw < 500;
+  if (pFilter === '500kW-1MW') return kw >= 500 && kw <= 1000;
+  if (pFilter === '1-5MW') return kw > 1000 && kw <= 5000;
+  if (pFilter === '5MW+') return kw > 5000;
+  return true;
+}
+
+function matchesSize(listing, sFilter) {
+  if (!sFilter) return true;
+  const ac = listing.acresRaw;
+  if (sFilter === '<1ac') return ac < 1;
+  if (sFilter === '1-5ac') return ac >= 1 && ac <= 5;
+  if (sFilter === '5-10ac') return ac > 5 && ac <= 10;
+  if (sFilter === '10ac+') return ac > 10;
+  return true;
+}
+
+function renderListings() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const sort = document.getElementById('sortSelect').value;
+
+  let filtered = LISTINGS.filter(l => {
+    if (activeFilters.cat && l.cat !== activeFilters.cat) return false;
+    if (activeFilters.market && !l.market.includes(activeFilters.market)) return false;
+    if (activeFilters.type && l.type !== activeFilters.type) return false;
+    if (!matchesPower(l, activeFilters.power)) return false;
+    if (!matchesSize(l, activeFilters.size)) return false;
+    if (q) {
+      const haystack = `${l.title} ${l.city} ${l.type} ${l.tags.join(' ')}`.toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  });
+
+  if (sort === 'power') filtered.sort((a,b) => b.powerRaw - a.powerRaw);
+  if (sort === 'size')  filtered.sort((a,b) => b.acresRaw - a.acresRaw);
+
+  const grid = document.getElementById('listingsGrid');
+  const count = document.getElementById('listingCount');
+  count.textContent = `Showing ${filtered.length} propert${filtered.length===1?'y':'ies'}`;
+
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">🗺️</div>
+      <p>No properties match your current filters.<br>Try broadening your search or <a href="#needForm" style="color:var(--blue)">submit a requirement</a> and AVNode will source what you need.</p>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(l => `
+    <div class="listing-card" onclick="openAccess(${l.id})">
+      <div class="listing-img">
+        <div class="listing-img-bg"></div>
+        <div class="listing-img-icon">${l.icon}</div>
+        <div class="listing-img-tag ${l.status}">${l.status === 'available' ? 'Available' : 'Limited'}</div>
+      </div>
+      <div class="listing-body">
+        <div class="listing-title">${l.title}</div>
+        <div class="listing-location">📍 ${l.city}, ${l.state}</div>
+        <div class="listing-specs">
+          <div class="listing-spec"><div class="sv">${l.acres} ac</div><div class="sl">Site Size</div></div>
+          <div class="listing-spec"><div class="sv">${l.power}</div><div class="sl">Power Available</div></div>
+          <div class="listing-spec"><div class="sv">${l.vehicles}+</div><div class="sl">Vehicle Capacity</div></div>
+          <div class="listing-spec"><div class="sv">${l.type}</div><div class="sl">Property Type</div></div>
+        </div>
+        <div class="listing-tags">${l.tags.map(t=>`<span class="listing-tag">${t}</span>`).join('')}</div>
+        <div class="listing-footer">
+          <button class="btn-access" onclick="event.stopPropagation();openAccess(${l.id})">Request Access</button>
+          <button class="btn-details" onclick="event.stopPropagation();openAccess(${l.id})">Details</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── MODAL ─────────────────────────────────────────────────────
+function openAccess(id) {
+  const l = LISTINGS.find(x => x.id === id);
+  if (!l) return;
+  document.getElementById('modalListingName').textContent = l.title;
+  document.getElementById('modalListingLoc').textContent = `${l.city}, ${l.state} · ${l.acres} acres · ${l.power}`;
+  document.getElementById('accessSubject').value = `Access Request: ${l.title}`;
+  document.getElementById('accessListingField').value = l.title;
+  document.getElementById('accessForm').style.display = 'block';
+  document.getElementById('accessSuccess').style.display = 'none';
+  document.getElementById('accessErr').style.display = 'none';
+  document.getElementById('accessSubmit').textContent = 'Request Access →';
+  document.getElementById('accessSubmit').disabled = false;
+  document.getElementById('accessModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('accessModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+
+async function submitAccess(e) {
+  e.preventDefault();
+  const btn = document.getElementById('accessSubmit');
+  const err = document.getElementById('accessErr');
+  err.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  try {
+    const res = await fetch('https://formspree.io/f/xkoaaebp', {
+      method:'POST', body: new FormData(e.target),
+      headers:{'Accept':'application/json'}
+    });
+    if (res.ok) {
+      document.getElementById('accessForm').style.display = 'none';
+      document.getElementById('accessSuccess').style.display = 'block';
+    } else {
+      err.textContent = 'Something went wrong. Try again.';
+      err.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Request Access →';
+    }
+  } catch {
+    err.textContent = 'Network error. Please try again.';
+    err.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Request Access →';
+  }
+}
+
+// ── FORM SUBMIT ────────────────────────────────────────────────
+async function submitForm(e, formId, successId, subject) {
+  e.preventDefault();
+  const form = document.getElementById(formId);
+  const success = document.getElementById(successId);
+  const errEl = form.querySelector('.form-err');
+  const btn = form.querySelector('[type=submit]');
+  if(errEl) errEl.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Submitting…';
+  try {
+    const fd = new FormData(form.querySelector('form') || form);
+    const res = await fetch('https://formspree.io/f/xkoaaebp', {
+      method:'POST', body: new FormData(e.target),
+      headers:{'Accept':'application/json'}
+    });
+    if (res.ok) {
+      e.target.style.display = 'none';
+      success.style.display = 'block';
+    } else {
+      if(errEl){errEl.textContent='Something went wrong. Please try again.';errEl.style.display='block';}
+      btn.disabled = false; btn.textContent = 'Submit →';
+    }
+  } catch {
+    if(errEl){errEl.textContent='Network error. Please try again.';errEl.style.display='block';}
+    btn.disabled = false; btn.textContent = 'Submit →';
+  }
+}
+
+// ── INIT ───────────────────────────────────────────────────────
+renderListings();
+</script>
+</body>
+</html>
