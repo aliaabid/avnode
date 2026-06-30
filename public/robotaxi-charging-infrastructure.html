@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robotaxi Charging Infrastructure: Fleet-Scale EV Charging Guide | AVNode</title>
+<meta name="description" content="Robotaxi charging infrastructure is not public EV charging. Fleet-scale charging requires dedicated hardware, demand zone positioning, managed queues, and utility coordination. This guide explains what it takes.">
+<link rel="canonical" href="https://www.avnode.com/robotaxi-charging-infrastructure">
+<meta property="og:title" content="Robotaxi Charging Infrastructure: Fleet-Scale EV Charging Guide | AVNode">
+<meta property="og:description" content="Robotaxi charging infrastructure is not public EV charging. Fleet-scale charging requires dedicated hardware, demand zone positioning, managed queues, and utility coordination. This guide explains what it takes.">
+<meta property="og:url" content="https://www.avnode.com/robotaxi-charging-infrastructure">
+<meta property="og:type" content="website">
+<meta name="robots" content="index, follow">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://www.avnode.com/#org","name":"AVNode","url":"https://www.avnode.com","description":"AVNode builds and operates distributed autonomous fleet infrastructure — charging depots, staging hubs, and fleet operations centers across major US markets."},{"@type":"WebPage","@id":"https://www.avnode.com/robotaxi-charging-infrastructure","url":"https://www.avnode.com/robotaxi-charging-infrastructure","name":"Robotaxi Charging Infrastructure: Fleet-Scale EV Charging Guide | AVNode","description":"Robotaxi charging infrastructure is not public EV charging. Fleet-scale charging requires dedicated hardware, demand zone positioning, managed queues, and utility coordination. This guide explains what it takes.","isPartOf":{"@id":"https://www.avnode.com/#org"}},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many chargers does a robotaxi fleet need?","acceptedAnswer":{"@type":"Answer","text":"A general rule is 1 DCFC stall per 4–6 vehicles for a fleet operating 18–20 hours per day. A 100-vehicle fleet needs 15–25 DCFC stalls across its node network, plus Level 2 capacity at overnight staging locations. The exact number depends on battery size, charging speed, and how many hours per day vehicles are in active service."}},{"@type":"Question","name":"How much does fleet charging infrastructure cost?","acceptedAnswer":{"@type":"Answer","text":"DCFC hardware costs $25,000–$75,000 per stall depending on power level and manufacturer. Installation, utility work, and site preparation add $15,000–$60,000 per stall. A 10-stall node runs $400K–$1.35M fully installed. Ongoing electricity costs depend on utility rate and demand charge structure — demand charge management is often as important as the capital cost."}},{"@type":"Question","name":"Who pays for fleet charging infrastructure?","acceptedAnswer":{"@type":"Answer","text":"In the AVNode model, charging hardware is funded by AVNode or the fleet operator, not the property owner. The property owner provides the space and electrical service access; AVNode handles equipment, installation, and management. For fleet operators building their own infrastructure, costs are typically capitalized and depreciated over the hardware lifecycle."}}]}]}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#09090C;--surface:#101013;--surface2:#14141a;--border:#1A1A22;--border-hi:#2A2A36;--text:#EEEEF2;--muted:#6A6A7E;--dim:#32323F;--blue:#2F6BF5;--blue-faint:rgba(47,107,245,0.1);--blue-line:rgba(47,107,245,0.22);--green:#2DCE6C}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;min-height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:24px 48px;transition:all .3s;border-bottom:1px solid transparent}
+nav.scrolled{padding:16px 48px;background:rgba(9,9,12,.95);backdrop-filter:blur(20px);border-color:var(--border)}
+.nav-logo{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:600;letter-spacing:-.02em;color:var(--text);text-decoration:none}
+.nav-right{display:flex;align-items:center;gap:28px}
+.nav-link{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s}
+.nav-link:hover{color:var(--text)}
+.nav-apply{font-size:13px;font-weight:500;color:var(--text);text-decoration:none;border:1px solid var(--border-hi);padding:7px 18px;border-radius:100px;transition:all .2s}
+.nav-apply:hover{border-color:var(--blue)}
+@media(max-width:768px){nav{padding:20px 24px}.nav-link{display:none}}
+.page-hero{padding:160px 48px 80px;max-width:1100px;margin:0 auto;border-bottom:1px solid var(--border)}
+.hero-eyebrow{font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);margin-bottom:20px;font-family:'Space Grotesk',sans-serif}
+.hero-h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(36px,4.5vw,64px);font-weight:600;line-height:1.05;letter-spacing:-.03em;margin-bottom:24px;max-width:820px}
+.hero-sub{font-size:18px;color:var(--muted);line-height:1.7;max-width:620px;margin-bottom:36px}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap}
+.btn-primary{display:inline-flex;align-items:center;padding:12px 28px;background:var(--blue);color:#fff;border-radius:8px;font-size:14px;font-weight:500;text-decoration:none;transition:opacity .2s}
+.btn-primary:hover{opacity:.88}
+.btn-ghost{display:inline-flex;align-items:center;padding:12px 28px;border:1px solid var(--border-hi);color:var(--text);border-radius:8px;font-size:14px;font-weight:500;text-decoration:none;transition:all .2s}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
+.content{max-width:1100px;margin:0 auto;padding:0 48px}
+@media(max-width:768px){.content{padding:0 24px}.page-hero{padding:120px 24px 60px}}
+.section{padding:72px 0;border-bottom:1px solid var(--border)}
+.section:last-child{border-bottom:none}
+.section-label{font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);margin-bottom:14px}
+.section-h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(28px,3vw,44px);font-weight:600;letter-spacing:-.025em;line-height:1.1;margin-bottom:20px}
+.section-body{font-size:16px;color:var(--muted);line-height:1.75;max-width:680px;margin-bottom:32px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px}
+@media(max-width:860px){.two-col{grid-template-columns:1fr}.three-col{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.three-col{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px 32px;margin-bottom:16px}
+.card.blue{border-color:var(--blue-line);background:var(--blue-faint)}
+.card h3{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:600;letter-spacing:-.01em;margin-bottom:10px;color:var(--text)}
+.card p{font-size:14px;color:var(--muted);line-height:1.65;margin:0}
+.grid-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.grid-cards{grid-template-columns:1fr}}
+.list-item{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+.list-item:last-child{border-bottom:none}
+.list-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);margin-top:8px;flex-shrink:0;box-shadow:0 0 8px var(--blue)}
+.list-text h4{font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px}
+.list-text p{font-size:13px;color:var(--muted);line-height:1.55;margin:0}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin:32px 0}
+@media(max-width:600px){.stat-row{grid-template-columns:1fr 1fr}}
+.stat-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px}
+.stat-num{font-family:'Space Grotesk',sans-serif;font-size:40px;font-weight:600;color:var(--blue);letter-spacing:-.03em;line-height:1;margin-bottom:6px}
+.stat-label{font-size:12px;color:var(--muted);letter-spacing:.03em}
+.check-list{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.check-item{display:flex;align-items:flex-start;gap:12px;font-size:14px;color:var(--muted);line-height:1.5}
+.check-item::before{content:'✓';color:var(--green);font-weight:700;font-size:13px;flex-shrink:0;margin-top:1px}
+.bullet-list{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.bullet-item{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--muted)}
+.bullet-item::before{content:'·';color:var(--blue);font-weight:700;font-size:18px;line-height:1.1;flex-shrink:0}
+.tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.tag{display:inline-block;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:500;background:var(--surface2);border:1px solid var(--border-hi);color:var(--muted)}
+.page-cta{background:var(--surface);border-top:1px solid var(--border);padding:80px 48px;text-align:center}
+.cta-h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(28px,3vw,44px);font-weight:600;letter-spacing:-.025em;margin-bottom:16px}
+.cta-sub{font-size:16px;color:var(--muted);margin-bottom:36px;max-width:500px;margin-left:auto;margin-right:auto;line-height:1.65}
+@media(max-width:768px){.page-cta{padding:60px 24px}}
+footer{background:var(--bg);border-top:1px solid var(--border);padding:40px 48px;display:flex;justify-content:space-between;align-items:center}
+.footer-logo{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--muted)}
+.footer-links{display:flex;gap:24px}
+.footer-links a{font-size:12px;color:var(--dim);text-decoration:none;transition:color .2s}
+.footer-links a:hover{color:var(--muted)}
+.footer-copy{font-size:12px;color:var(--dim)}
+@media(max-width:600px){footer{flex-direction:column;gap:16px;padding:32px 24px;text-align:center}.footer-links{display:none}}
+
+.faq-list{display:flex;flex-direction:column;gap:6px;margin-top:16px}
+.faq-item{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface)}
+.faq-q{padding:18px 24px;font-size:15px;font-weight:600;color:var(--text);cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;font-family:'Space Grotesk',sans-serif}
+.faq-q::-webkit-details-marker{display:none}
+.faq-q::after{content:'+';color:var(--blue);font-size:20px;font-weight:300;flex-shrink:0;margin-left:16px}
+details[open] .faq-q::after{content:'−'}
+.faq-a{padding:0 24px 18px;font-size:14px;color:var(--muted);line-height:1.7}
+.related-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.related-link{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid var(--border-hi);border-radius:8px;font-size:13px;color:var(--muted);text-decoration:none;transition:all .2s}
+.related-link:hover{border-color:var(--blue);color:var(--text)}
+.market-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}
+@media(max-width:860px){.market-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.market-grid{grid-template-columns:1fr}}
+.market-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;text-decoration:none;display:block;transition:all .2s}
+.market-card:hover{border-color:var(--blue-line);background:var(--blue-faint)}
+.market-card .city{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px}
+.market-card .mstatus{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.market-card .mstatus.active{color:var(--green)}
+.market-card .mstatus.expansion{color:var(--blue)}
+.market-card .mnodes{font-size:13px;color:var(--muted)}
+.table-wrap{overflow-x:auto;margin:24px 0}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;padding:12px 16px;border-bottom:2px solid var(--border-hi);color:var(--muted);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+td{padding:12px 16px;border-bottom:1px solid var(--border);color:var(--text);line-height:1.5}
+td:first-child{font-weight:500}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface)}
+</style>
+</head>
+<body>
+<nav id="mainNav">
+  <a href="/" class="nav-logo">AVNode</a>
+  <div class="nav-right">
+    <a href="/services" class="nav-link">Services</a>
+    <a href="/markets" class="nav-link">Markets</a>
+    <a href="/resources" class="nav-link">Resources</a>
+    <a href="/#apply" class="nav-apply">Apply</a>
+  </div>
+</nav>
+<div class="page-hero">
+  <div class="hero-eyebrow">Robotaxi Charging Infrastructure</div>
+  <h1 class="hero-h1">Robotaxi Charging Infrastructure: Why Public Chargers Do Not Work at Fleet Scale</h1>
+  <p class="hero-sub">A robotaxi fleet does not charge at Electrify America. Fleet-scale charging is a private infrastructure problem — dedicated hardware, demand zone positioning, managed queues, and a utility strategy. The companies that get this right will run the most efficient fleets.</p>
+  <div class="hero-actions">
+    <a href="/#apply" class="btn-primary">Start a Partnership</a>
+    <a href="/services" class="btn-ghost">All Services</a>
+  </div>
+</div>
+<div class="content"><div class="section"><div class="section-label">Why Public Charging Fails for Fleets</div><h2 class="section-h2">Three fundamental incompatibilities</h2><div class="three-col"><div class="card blue" style="margin-bottom:0"><h3>No Guaranteed Availability</h3><p>A robotaxi cannot wait in line behind a consumer EV. Fleet operations require guaranteed charger availability at known locations during specific windows.</p></div><div class="card " style="margin-bottom:0"><h3>Wrong Location</h3><p>Public charging networks are placed where consumers park, not where fleets need to charge. Fleet charging must be inside the service zone, not at a retail center 8 miles away.</p></div><div class="card " style="margin-bottom:0"><h3>No Fleet Integration</h3><p>Fleet charging requires software integration — SOC monitoring, automated routing, queue management, and demand charge optimization. Public chargers provide none of this.</p></div></div></div><div class="section"><div class="section-label">Fleet Charging Hardware</div><h2 class="section-h2">Matching hardware to operational requirements</h2><div class="table-wrap"><table><thead><tr><th>Hardware Type</th><th>Power Level</th><th>Charge Time (75 kWh battery)</th><th>Best Use</th></tr></thead><tbody><tr><td>Level 2 (J1772)</td><td>7–22 kW</td><td>3.5–11 hours</td><td>Overnight / long dwell staging</td></tr><tr><td>DC Fast Charger (CCS)</td><td>50–150 kW</td><td>30–90 minutes</td><td>In-shift between trips, daytime top-up</td></tr><tr><td>High-Power DCFC</td><td>150–350 kW</td><td>13–30 minutes</td><td>Rapid turnaround at high-volume nodes</td></tr><tr><td>Megawatt Charging (MCS)</td><td>350 kW–1 MW+</td><td>5–15 minutes</td><td>AV trucks and future passenger AVs</td></tr></tbody></table></div></div><div class="section"><div class="section-label">Distributed Charging Strategy</div><h2 class="section-h2">Position chargers where vehicles operate</h2><p class="section-body">The most expensive charging infrastructure mistake is placing all capacity at a central depot. When charging is distributed inside demand zones, vehicles top up between trips without leaving the service area.</p><div class="two-col"><div class="check-list"><div class="check-item">Target 1 DCFC node per 15–25 vehicles in a demand zone</div><div class="check-item">Level 2 at overnight staging locations (hotels, parking garages)</div><div class="check-item">DCFC inside high-demand corridors (airports, downtown, medical)</div><div class="check-item">Software integration for automated charging routing</div><div class="check-item">Demand charge management to control peak utility costs</div><div class="check-item">Uptime SLA of 99%+ — a fleet cannot afford charger downtime</div></div><div class="stat-row"><div class="stat-box"><div class="stat-num">80%</div><div class="stat-label">Reduction in deadhead miles when charging is inside the demand zone vs central depot</div></div><div class="stat-box"><div class="stat-num">47 min</div><div class="stat-label">Productive time recovered per vehicle per day by eliminating depot charging queues</div></div><div class="stat-box"><div class="stat-num">30–90</div><div class="stat-label">Days to activate a distributed AVNode charging node vs 12–24 months for depot buildout</div></div></div></div></div><div class="section"><div class="section-label">Related Topics</div><h2 class="section-h2"></h2><div class="related-links"><a href="/av-charging-hubs" class="related-link">AV Charging Hubs</a><a href="/robotaxi-depots" class="related-link">Robotaxi Depots</a><a href="/autonomous-fleet-infrastructure" class="related-link">AV Fleet Infrastructure</a><a href="/services/fleet-charging-infrastructure" class="related-link">AVNode Fleet Charging</a><a href="/terms/charge-dwell-time" class="related-link">Charge Dwell Time</a><a href="/terms/deadhead-miles" class="related-link">Deadhead Miles</a></div></div></div>
+<div class="content"><div class="section"><div class="section-label">FAQ</div><h2 class="section-h2">Common Questions</h2><div class="faq-list"><details class="faq-item"><summary class="faq-q">How many chargers does a robotaxi fleet need?</summary><div class="faq-a">A general rule is 1 DCFC stall per 4–6 vehicles for a fleet operating 18–20 hours per day. A 100-vehicle fleet needs 15–25 DCFC stalls across its node network, plus Level 2 capacity at overnight staging locations. The exact number depends on battery size, charging speed, and how many hours per day vehicles are in active service.</div></details><details class="faq-item"><summary class="faq-q">How much does fleet charging infrastructure cost?</summary><div class="faq-a">DCFC hardware costs $25,000–$75,000 per stall depending on power level and manufacturer. Installation, utility work, and site preparation add $15,000–$60,000 per stall. A 10-stall node runs $400K–$1.35M fully installed. Ongoing electricity costs depend on utility rate and demand charge structure — demand charge management is often as important as the capital cost.</div></details><details class="faq-item"><summary class="faq-q">Who pays for fleet charging infrastructure?</summary><div class="faq-a">In the AVNode model, charging hardware is funded by AVNode or the fleet operator, not the property owner. The property owner provides the space and electrical service access; AVNode handles equipment, installation, and management. For fleet operators building their own infrastructure, costs are typically capitalized and depreciated over the hardware lifecycle.</div></details></div></div></div>
+
+<div class="page-cta">
+  <h2 class="cta-h2">Ready to deploy infrastructure?</h2>
+  <p class="cta-sub">AVNode handles site sourcing, landlords, utilities, charging, and operations. You focus on your fleet.</p>
+  <a href="/#apply" class="btn-primary">Get Started →</a>
+</div>
+<footer>
+  <span class="footer-logo">AVNode</span>
+  <div class="footer-links">
+    <a href="/services">Services</a><a href="/markets">Markets</a>
+    <a href="/resources">Resources</a><a href="/#apply">Contact</a>
+  </div>
+  <span class="footer-copy">© 2026 AVNode</span>
+</footer>
+<script>
+const nav=document.getElementById('mainNav');
+window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>40));
+</script>
+</body></html>

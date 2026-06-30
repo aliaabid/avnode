@@ -5,9 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AV Infrastructure Resource Center — Guides, Reports & Deep Dives | AVNode</title>
 <meta name="description" content="The definitive resource library for autonomous vehicle infrastructure. Guides on depot development, fleet charging, site selection, markets, and AV fleet operations.">
-<link rel="canonical" href="https://www.av-node.com/resources">
+<link rel="canonical" href="https://www.avnode.com/resources">
 <meta property="og:title" content="AV Infrastructure Resource Center — Guides, Reports & Deep Dives | AVNode">
 <meta property="og:description" content="The definitive resource library for autonomous vehicle infrastructure. Guides on depot development, fleet charging, site selection, markets, and AV fleet operations.">
+<meta property="og:url" content="https://www.avnode.com/resources">
+<meta property="og:type" content="website">
+<meta name="robots" content="index, follow">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://www.avnode.com/#org","name":"AVNode","url":"https://www.avnode.com","description":"AVNode builds and operates distributed autonomous fleet infrastructure — charging depots, staging hubs, and fleet operations centers across major US markets."},{"@type":"WebPage","@id":"https://www.avnode.com/resources","url":"https://www.avnode.com/resources","name":"AV Infrastructure Resource Center — Guides, Reports & Deep Dives | AVNode","description":"The definitive resource library for autonomous vehicle infrastructure. Guides on depot development, fleet charging, site selection, markets, and AV fleet operations.","isPartOf":{"@id":"https://www.avnode.com/#org"}}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -79,14 +83,42 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:40px 48px
 .footer-links a:hover{color:var(--muted)}
 .footer-copy{font-size:12px;color:var(--dim)}
 @media(max-width:600px){footer{flex-direction:column;gap:16px;padding:32px 24px;text-align:center}.footer-links{display:none}}
+
+.faq-list{display:flex;flex-direction:column;gap:6px;margin-top:16px}
+.faq-item{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface)}
+.faq-q{padding:18px 24px;font-size:15px;font-weight:600;color:var(--text);cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;font-family:'Space Grotesk',sans-serif}
+.faq-q::-webkit-details-marker{display:none}
+.faq-q::after{content:'+';color:var(--blue);font-size:20px;font-weight:300;flex-shrink:0;margin-left:16px}
+details[open] .faq-q::after{content:'−'}
+.faq-a{padding:0 24px 18px;font-size:14px;color:var(--muted);line-height:1.7}
+.related-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.related-link{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid var(--border-hi);border-radius:8px;font-size:13px;color:var(--muted);text-decoration:none;transition:all .2s}
+.related-link:hover{border-color:var(--blue);color:var(--text)}
+.market-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}
+@media(max-width:860px){.market-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.market-grid{grid-template-columns:1fr}}
+.market-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;text-decoration:none;display:block;transition:all .2s}
+.market-card:hover{border-color:var(--blue-line);background:var(--blue-faint)}
+.market-card .city{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px}
+.market-card .mstatus{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.market-card .mstatus.active{color:var(--green)}
+.market-card .mstatus.expansion{color:var(--blue)}
+.market-card .mnodes{font-size:13px;color:var(--muted)}
+.table-wrap{overflow-x:auto;margin:24px 0}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;padding:12px 16px;border-bottom:2px solid var(--border-hi);color:var(--muted);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+td{padding:12px 16px;border-bottom:1px solid var(--border);color:var(--text);line-height:1.5}
+td:first-child{font-weight:500}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface)}
 </style>
 </head>
 <body>
 <nav id="mainNav">
   <a href="/" class="nav-logo">AVNode</a>
   <div class="nav-right">
-    <a href="/#operators" class="nav-link">Fleet Operators</a>
-    <a href="/#owners" class="nav-link">Property Owners</a>
+    <a href="/services" class="nav-link">Services</a>
+    <a href="/markets" class="nav-link">Markets</a>
     <a href="/resources" class="nav-link">Resources</a>
     <a href="/#apply" class="nav-apply">Apply</a>
   </div>
@@ -102,10 +134,11 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:40px 48px
 </div>
 <div class="content"><div class="section"><div class="section-label">Featured Guides</div><h2 class="section-h2">Start here</h2><p class="section-body">The foundational documents for understanding AV infrastructure — what it is, what it costs, and how to build it.</p><div class="three-col"><div class="card blue" style="margin-bottom:0"><h3>The Complete Guide to AV Infrastructure</h3><p>Every category of autonomous vehicle infrastructure — what it is, what it costs, and how to build it. The definitive reference.</p></div><div class="card " style="margin-bottom:0"><h3>How Robotaxi Depots Work</h3><p>A 24-hour operational walkthrough of a robotaxi depot — charging, cleaning, inspection, dispatch, and maintenance.</p></div><div class="card " style="margin-bottom:0"><h3>The Hidden Cost of Deadhead Miles</h3><p>14 miles per vehicle, per day. The math behind centralized depot drag and how distributed nodes eliminate it.</p></div><div class="card " style="margin-bottom:0"><h3>AV Site Selection Guide</h3><p>The six dimensions that determine whether a property qualifies as AV infrastructure — and how to evaluate them.</p></div><div class="card " style="margin-bottom:0"><h3>Fleet Charging Economics</h3><p>Build vs. partner analysis. CapEx, OpEx, and the per-vehicle cost of getting charging infrastructure right.</p></div><div class="card " style="margin-bottom:0"><h3>Power Requirements for AV Fleets</h3><p>kW, kWh, demand charges, and utility interconnection — everything an AV operator needs to know before signing a lease.</p></div></div></div><div class="section"><div class="section-label">Browse by Topic</div><h2 class="section-h2">Every infrastructure topic covered</h2><div class="tag-row"><span class="tag">Depot Development</span><span class="tag">Fleet Charging</span><span class="tag">Site Selection</span><span class="tag">City Markets</span><span class="tag">Real Estate</span><span class="tag">Fleet Operations</span><span class="tag">Autonomous Delivery</span><span class="tag">Autonomous Trucking</span><span class="tag">eVTOL</span><span class="tag">Regulatory</span><span class="tag">Economics & Finance</span><span class="tag">Technology & Hardware</span></div></div><div class="section"><div class="section-label">Coming Soon</div><h2 class="section-h2">In-depth guides publishing monthly</h2><p class="section-body">AVNode's resource center publishes one long-form infrastructure guide per month. Subscribe to be notified when new guides are available.</p><div class="check-list"><div class="check-item">How Robotaxi Depots Work — The Complete Operational Guide</div><div class="check-item">The Economics of Fleet Charging Infrastructure</div><div class="check-item">AV Infrastructure by City — Market-by-Market Guide</div><div class="check-item">Why Hotels Are the Secret AV Infrastructure Network</div><div class="check-item">Autonomous Trucking Transfer Hubs — Design and Development</div></div></div></div>
 
+
 <footer>
   <span class="footer-logo">AVNode</span>
   <div class="footer-links">
-    <a href="/services">Services</a><a href="/markets/houston">Markets</a>
+    <a href="/services">Services</a><a href="/markets">Markets</a>
     <a href="/resources">Resources</a><a href="/#apply">Contact</a>
   </div>
   <span class="footer-copy">© 2026 AVNode</span>

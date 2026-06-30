@@ -5,9 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Robotaxi Depot Development | AV Fleet Infrastructure — AVNode</title>
 <meta name="description" content="AVNode develops robotaxi depots — site selection, utility coordination, charging deployment, and daily operations. Built for Waymo, Zoox, Uber AV, and next-gen robotaxi fleets.">
-<link rel="canonical" href="https://www.av-node.com/services/robotaxi-depot-development">
+<link rel="canonical" href="https://www.avnode.com/services/robotaxi-depot-development">
 <meta property="og:title" content="Robotaxi Depot Development | AV Fleet Infrastructure — AVNode">
 <meta property="og:description" content="AVNode develops robotaxi depots — site selection, utility coordination, charging deployment, and daily operations. Built for Waymo, Zoox, Uber AV, and next-gen robotaxi fleets.">
+<meta property="og:url" content="https://www.avnode.com/services/robotaxi-depot-development">
+<meta property="og:type" content="website">
+<meta name="robots" content="index, follow">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://www.avnode.com/#org","name":"AVNode","url":"https://www.avnode.com","description":"AVNode builds and operates distributed autonomous fleet infrastructure — charging depots, staging hubs, and fleet operations centers across major US markets."},{"@type":"WebPage","@id":"https://www.avnode.com/services/robotaxi-depot-development","url":"https://www.avnode.com/services/robotaxi-depot-development","name":"Robotaxi Depot Development | AV Fleet Infrastructure — AVNode","description":"AVNode develops robotaxi depots — site selection, utility coordination, charging deployment, and daily operations. Built for Waymo, Zoox, Uber AV, and next-gen robotaxi fleets.","isPartOf":{"@id":"https://www.avnode.com/#org"}}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -79,14 +83,42 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:40px 48px
 .footer-links a:hover{color:var(--muted)}
 .footer-copy{font-size:12px;color:var(--dim)}
 @media(max-width:600px){footer{flex-direction:column;gap:16px;padding:32px 24px;text-align:center}.footer-links{display:none}}
+
+.faq-list{display:flex;flex-direction:column;gap:6px;margin-top:16px}
+.faq-item{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface)}
+.faq-q{padding:18px 24px;font-size:15px;font-weight:600;color:var(--text);cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;font-family:'Space Grotesk',sans-serif}
+.faq-q::-webkit-details-marker{display:none}
+.faq-q::after{content:'+';color:var(--blue);font-size:20px;font-weight:300;flex-shrink:0;margin-left:16px}
+details[open] .faq-q::after{content:'−'}
+.faq-a{padding:0 24px 18px;font-size:14px;color:var(--muted);line-height:1.7}
+.related-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.related-link{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid var(--border-hi);border-radius:8px;font-size:13px;color:var(--muted);text-decoration:none;transition:all .2s}
+.related-link:hover{border-color:var(--blue);color:var(--text)}
+.market-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}
+@media(max-width:860px){.market-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.market-grid{grid-template-columns:1fr}}
+.market-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;text-decoration:none;display:block;transition:all .2s}
+.market-card:hover{border-color:var(--blue-line);background:var(--blue-faint)}
+.market-card .city{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px}
+.market-card .mstatus{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.market-card .mstatus.active{color:var(--green)}
+.market-card .mstatus.expansion{color:var(--blue)}
+.market-card .mnodes{font-size:13px;color:var(--muted)}
+.table-wrap{overflow-x:auto;margin:24px 0}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;padding:12px 16px;border-bottom:2px solid var(--border-hi);color:var(--muted);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+td{padding:12px 16px;border-bottom:1px solid var(--border);color:var(--text);line-height:1.5}
+td:first-child{font-weight:500}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface)}
 </style>
 </head>
 <body>
 <nav id="mainNav">
   <a href="/" class="nav-logo">AVNode</a>
   <div class="nav-right">
-    <a href="/#operators" class="nav-link">Fleet Operators</a>
-    <a href="/#owners" class="nav-link">Property Owners</a>
+    <a href="/services" class="nav-link">Services</a>
+    <a href="/markets" class="nav-link">Markets</a>
     <a href="/resources" class="nav-link">Resources</a>
     <a href="/#apply" class="nav-apply">Apply</a>
   </div>
@@ -102,6 +134,7 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:40px 48px
 </div>
 <div class="content"><div class="section"><div class="section-label">The Depot Challenge</div><h2 class="section-h2">Robotaxi depots don't exist in the commercial real estate market</h2><p class="section-body">Traditional commercial real estate was never designed for autonomous vehicle operations — wrong power, wrong layout, no AV support, long permitting timelines. AVNode solves this by sourcing, qualifying, and activating properties purpose-fit for robotaxi operations.</p><div class="two-col"><div class="check-list"><div class="check-item">480V+ DC fast charging infrastructure</div><div class="check-item">Dedicated AV lanes and staging zones</div><div class="check-item">24/7 staffed operations support</div><div class="check-item">Security camera coverage and access control</div><div class="check-item">Flexible lease terms matched to fleet growth</div><div class="check-item">Pre-permitted and deployment-ready</div></div><div class="grid-cards"><div class="card" style="margin-bottom:0"><h3>Site Identification</h3><p>Demand-zone mapping to find viable properties — hotels, parking garages, commercial sites.</p></div><div class="card" style="margin-bottom:0"><h3>Qualification</h3><p>Six-point assessment: power, access, security, capacity, location, lease stability.</p></div><div class="card" style="margin-bottom:0"><h3>Buildout</h3><p>Charging hardware, traffic flow design, cleaning stations, inspection infrastructure.</p></div><div class="card" style="margin-bottom:0"><h3>Operations</h3><p>Ongoing depot management, staffing, and fleet support services.</p></div></div></div></div><div class="section"><div class="section-label">Depot Specifications</div><h2 class="section-h2">What a robotaxi depot actually requires</h2><p class="section-body">Requirements scale with fleet size. AVNode designs for current needs with growth capacity built in.</p><div class="stat-row"><div class="stat-box"><div class="stat-num">500–2,000</div><div class="stat-label">Square feet per vehicle including charging, circulation, and staging space</div></div><div class="stat-box"><div class="stat-num">150+ kW</div><div class="stat-label">DC fast charging power per stall for full charge in under 45 minutes</div></div><div class="stat-box"><div class="stat-num">30–90 days</div><div class="stat-label">AVNode activation timeline vs. 12–24 months for independent buildout</div></div></div></div><div class="section"><div class="section-label">Active Markets</div><h2 class="section-h2">Depot-ready infrastructure across launch markets</h2><p class="section-body">AVNode has qualified property partners and deployment-ready nodes across six launch markets — with expansion underway in Los Angeles, Atlanta, and Las Vegas.</p><div class="tag-row"><span class="tag">Houston, TX</span><span class="tag">Austin, TX</span><span class="tag">Dallas, TX</span><span class="tag">Phoenix, AZ</span><span class="tag">Tempe, AZ</span><span class="tag">Miami, FL</span><span class="tag">Los Angeles, CA ↗</span><span class="tag">Atlanta, GA ↗</span><span class="tag">Las Vegas, NV ↗</span></div></div></div>
 
+
 <div class="page-cta">
   <h2 class="cta-h2">Ready to deploy infrastructure?</h2>
   <p class="cta-sub">AVNode handles site sourcing, landlords, utilities, charging, and operations. You focus on your fleet.</p>
@@ -110,7 +143,7 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:40px 48px
 <footer>
   <span class="footer-logo">AVNode</span>
   <div class="footer-links">
-    <a href="/services">Services</a><a href="/markets/houston">Markets</a>
+    <a href="/services">Services</a><a href="/markets">Markets</a>
     <a href="/resources">Resources</a><a href="/#apply">Contact</a>
   </div>
   <span class="footer-copy">© 2026 AVNode</span>

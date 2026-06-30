@@ -5,9 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Autonomous Vehicle Infrastructure in Miami, FL — AVNode</title>
 <meta name="description" content="AVNode operates 9 active infrastructure nodes in Miami, Florida — charging depots and fleet staging hubs across Brickell, Miami Beach, Wynwood, and the MIA airport corridor.">
-<link rel="canonical" href="https://www.av-node.com/markets/miami">
+<link rel="canonical" href="https://www.avnode.com/markets/miami">
 <meta property="og:title" content="Autonomous Vehicle Infrastructure in Miami, FL — AVNode">
 <meta property="og:description" content="AVNode operates 9 active infrastructure nodes in Miami, Florida — charging depots and fleet staging hubs across Brickell, Miami Beach, Wynwood, and the MIA airport corridor.">
+<meta property="og:url" content="https://www.avnode.com/markets/miami">
+<meta property="og:type" content="website">
+<meta name="robots" content="index, follow">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://www.avnode.com/#org","name":"AVNode","url":"https://www.avnode.com","description":"AVNode builds and operates distributed autonomous fleet infrastructure — charging depots, staging hubs, and fleet operations centers across major US markets."},{"@type":"WebPage","@id":"https://www.avnode.com/markets/miami","url":"https://www.avnode.com/markets/miami","name":"Autonomous Vehicle Infrastructure in Miami, FL — AVNode","description":"AVNode operates 9 active infrastructure nodes in Miami, Florida — charging depots and fleet staging hubs across Brickell, Miami Beach, Wynwood, and the MIA airport corridor.","isPartOf":{"@id":"https://www.avnode.com/#org"}}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -79,14 +83,42 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:40px 48px
 .footer-links a:hover{color:var(--muted)}
 .footer-copy{font-size:12px;color:var(--dim)}
 @media(max-width:600px){footer{flex-direction:column;gap:16px;padding:32px 24px;text-align:center}.footer-links{display:none}}
+
+.faq-list{display:flex;flex-direction:column;gap:6px;margin-top:16px}
+.faq-item{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface)}
+.faq-q{padding:18px 24px;font-size:15px;font-weight:600;color:var(--text);cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;font-family:'Space Grotesk',sans-serif}
+.faq-q::-webkit-details-marker{display:none}
+.faq-q::after{content:'+';color:var(--blue);font-size:20px;font-weight:300;flex-shrink:0;margin-left:16px}
+details[open] .faq-q::after{content:'−'}
+.faq-a{padding:0 24px 18px;font-size:14px;color:var(--muted);line-height:1.7}
+.related-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.related-link{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid var(--border-hi);border-radius:8px;font-size:13px;color:var(--muted);text-decoration:none;transition:all .2s}
+.related-link:hover{border-color:var(--blue);color:var(--text)}
+.market-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}
+@media(max-width:860px){.market-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.market-grid{grid-template-columns:1fr}}
+.market-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;text-decoration:none;display:block;transition:all .2s}
+.market-card:hover{border-color:var(--blue-line);background:var(--blue-faint)}
+.market-card .city{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px}
+.market-card .mstatus{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.market-card .mstatus.active{color:var(--green)}
+.market-card .mstatus.expansion{color:var(--blue)}
+.market-card .mnodes{font-size:13px;color:var(--muted)}
+.table-wrap{overflow-x:auto;margin:24px 0}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;padding:12px 16px;border-bottom:2px solid var(--border-hi);color:var(--muted);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+td{padding:12px 16px;border-bottom:1px solid var(--border);color:var(--text);line-height:1.5}
+td:first-child{font-weight:500}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface)}
 </style>
 </head>
 <body>
 <nav id="mainNav">
   <a href="/" class="nav-logo">AVNode</a>
   <div class="nav-right">
-    <a href="/#operators" class="nav-link">Fleet Operators</a>
-    <a href="/#owners" class="nav-link">Property Owners</a>
+    <a href="/services" class="nav-link">Services</a>
+    <a href="/markets" class="nav-link">Markets</a>
     <a href="/resources" class="nav-link">Resources</a>
     <a href="/#apply" class="nav-apply">Apply</a>
   </div>
@@ -102,6 +134,7 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:40px 48px
 </div>
 <div class="content"><div class="section"><div class="section-label">Miami Node Status</div><h2 class="section-h2">Active nodes across South Florida</h2><div class="stat-row"><div class="stat-box"><div class="stat-num">9 / 20</div><div class="stat-label">Nodes filled — 11 slots available for new partnerships</div></div><div class="stat-box"><div class="stat-num">4</div><div class="stat-label">Active zones: Brickell, MIA Corridor, Miami Beach, Wynwood</div></div><div class="stat-box"><div class="stat-num">28M+</div><div class="stat-label">Annual international visitors creating tourism-driven AV demand</div></div></div></div><div class="section"><div class="section-label">Market Overview</div><h2 class="section-h2">Tourism, density, and AV-forward regulation</h2><p class="section-body">Miami combines a dense urban core, massive international tourism, MIA airport passenger volume, and Florida's permissive AV legislation. The city's high hotel inventory provides AVNode with prime infrastructure sites across all major demand corridors.</p><div class="two-col"><div class="check-list"><div class="check-item">Florida AV legislation allows statewide autonomous operation</div><div class="check-item">MIA handles 50M+ passengers annually</div><div class="check-item">International tourist base familiar with robotaxi services globally</div><div class="check-item">Dense hotel inventory on Brickell and Miami Beach corridors</div><div class="check-item">FPL (Florida Power & Light) serves the market with EV programs</div></div><div class="grid-cards"><div class="card" style="margin-bottom:0"><h3>Flood Resilience</h3><p>AVNode Miami sites are evaluated for flood risk. Charging infrastructure elevated or waterproofed to Miami-Dade standards.</p></div><div class="card" style="margin-bottom:0"><h3>Hurricane Planning</h3><p>Infrastructure includes hardening protocols for seasonal hurricane preparedness.</p></div><div class="card" style="margin-bottom:0"><h3>Tourism Seasonality</h3><p>Node capacity sized for peak season demand while remaining efficient year-round.</p></div><div class="card" style="margin-bottom:0"><h3>MIA Corridor</h3><p>Airport hotel cluster with 24/7 operations — highest-demand Miami zone.</p></div></div></div></div></div>
 
+
 <div class="page-cta">
   <h2 class="cta-h2">Ready to deploy infrastructure?</h2>
   <p class="cta-sub">AVNode handles site sourcing, landlords, utilities, charging, and operations. You focus on your fleet.</p>
@@ -110,7 +143,7 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:40px 48px
 <footer>
   <span class="footer-logo">AVNode</span>
   <div class="footer-links">
-    <a href="/services">Services</a><a href="/markets/houston">Markets</a>
+    <a href="/services">Services</a><a href="/markets">Markets</a>
     <a href="/resources">Resources</a><a href="/#apply">Contact</a>
   </div>
   <span class="footer-copy">© 2026 AVNode</span>

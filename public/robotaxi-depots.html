@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robotaxi Depots: Design, Cost, Location, and Operations | AVNode</title>
+<meta name="description" content="A complete guide to robotaxi depots — what they are, what happens inside, how much space and power they need, how long they take to build, and why distributed depot networks outperform single central facilities.">
+<link rel="canonical" href="https://www.avnode.com/robotaxi-depots">
+<meta property="og:title" content="Robotaxi Depots: Design, Cost, Location, and Operations | AVNode">
+<meta property="og:description" content="A complete guide to robotaxi depots — what they are, what happens inside, how much space and power they need, how long they take to build, and why distributed depot networks outperform single central facilities.">
+<meta property="og:url" content="https://www.avnode.com/robotaxi-depots">
+<meta property="og:type" content="website">
+<meta name="robots" content="index, follow">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://www.avnode.com/#org","name":"AVNode","url":"https://www.avnode.com","description":"AVNode builds and operates distributed autonomous fleet infrastructure — charging depots, staging hubs, and fleet operations centers across major US markets."},{"@type":"WebPage","@id":"https://www.avnode.com/robotaxi-depots","url":"https://www.avnode.com/robotaxi-depots","name":"Robotaxi Depots: Design, Cost, Location, and Operations | AVNode","description":"A complete guide to robotaxi depots — what they are, what happens inside, how much space and power they need, how long they take to build, and why distributed depot networks outperform single central facilities.","isPartOf":{"@id":"https://www.avnode.com/#org"}},{"@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much does a robotaxi depot cost to build?","acceptedAnswer":{"@type":"Answer","text":"A small depot serving 25–50 vehicles costs $500K–$2M depending on real estate, utility work required, and charging hardware. A large depot for 250–500 vehicles runs $5M–$15M. These figures exclude real estate acquisition costs, which vary significantly by market. AVNode's distributed model typically costs less per vehicle served than a single large depot build."}},{"@type":"Question","name":"How long does it take to build a robotaxi depot?","acceptedAnswer":{"@type":"Answer","text":"Building a depot from scratch takes 12–24 months when utility interconnection, permitting, and construction timelines are accounted for. Utility interconnection alone can take 6–18 months in constrained grid markets. AVNode activates distributed nodes in 30–90 days by working with pre-qualified property partners and managing utility coordination ahead of fleet operator demand."}},{"@type":"Question","name":"What is the biggest mistake operators make with robotaxi depots?","acceptedAnswer":{"@type":"Answer","text":"Building one large centralized depot without planning for distributed charging. At 50 vehicles, a central depot is manageable. At 200+ vehicles, the deadhead miles, charging queues, and morning dispatch delays become serious operational drag — often worth $3M–$8M in annual costs for a mid-size fleet."}}]}]}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#09090C;--surface:#101013;--surface2:#14141a;--border:#1A1A22;--border-hi:#2A2A36;--text:#EEEEF2;--muted:#6A6A7E;--dim:#32323F;--blue:#2F6BF5;--blue-faint:rgba(47,107,245,0.1);--blue-line:rgba(47,107,245,0.22);--green:#2DCE6C}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;min-height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:24px 48px;transition:all .3s;border-bottom:1px solid transparent}
+nav.scrolled{padding:16px 48px;background:rgba(9,9,12,.95);backdrop-filter:blur(20px);border-color:var(--border)}
+.nav-logo{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:600;letter-spacing:-.02em;color:var(--text);text-decoration:none}
+.nav-right{display:flex;align-items:center;gap:28px}
+.nav-link{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s}
+.nav-link:hover{color:var(--text)}
+.nav-apply{font-size:13px;font-weight:500;color:var(--text);text-decoration:none;border:1px solid var(--border-hi);padding:7px 18px;border-radius:100px;transition:all .2s}
+.nav-apply:hover{border-color:var(--blue)}
+@media(max-width:768px){nav{padding:20px 24px}.nav-link{display:none}}
+.page-hero{padding:160px 48px 80px;max-width:1100px;margin:0 auto;border-bottom:1px solid var(--border)}
+.hero-eyebrow{font-size:11px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);margin-bottom:20px;font-family:'Space Grotesk',sans-serif}
+.hero-h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(36px,4.5vw,64px);font-weight:600;line-height:1.05;letter-spacing:-.03em;margin-bottom:24px;max-width:820px}
+.hero-sub{font-size:18px;color:var(--muted);line-height:1.7;max-width:620px;margin-bottom:36px}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap}
+.btn-primary{display:inline-flex;align-items:center;padding:12px 28px;background:var(--blue);color:#fff;border-radius:8px;font-size:14px;font-weight:500;text-decoration:none;transition:opacity .2s}
+.btn-primary:hover{opacity:.88}
+.btn-ghost{display:inline-flex;align-items:center;padding:12px 28px;border:1px solid var(--border-hi);color:var(--text);border-radius:8px;font-size:14px;font-weight:500;text-decoration:none;transition:all .2s}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
+.content{max-width:1100px;margin:0 auto;padding:0 48px}
+@media(max-width:768px){.content{padding:0 24px}.page-hero{padding:120px 24px 60px}}
+.section{padding:72px 0;border-bottom:1px solid var(--border)}
+.section:last-child{border-bottom:none}
+.section-label{font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);margin-bottom:14px}
+.section-h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(28px,3vw,44px);font-weight:600;letter-spacing:-.025em;line-height:1.1;margin-bottom:20px}
+.section-body{font-size:16px;color:var(--muted);line-height:1.75;max-width:680px;margin-bottom:32px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px}
+@media(max-width:860px){.two-col{grid-template-columns:1fr}.three-col{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.three-col{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px 32px;margin-bottom:16px}
+.card.blue{border-color:var(--blue-line);background:var(--blue-faint)}
+.card h3{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:600;letter-spacing:-.01em;margin-bottom:10px;color:var(--text)}
+.card p{font-size:14px;color:var(--muted);line-height:1.65;margin:0}
+.grid-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.grid-cards{grid-template-columns:1fr}}
+.list-item{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+.list-item:last-child{border-bottom:none}
+.list-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);margin-top:8px;flex-shrink:0;box-shadow:0 0 8px var(--blue)}
+.list-text h4{font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px}
+.list-text p{font-size:13px;color:var(--muted);line-height:1.55;margin:0}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin:32px 0}
+@media(max-width:600px){.stat-row{grid-template-columns:1fr 1fr}}
+.stat-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px}
+.stat-num{font-family:'Space Grotesk',sans-serif;font-size:40px;font-weight:600;color:var(--blue);letter-spacing:-.03em;line-height:1;margin-bottom:6px}
+.stat-label{font-size:12px;color:var(--muted);letter-spacing:.03em}
+.check-list{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.check-item{display:flex;align-items:flex-start;gap:12px;font-size:14px;color:var(--muted);line-height:1.5}
+.check-item::before{content:'✓';color:var(--green);font-weight:700;font-size:13px;flex-shrink:0;margin-top:1px}
+.bullet-list{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.bullet-item{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--muted)}
+.bullet-item::before{content:'·';color:var(--blue);font-weight:700;font-size:18px;line-height:1.1;flex-shrink:0}
+.tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.tag{display:inline-block;padding:4px 12px;border-radius:6px;font-size:12px;font-weight:500;background:var(--surface2);border:1px solid var(--border-hi);color:var(--muted)}
+.page-cta{background:var(--surface);border-top:1px solid var(--border);padding:80px 48px;text-align:center}
+.cta-h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(28px,3vw,44px);font-weight:600;letter-spacing:-.025em;margin-bottom:16px}
+.cta-sub{font-size:16px;color:var(--muted);margin-bottom:36px;max-width:500px;margin-left:auto;margin-right:auto;line-height:1.65}
+@media(max-width:768px){.page-cta{padding:60px 24px}}
+footer{background:var(--bg);border-top:1px solid var(--border);padding:40px 48px;display:flex;justify-content:space-between;align-items:center}
+.footer-logo{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;color:var(--muted)}
+.footer-links{display:flex;gap:24px}
+.footer-links a{font-size:12px;color:var(--dim);text-decoration:none;transition:color .2s}
+.footer-links a:hover{color:var(--muted)}
+.footer-copy{font-size:12px;color:var(--dim)}
+@media(max-width:600px){footer{flex-direction:column;gap:16px;padding:32px 24px;text-align:center}.footer-links{display:none}}
+
+.faq-list{display:flex;flex-direction:column;gap:6px;margin-top:16px}
+.faq-item{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface)}
+.faq-q{padding:18px 24px;font-size:15px;font-weight:600;color:var(--text);cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;font-family:'Space Grotesk',sans-serif}
+.faq-q::-webkit-details-marker{display:none}
+.faq-q::after{content:'+';color:var(--blue);font-size:20px;font-weight:300;flex-shrink:0;margin-left:16px}
+details[open] .faq-q::after{content:'−'}
+.faq-a{padding:0 24px 18px;font-size:14px;color:var(--muted);line-height:1.7}
+.related-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.related-link{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid var(--border-hi);border-radius:8px;font-size:13px;color:var(--muted);text-decoration:none;transition:all .2s}
+.related-link:hover{border-color:var(--blue);color:var(--text)}
+.market-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}
+@media(max-width:860px){.market-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.market-grid{grid-template-columns:1fr}}
+.market-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;text-decoration:none;display:block;transition:all .2s}
+.market-card:hover{border-color:var(--blue-line);background:var(--blue-faint)}
+.market-card .city{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px}
+.market-card .mstatus{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.market-card .mstatus.active{color:var(--green)}
+.market-card .mstatus.expansion{color:var(--blue)}
+.market-card .mnodes{font-size:13px;color:var(--muted)}
+.table-wrap{overflow-x:auto;margin:24px 0}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;padding:12px 16px;border-bottom:2px solid var(--border-hi);color:var(--muted);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+td{padding:12px 16px;border-bottom:1px solid var(--border);color:var(--text);line-height:1.5}
+td:first-child{font-weight:500}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface)}
+</style>
+</head>
+<body>
+<nav id="mainNav">
+  <a href="/" class="nav-logo">AVNode</a>
+  <div class="nav-right">
+    <a href="/services" class="nav-link">Services</a>
+    <a href="/markets" class="nav-link">Markets</a>
+    <a href="/resources" class="nav-link">Resources</a>
+    <a href="/#apply" class="nav-apply">Apply</a>
+  </div>
+</nav>
+<div class="page-hero">
+  <div class="hero-eyebrow">Robotaxi Depots</div>
+  <h1 class="hero-h1">Robotaxi Depots: What They Are, What They Cost, and Where to Build Them</h1>
+  <p class="hero-sub">A robotaxi depot is not a parking lot with a charging station. It is a purpose-designed facility for charging, staging, cleaning, inspection, maintenance, and dispatch — and building one correctly takes longer than most fleet operators expect.</p>
+  <div class="hero-actions">
+    <a href="/#apply" class="btn-primary">Start a Partnership</a>
+    <a href="/services" class="btn-ghost">All Services</a>
+  </div>
+</div>
+<div class="content"><div class="section"><div class="section-label">What Happens Inside a Robotaxi Depot</div><h2 class="section-h2">The six operational functions</h2><div><div class="list-item"><div class="list-dot"></div><div class="list-text"><h4>Fast Charging</h4><p>DCFC stalls at 150–350kW per vehicle. Most commercial robotaxi depots target full charge in under 45 minutes. Demand charge management is critical — charging 50 vehicles simultaneously creates enormous peak load.</p></div></div><div class="list-item"><div class="list-dot"></div><div class="list-text"><h4>Vehicle Staging</h4><p>Dedicated spaces where vehicles wait for dispatch. Proximity to the demand zone is more important than the depot itself. Staging locations should be inside the service area, not at a distant industrial depot.</p></div></div><div class="list-item"><div class="list-dot"></div><div class="list-text"><h4>Interior Cleaning</h4><p>Cleaning bays or drive-through lanes for interior sanitation. Commercial robotaxi operators target cleaning after every 4–8 rides. A 100-vehicle fleet needs 6–8 cleaning lanes running two shifts to maintain cadence.</p></div></div><div class="list-item"><div class="list-dot"></div><div class="list-text"><h4>Exterior Wash</h4><p>Vehicle wash facility or third-party wash agreement. Lidar and camera sensors require clean optics to perform reliably — exterior cleaning is a sensor maintenance function, not cosmetic.</p></div></div><div class="list-item"><div class="list-dot"></div><div class="list-text"><h4>Inspection Lanes</h4><p>Drive-through or static inspection bays for daily checks: sensor status, tire condition, brake check, exterior damage, and connectivity verification. Takes 10–20 minutes per vehicle.</p></div></div><div class="list-item"><div class="list-dot"></div><div class="list-text"><h4>Maintenance Bays</h4><p>For scheduled service, sensor calibration, tire rotation, and minor repairs. AV-specific maintenance requires calibration equipment not found in standard auto service facilities.</p></div></div></div></div><div class="section"><div class="section-label">Space and Power Requirements</div><h2 class="section-h2">The math for planning a robotaxi depot</h2><div class="table-wrap"><table><thead><tr><th>Fleet Size</th><th>Depot Footprint</th><th>DCFC Stalls</th><th>Cleaning Lanes</th><th>Power Demand</th></tr></thead><tbody><tr><td>25 vehicles</td><td>5,000–8,000 sq ft</td><td>4–6</td><td>2</td><td>150–300 kW peak</td></tr><tr><td>50 vehicles</td><td>8,000–15,000 sq ft</td><td>8–12</td><td>4–5</td><td>300–600 kW peak</td></tr><tr><td>100 vehicles</td><td>15,000–25,000 sq ft</td><td>15–20</td><td>6–8</td><td>600 kW – 1.2 MW peak</td></tr><tr><td>250 vehicles</td><td>30,000–50,000 sq ft</td><td>35–50</td><td>14–18</td><td>1.5–3 MW peak</td></tr><tr><td>500 vehicles</td><td>50,000–80,000 sq ft</td><td>75–100</td><td>25–30</td><td>3–5 MW peak</td></tr></tbody></table></div></div><div class="section"><div class="section-label">Centralized vs Distributed</div><h2 class="section-h2">One large depot vs a network of smaller nodes</h2><p class="section-body">The traditional answer is one large depot per city. The operational answer is a network of smaller nodes distributed inside demand zones, with one central hub for heavy operations.</p><div class="two-col"><div class="card" style="margin-bottom:16px"><h3>Single Central Depot</h3><p>Lower management complexity. Higher deadhead miles. Depot becomes a bottleneck at scale. Charging queues build during shift changes. All vehicles must leave the service zone to charge. Works at 25–50 vehicles, fails at 200+.</p></div>
+         <div class="card blue" style="margin-bottom:0"><h3>Distributed Network (AVNode Model)</h3><p>Multiple smaller nodes inside demand zones. Vehicles charge, stage, and receive light service close to where they operate. Central hub handles heavy maintenance and deep ops. Higher network management complexity, lower operational drag.</p></div><div class="check-list"><div class="check-item">Distributed nodes reduce daily deadhead from 14 miles to 2–4 miles</div><div class="check-item">In-zone charging eliminates shift-change depot bottlenecks</div><div class="check-item">Network scales by adding nodes — no depot expansion required</div><div class="check-item">AVNode activates nodes in 30–90 days vs 12–24 months for depot builds</div><div class="check-item">Property owner partners absorb real estate cost</div><div class="check-item">Hub handles maintenance; nodes handle daily ops</div></div></div></div><div class="section"><div class="section-label">Related Topics</div><h2 class="section-h2"></h2><div class="related-links"><a href="/autonomous-fleet-infrastructure" class="related-link">Autonomous Fleet Infrastructure</a><a href="/autonomous-vehicle-depots" class="related-link">AV Depots (All Types)</a><a href="/robotaxi-fleet-management" class="related-link">Robotaxi Fleet Management</a><a href="/robotaxi-charging-infrastructure" class="related-link">Robotaxi Charging</a><a href="/services/robotaxi-depot-development" class="related-link">AVNode Depot Development</a><a href="/ev-fleet-depot-development" class="related-link">Depot Development Process</a></div></div></div>
+<div class="content"><div class="section"><div class="section-label">FAQ</div><h2 class="section-h2">Common Questions</h2><div class="faq-list"><details class="faq-item"><summary class="faq-q">How much does a robotaxi depot cost to build?</summary><div class="faq-a">A small depot serving 25–50 vehicles costs $500K–$2M depending on real estate, utility work required, and charging hardware. A large depot for 250–500 vehicles runs $5M–$15M. These figures exclude real estate acquisition costs, which vary significantly by market. AVNode's distributed model typically costs less per vehicle served than a single large depot build.</div></details><details class="faq-item"><summary class="faq-q">How long does it take to build a robotaxi depot?</summary><div class="faq-a">Building a depot from scratch takes 12–24 months when utility interconnection, permitting, and construction timelines are accounted for. Utility interconnection alone can take 6–18 months in constrained grid markets. AVNode activates distributed nodes in 30–90 days by working with pre-qualified property partners and managing utility coordination ahead of fleet operator demand.</div></details><details class="faq-item"><summary class="faq-q">What is the biggest mistake operators make with robotaxi depots?</summary><div class="faq-a">Building one large centralized depot without planning for distributed charging. At 50 vehicles, a central depot is manageable. At 200+ vehicles, the deadhead miles, charging queues, and morning dispatch delays become serious operational drag — often worth $3M–$8M in annual costs for a mid-size fleet.</div></details></div></div></div>
+
+<div class="page-cta">
+  <h2 class="cta-h2">Ready to deploy infrastructure?</h2>
+  <p class="cta-sub">AVNode handles site sourcing, landlords, utilities, charging, and operations. You focus on your fleet.</p>
+  <a href="/#apply" class="btn-primary">Get Started →</a>
+</div>
+<footer>
+  <span class="footer-logo">AVNode</span>
+  <div class="footer-links">
+    <a href="/services">Services</a><a href="/markets">Markets</a>
+    <a href="/resources">Resources</a><a href="/#apply">Contact</a>
+  </div>
+  <span class="footer-copy">© 2026 AVNode</span>
+</footer>
+<script>
+const nav=document.getElementById('mainNav');
+window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>40));
+</script>
+</body></html>

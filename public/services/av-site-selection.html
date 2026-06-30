@@ -5,9 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Autonomous Vehicle Site Selection | AV Infrastructure Location Strategy — AVNode</title>
 <meta name="description" content="AVNode's six-point site qualification process identifies the right properties for AV infrastructure. Demand-zone mapping, power assessment, and lease strategy included.">
-<link rel="canonical" href="https://www.av-node.com/services/av-site-selection">
+<link rel="canonical" href="https://www.avnode.com/services/av-site-selection">
 <meta property="og:title" content="Autonomous Vehicle Site Selection | AV Infrastructure Location Strategy — AVNode">
 <meta property="og:description" content="AVNode's six-point site qualification process identifies the right properties for AV infrastructure. Demand-zone mapping, power assessment, and lease strategy included.">
+<meta property="og:url" content="https://www.avnode.com/services/av-site-selection">
+<meta property="og:type" content="website">
+<meta name="robots" content="index, follow">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://www.avnode.com/#org","name":"AVNode","url":"https://www.avnode.com","description":"AVNode builds and operates distributed autonomous fleet infrastructure — charging depots, staging hubs, and fleet operations centers across major US markets."},{"@type":"WebPage","@id":"https://www.avnode.com/services/av-site-selection","url":"https://www.avnode.com/services/av-site-selection","name":"Autonomous Vehicle Site Selection | AV Infrastructure Location Strategy — AVNode","description":"AVNode's six-point site qualification process identifies the right properties for AV infrastructure. Demand-zone mapping, power assessment, and lease strategy included.","isPartOf":{"@id":"https://www.avnode.com/#org"}}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -79,14 +83,42 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:40px 48px
 .footer-links a:hover{color:var(--muted)}
 .footer-copy{font-size:12px;color:var(--dim)}
 @media(max-width:600px){footer{flex-direction:column;gap:16px;padding:32px 24px;text-align:center}.footer-links{display:none}}
+
+.faq-list{display:flex;flex-direction:column;gap:6px;margin-top:16px}
+.faq-item{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface)}
+.faq-q{padding:18px 24px;font-size:15px;font-weight:600;color:var(--text);cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;font-family:'Space Grotesk',sans-serif}
+.faq-q::-webkit-details-marker{display:none}
+.faq-q::after{content:'+';color:var(--blue);font-size:20px;font-weight:300;flex-shrink:0;margin-left:16px}
+details[open] .faq-q::after{content:'−'}
+.faq-a{padding:0 24px 18px;font-size:14px;color:var(--muted);line-height:1.7}
+.related-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.related-link{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid var(--border-hi);border-radius:8px;font-size:13px;color:var(--muted);text-decoration:none;transition:all .2s}
+.related-link:hover{border-color:var(--blue);color:var(--text)}
+.market-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}
+@media(max-width:860px){.market-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.market-grid{grid-template-columns:1fr}}
+.market-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px;text-decoration:none;display:block;transition:all .2s}
+.market-card:hover{border-color:var(--blue-line);background:var(--blue-faint)}
+.market-card .city{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px}
+.market-card .mstatus{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.market-card .mstatus.active{color:var(--green)}
+.market-card .mstatus.expansion{color:var(--blue)}
+.market-card .mnodes{font-size:13px;color:var(--muted)}
+.table-wrap{overflow-x:auto;margin:24px 0}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;padding:12px 16px;border-bottom:2px solid var(--border-hi);color:var(--muted);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+td{padding:12px 16px;border-bottom:1px solid var(--border);color:var(--text);line-height:1.5}
+td:first-child{font-weight:500}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface)}
 </style>
 </head>
 <body>
 <nav id="mainNav">
   <a href="/" class="nav-logo">AVNode</a>
   <div class="nav-right">
-    <a href="/#operators" class="nav-link">Fleet Operators</a>
-    <a href="/#owners" class="nav-link">Property Owners</a>
+    <a href="/services" class="nav-link">Services</a>
+    <a href="/markets" class="nav-link">Markets</a>
     <a href="/resources" class="nav-link">Resources</a>
     <a href="/#apply" class="nav-apply">Apply</a>
   </div>
@@ -102,6 +134,7 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:40px 48px
 </div>
 <div class="content"><div class="section"><div class="section-label">The Six-Point Qualification</div><h2 class="section-h2">How AVNode evaluates every site</h2><p class="section-body">Approximately 30% of submitted properties qualify as AVNode nodes. These are the six dimensions that determine whether a site makes the cut.</p><div><div class="list-item"><div class="list-dot"></div><div class="list-text"><h4>24/7 Access or Staffing</h4><p>Autonomous fleets operate around the clock. Sites must have reliable 24/7 vehicle access and on-site staffing or remote monitoring capability.</p></div></div><div class="list-item"><div class="list-dot"></div><div class="list-text"><h4>Minimum Space Capacity</h4><p>At least 5 dedicated vehicle spaces with appropriate ingress/egress for AV traffic flow and charging equipment placement.</p></div></div><div class="list-item"><div class="list-dot"></div><div class="list-text"><h4>Existing Electrical Infrastructure</h4><p>Existing panel capacity that can support charging upgrades within a viable timeline and cost structure.</p></div></div><div class="list-item"><div class="list-dot"></div><div class="list-text"><h4>Security Infrastructure</h4><p>Camera coverage and controlled access. AV vehicles represent significant capital assets requiring active protection.</p></div></div><div class="list-item"><div class="list-dot"></div><div class="list-text"><h4>Demand Zone Proximity</h4><p>Within viable range of high-density ride or delivery demand — downtown cores, airports, hotel districts, medical centers.</p></div></div><div class="list-item"><div class="list-dot"></div><div class="list-text"><h4>Lease or Ownership Stability</h4><p>Minimum 3-year commitment horizon. AV infrastructure requires stable, long-term property relationships.</p></div></div></div></div><div class="section"><div class="section-label">Property Types</div><h2 class="section-h2">Where AVNode nodes get activated</h2><div class="three-col"><div class="card blue" style="margin-bottom:0"><h3>Hotel Parking</h3><p>Excess hotel parking near airports and downtown corridors. 24/7 staffing, existing utilities, prime locations — the highest-quality AV node category.</p></div><div class="card " style="margin-bottom:0"><h3>Parking Garages</h3><p>Structured parking with available electrical panels and security infrastructure near transit and demand zones.</p></div><div class="card " style="margin-bottom:0"><h3>Commercial Properties</h3><p>Office parks, retail centers, and mixed-use developments with underutilized parking assets.</p></div><div class="card " style="margin-bottom:0"><h3>Industrial Sites</h3><p>For larger depot operations requiring maintenance bays, wash facilities, and high-power charging capacity.</p></div></div></div><div class="section"><div class="section-label">Timeline</div><h2 class="section-h2">From first look to activated node</h2><p class="section-body">AVNode compresses what typically takes 12–24 months into a 30–90 day activation process. We pre-qualify property relationships before fleet operators need them.</p><div class="check-list"><div class="check-item">Week 1–2: Demand zone mapping and initial property identification</div><div class="check-item">Week 2–4: Site visits, power assessment, and six-point qualification</div><div class="check-item">Week 4–8: Lease negotiation and utility coordination</div><div class="check-item">Week 8–12: Hardware deployment and commissioning</div><div class="check-item">Week 12+: Live operations with uptime SLA monitoring</div></div></div></div>
 
+
 <div class="page-cta">
   <h2 class="cta-h2">Ready to deploy infrastructure?</h2>
   <p class="cta-sub">AVNode handles site sourcing, landlords, utilities, charging, and operations. You focus on your fleet.</p>
@@ -110,7 +143,7 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:40px 48px
 <footer>
   <span class="footer-logo">AVNode</span>
   <div class="footer-links">
-    <a href="/services">Services</a><a href="/markets/houston">Markets</a>
+    <a href="/services">Services</a><a href="/markets">Markets</a>
     <a href="/resources">Resources</a><a href="/#apply">Contact</a>
   </div>
   <span class="footer-copy">© 2026 AVNode</span>
