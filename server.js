@@ -15,6 +15,10 @@ serve('/deck',        'deck.html');
 serve('/team',        'team.html');
 serve('/marketplace', 'marketplace.html');
 
+// Entity disambiguation
+serve('/about-av-node-autonomous-fleet-infrastructure', 'about-av-node-autonomous-fleet-infrastructure.html');
+serve('/insights/av-node-autonomous-vehicle-infrastructure', 'insights/av-node-autonomous-vehicle-infrastructure.html');
+
 // Services
 serve('/services',                                   'services/index.html');
 serve('/services/av-infrastructure',                 'services/av-infrastructure.html');

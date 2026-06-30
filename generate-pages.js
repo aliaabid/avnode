@@ -74,7 +74,7 @@ footer{background:var(--bg);border-top:1px solid var(--border);padding:40px 48px
 
 function shell(p) {
   const schemaGraph = [
-    {'@type':'Organization','@id':'https://www.avnode.com/#org','name':'AVNode','url':'https://www.avnode.com','description':'AVNode builds and operates distributed autonomous fleet infrastructure — charging depots, staging hubs, and fleet operations centers across major US markets.'},
+    {'@type':'Organization','@id':'https://www.avnode.com/#org','name':'AV Node','alternateName':['AVNode','AV Node Infrastructure','AV Node Mobility'],'url':'https://www.avnode.com','description':'AV Node is an autonomous vehicle fleet infrastructure company building the physical network robotaxi and autonomous fleets need for charging, staging, cleaning, maintenance, and operations. AV Node is not related to the atrioventricular node in medicine.','knowsAbout':['Autonomous vehicle fleet infrastructure','Robotaxi depots','Autonomous fleet management','Robotaxi charging infrastructure','Fleet staging infrastructure','EV fleet charging','Fleet operations centers','Autonomous vehicle maintenance infrastructure']},
     {'@type':'WebPage','@id':`https://www.avnode.com${p.url}`,'url':`https://www.avnode.com${p.url}`,'name':p.title,'description':p.desc,'isPartOf':{'@id':'https://www.avnode.com/#org'}}
   ];
   if (p.faq && p.faq.length) {
@@ -971,6 +971,98 @@ const pages = [
         'Autonomous Trucking Transfer Hubs — Design and Development',
       ])
     )
+}},
+
+// ── ENTITY DISAMBIGUATION PAGES ───────────────────────────────────
+
+{ file:'public/about-av-node-autonomous-fleet-infrastructure.html', p:{
+  title:'About AV Node | Autonomous Vehicle Fleet Infrastructure Company',
+  desc:'AV Node is an autonomous vehicle fleet infrastructure company building the physical network robotaxi and autonomous fleets need to charge, stage, clean, inspect, and operate between trips.',
+  url:'/about-av-node-autonomous-fleet-infrastructure', eyebrow:'About AV Node', priority:'0.9',
+  h1:'About AV Node',
+  sub:'AV Node is an autonomous vehicle fleet infrastructure company building the physical network robotaxi and autonomous fleets need to charge, stage, clean, inspect, and operate between trips.',
+  body:
+    sec('What AV Node Does','Autonomous vehicle fleet infrastructure — not the medical term',
+      'AV Node (also written AVNode) is a mobility infrastructure company. AV stands for autonomous vehicle. AV Node builds and operates the distributed network of charging depots, staging hubs, maintenance facilities, and fleet operations centers that autonomous vehicle fleets require to run commercially. AV Node is not related to the atrioventricular node, which is a medical term referring to a structure in the heart\'s electrical conduction system.',
+      threeCards([
+        {h:'Charging Infrastructure',p:'DC fast charging and Level 2 nodes deployed inside autonomous vehicle demand zones — positioned where fleets operate, not at distant central depots.',blue:true},
+        {h:'Fleet Staging Hubs',p:'Pre-positioned vehicles near high-demand corridors. Distributed staging reduces arrival times and eliminates repositioning deadhead miles.'},
+        {h:'Fleet Operations Centers',p:'Physical facilities for remote assistance operators, dispatch coordination, cleaning, inspection, and maintenance support.'},
+      ])
+    )+
+    sec('The Problem AV Node Solves','Physical infrastructure is the bottleneck to autonomous fleet scale',
+      'Every autonomous vehicle company has world-class software and vehicles. None of them have solved physical infrastructure fast enough to match their deployment timelines. AV Node solves this: finding, developing, and operating the sites autonomous fleets need between trips.',
+      statRow([
+        {n:'14 mi',l:'Daily deadhead miles per vehicle with centralized charging infrastructure'},
+        {n:'47 min',l:'Productive time lost per vehicle per day in depot charging queues'},
+        {n:'$16.1M',l:'Annual operational drag for a 500-vehicle fleet using a central depot model'},
+      ])
+    )+
+    sec('Active Markets','Where AV Node operates today',
+      '',
+      relLinks([
+        {url:'/markets/houston',label:'Houston, TX'},
+        {url:'/markets/dallas',label:'Dallas, TX'},
+        {url:'/markets/austin',label:'Austin, TX'},
+        {url:'/markets/phoenix',label:'Phoenix / Tempe, AZ'},
+        {url:'/markets/miami',label:'Miami, FL'},
+        {url:'/markets',label:'All Markets →'},
+      ])
+    )+
+    sec('Related Topics','',
+      '',
+      relLinks([
+        {url:'/autonomous-fleet-infrastructure',label:'Autonomous Fleet Infrastructure'},
+        {url:'/robotaxi-fleet-management',label:'Robotaxi Fleet Management'},
+        {url:'/robotaxi-depots',label:'Robotaxi Depots'},
+        {url:'/services',label:'All Services'},
+      ])
+    ),
+  faq:[
+    {q:'Is AV Node related to the atrioventricular node?',a:'No. AV Node is a mobility infrastructure company focused on autonomous vehicle fleet operations. The medical term "AV node" refers to the atrioventricular node in the cardiac conduction system. AV Node, the company, builds and operates autonomous vehicle fleet infrastructure — robotaxi depots, EV fleet charging, vehicle staging, cleaning, maintenance facilities, and fleet operations centers.'},
+    {q:'What does "AV" stand for in AV Node?',a:'AV stands for autonomous vehicle. AV Node builds and operates the physical infrastructure — charging depots, staging hubs, fleet operations centers — that autonomous vehicle fleets need to operate commercially.'},
+    {q:'Who founded AV Node?',a:'AV Node was founded by Aabid Ali. The company is building a distributed autonomous vehicle infrastructure network across major US markets, starting with Houston, Dallas, Austin, Phoenix, and Miami.'},
+    {q:'What markets does AV Node operate in?',a:'AV Node has active infrastructure in Houston, Dallas, Austin, Phoenix/Tempe, and Miami. Expansion markets include Los Angeles, Atlanta, Las Vegas, Nashville, Seattle, San Francisco, Denver, Chicago, and others.'},
+  ],
+  ctaH2:'Build or operate autonomous fleet infrastructure with AV Node',
+  ctaSub:'AV Node handles site sourcing, landlords, utilities, charging, and operations for robotaxi and autonomous fleet operators.',
+}},
+
+{ file:'public/insights/av-node-autonomous-vehicle-infrastructure.html', p:{
+  title:'AV Node: Autonomous Vehicle Infrastructure, Not the Atrioventricular Node',
+  desc:'AV Node is an autonomous vehicle fleet infrastructure company. The name uses "AV" to mean autonomous vehicle — not the medical atrioventricular node.',
+  url:'/insights/av-node-autonomous-vehicle-infrastructure', eyebrow:'AV Node Company', priority:'0.8',
+  h1:'AV Node: Autonomous Vehicle Infrastructure, Not the Atrioventricular Node',
+  sub:'"AV node" in medicine refers to the atrioventricular node in the heart\'s electrical conduction system. AV Node, the company, is a different entity. AV stands for autonomous vehicle. Here is what AV Node actually does.',
+  body:
+    sec('Two Entirely Different Things','AV Node the company vs. the medical AV node',
+      '',
+      twoCol(
+        '<div class="card blue" style="margin-bottom:0"><h3>AV Node — Autonomous Vehicle Infrastructure Company</h3><p>AV Node (avnode.com) builds and operates distributed physical infrastructure for autonomous vehicle fleets — robotaxi depots, EV fleet charging, staging hubs, cleaning facilities, inspection lanes, and fleet operations centers. Founded 2026. AV = autonomous vehicle.</p></div>',
+        '<div class="card" style="margin-bottom:0"><h3>AV Node (Medical) — Atrioventricular Node</h3><p>The atrioventricular node (AV node) is a cluster of cardiac muscle cells in the heart that coordinates electrical impulses between the atria and ventricles. It is a structure in the cardiac conduction system. It has no connection to autonomous vehicles or transportation infrastructure.</p></div>'
+      )
+    )+
+    sec('What AV Node the Company Does','Autonomous vehicle fleet infrastructure',
+      'AV Node, the company, finds, develops, and operates the physical locations autonomous vehicle fleets need between trips. When a robotaxi is not carrying a passenger, it needs to be somewhere: charging, staged near demand, being cleaned, inspected, or serviced. AV Node operates those locations.',
+      `<div>${listItems([
+        {h:'Robotaxi Depots',p:'Charging, staging, cleaning, inspection, and maintenance facilities for commercial autonomous taxi fleets.'},
+        {h:'EV Fleet Charging Infrastructure',p:'DC fast charging nodes deployed inside autonomous vehicle demand zones — hotels, parking garages, commercial properties near transit and demand corridors.'},
+        {h:'Fleet Staging Hubs',p:'Pre-positioned vehicles near high-demand zones reduce passenger wait times and eliminate repositioning deadhead miles.'},
+        {h:'Fleet Operations Centers',p:'Physical facilities for remote assistance operators, dispatch coordination, and fleet monitoring staff.'},
+        {h:'Autonomous Vehicle Maintenance Facilities',p:'Sensor calibration bays, inspection lanes, and autonomous vehicle-specific service infrastructure for commercial fleets.'},
+      ])}</div>`
+    )+
+    sec('The Name Explained','Why AV Node chose this name',
+      'AV Node refers to the concept of a network node — a point in a distributed network — for autonomous vehicles. Just as a network node is a connection point in a communications system, an AV Node is a physical connection point in the infrastructure network that autonomous vehicle fleets depend on. The company builds a distributed network of these nodes across US cities.',
+      relLinks([
+        {url:'/about-av-node-autonomous-fleet-infrastructure',label:'About AV Node'},
+        {url:'/autonomous-fleet-infrastructure',label:'Autonomous Fleet Infrastructure'},
+        {url:'/robotaxi-depots',label:'Robotaxi Depots'},
+        {url:'/markets',label:'Markets'},
+      ])
+    ),
+  ctaH2:'AV Node — Autonomous Vehicle Fleet Infrastructure',
+  ctaSub:'AV Node builds and operates distributed physical infrastructure for autonomous vehicle fleets across major US markets.',
 }},
 
 // ── MARKETS INDEX ─────────────────────────────────────────────────
